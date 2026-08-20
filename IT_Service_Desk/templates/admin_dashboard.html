@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - IT Service Desk</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+
+        .navbar {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .logout {
+            color: white;
+            text-decoration: none;
+            background-color: #dc3545;
+            padding: 10px 18px;
+            border-radius: 6px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 40px auto;
+        }
+
+        .welcome,
+        .card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .info {
+            margin: 12px 0;
+            font-size: 17px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #343a40;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+
+        .statistics {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            flex: 1;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat h2 {
+            margin: 10px 0;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <h2>IT Service Desk</h2>
+
+        <a href="{{ url_for('user_controller.logout') }}"
+           class="logout">
+            Logout
+        </a>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="welcome">
+
+            <h1>Admin Dashboard</h1>
+
+            <p>
+                Welcome, <strong>{{ name }}</strong>
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Account Information</h3>
+
+            <div class="info">
+                <strong>Name:</strong> {{ name }}
+            </div>
+
+            <div class="info">
+                <strong>Email:</strong> {{ email }}
+            </div>
+
+            <div class="info">
+                <strong>Role:</strong> {{ role }}
+            </div>
+
+            <div class="info">
+                <strong>Status:</strong> Active
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>System Statistics</h3>
+
+            <div class="statistics">
+
+                <div class="stat">
+                    <h2>0</h2>
+                    <p>Total Users</p>
+                </div>
+
+                <div class="stat">
+                    <h2>0</h2>
+                    <p>Total Tickets</p>
+                </div>
+
+                <div class="stat">
+                    <h2>0</h2>
+                    <p>Open Tickets</p>
+                </div>
+
+                <div class="stat">
+                    <h2>0</h2>
+                    <p>Resolved Tickets</p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Administration</h3>
+
+            <a href="#" class="button">
+                Manage Users
+            </a>
+
+            <a href="#" class="button">
+                Manage Tickets
+            </a>
+
+            <a href="#" class="button">
+                Reports
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
