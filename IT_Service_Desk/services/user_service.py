@@ -52,11 +52,11 @@ class UserService:
     def create_user(self, data):
         exist = self.user_dao.get_by_email(data["email"])
 
-        # v_password=validate_password(data["password"])
+        v_password=validate_password(data["password"])
 
-        # if not v_password:
-        #     raise ValueError("Password must be at least 8 characters long "
-        #     "and contain a digit and special character.")
+        if not v_password:
+            raise ValueError("Password must be at least 8 characters long "
+            "and contain a digit and special character.")
         
         v_email=verify_email(data["email"])
         if not v_email:
@@ -74,3 +74,49 @@ class UserService:
         )
         usr = self.user_dao.create(user)
         return usr
+
+    @staticmethod
+    def get_system_statistics():
+
+        users = UserDAO.get_all()
+
+        total_users = len(users)
+
+        total_employees = sum(
+            1
+            for user in users
+            if user.role and user.role.name == "EMPLOYEE"
+        )
+
+        total_agents = sum(
+            1
+            for user in users
+            if user.role and user.role.name == "AGENT"
+        )
+
+        total_admins = sum(
+            1
+            for user in users
+            if user.role and user.role.name == "ADMIN"
+        )
+
+        active_users = sum(
+            1
+            for user in users
+            if user.is_active
+        )
+
+        inactive_users = sum(
+            1
+            for user in users
+            if not user.is_active
+        )
+
+        return {
+            "total_users": total_users,
+            "total_employees": total_employees,
+            "total_agents": total_agents,
+            "total_admins": total_admins,
+            "active_users": active_users,
+            "inactive_users": inactive_users
+        }

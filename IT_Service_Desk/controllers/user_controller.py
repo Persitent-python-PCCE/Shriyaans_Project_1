@@ -3,6 +3,7 @@ from services.user_service import UserService
 from models.role import Role
 from werkzeug.security import check_password_hash
 from sqlalchemy.exc import IntegrityError
+
 user_controller = Blueprint("user_controller",__name__)
 user_service = UserService()
 @user_controller.route("/login", methods=["GET", "POST"])
@@ -141,17 +142,61 @@ def agent_dashboard():
 def admin_dashboard():
 
     if "user_id" not in session:
-        return redirect(url_for("user_controller.login"))
+        return redirect(
+            url_for("user_controller.login")
+        )
 
     if session.get("role") != "ADMIN":
         return "Unauthorized", 403
 
-    return render_template(
-        "admin_dashboard.html",
-        name=session.get("user_name"),
-        email=session.get("user_email"),
-        role=session.get("role")
-    )
+    try:
+
+        user_statistics = user_service.get_system_statistics()
+
+        ticket_statistics = TicketService.get_system_statistics()
+
+        return render_template(
+            "admin_dashboard.html",
+
+            name=session.get("user_name"),
+            email=session.get("user_email"),
+            role=session.get("role"),
+
+            user_statistics=user_statistics,
+            ticket_statistics=ticket_statistics
+
+        )
+
+    except Exception:
+
+        return render_template(
+            "admin_dashboard.html",
+
+            name=session.get("user_name"),
+            email=session.get("user_email"),
+            role=session.get("role"),
+
+            user_statistics={
+                "total_users": 0,
+                "total_employees": 0,
+                "total_agents": 0,
+                "total_admins": 0,
+                "active_users": 0,
+                "inactive_users": 0
+            },
+
+            ticket_statistics={
+                "total_tickets": 0,
+                "open_tickets": 0,
+                "assigned_tickets": 0,
+                "in_progress_tickets": 0,
+                "resolved_tickets": 0,
+                "closed_tickets": 0,
+                "escalated_tickets": 0
+            },
+
+            error="Unable to load system statistics."
+        )
 
 @user_controller.route("/logout")
 def logout():

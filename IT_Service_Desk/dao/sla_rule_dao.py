@@ -19,15 +19,44 @@ class SLARuleDAO:
 
     @staticmethod
     def get_all():
-        return SLARule.query.all()
+        return SLARule.query.order_by(
+            SLARule.priority.asc()
+        ).all()
 
     @staticmethod
     def create(rule):
-        db.session.add(rule)
-        db.session.commit()
-        return rule
+
+        try:
+            db.session.add(rule)
+            db.session.commit()
+
+            return rule
+
+        except Exception:
+            db.session.rollback()
+            raise
 
     @staticmethod
     def update(rule):
-        db.session.commit()
-        return rule
+
+        try:
+            db.session.commit()
+
+            return rule
+
+        except Exception:
+            db.session.rollback()
+            raise
+
+    @staticmethod
+    def delete(rule):
+
+        try:
+            db.session.delete(rule)
+            db.session.commit()
+
+            return True
+
+        except Exception:
+            db.session.rollback()
+            raise

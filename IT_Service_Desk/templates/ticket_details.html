@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Ticket Details - IT Service Desk</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #212529;
+        }
+
+       
+
+        .navbar {
+            background-color: #087f5b;
+            color: white;
+            padding: 18px 40px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-button,
+        .logout {
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+        }
+
+        .nav-button {
+            background-color: #066b4d;
+        }
+
+        .logout {
+            background-color: #dc3545;
+        }
+
+         
+        .container {
+            width: 85%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+       
+        .error {
+            background-color: #f8d7da;
+            color: #842029;
+
+            padding: 14px 18px;
+
+            border-radius: 7px;
+
+            margin-bottom: 20px;
+        }
+
+        
+
+        .card {
+            background-color: white;
+
+            padding: 28px;
+
+            border-radius: 10px;
+
+            margin-bottom: 25px;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+        }
+
+        .ticket-title {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .ticket-id {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+         
+
+        .status {
+            display: inline-block;
+
+            padding: 8px 14px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            white-space: nowrap;
+        }
+
+        .status-open {
+            background-color: #e7f5ff;
+            color: #1971c2;
+        }
+
+        .status-assigned {
+            background-color: #fff3bf;
+            color: #856404;
+        }
+
+        .status-progress {
+            background-color: #e5dbff;
+            color: #6741d9;
+        }
+
+        .status-resolved {
+            background-color: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .status-closed {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+       
+
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            background-color: #f8f9fa;
+
+            padding: 20px;
+
+            border-radius: 8px;
+
+            line-height: 1.7;
+
+            white-space: pre-wrap;
+
+            margin-bottom: 30px;
+        }
+
+      
+        .details-grid {
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 15px;
+        }
+
+        .detail-box {
+            background-color: #f8f9fa;
+
+            padding: 16px;
+
+            border-radius: 7px;
+        }
+
+        .detail-label {
+            color: #777;
+
+            font-size: 13px;
+
+            margin-bottom: 7px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+        }
+
+   
+
+        .priority-low {
+            color: #2b8a3e;
+        }
+
+        .priority-medium {
+            color: #e67700;
+        }
+
+        .priority-high {
+            color: #d9480f;
+        }
+
+        .priority-critical {
+            color: #c92a2a;
+        }
+
+        
+
+        .escalated {
+            margin-top: 20px;
+
+            padding: 14px 16px;
+
+            background-color: #fff3bf;
+
+            color: #856404;
+
+            border-radius: 7px;
+        }
+
+      
+
+        .comment {
+            background-color: #f8f9fa;
+
+            padding: 18px;
+
+            border-radius: 8px;
+
+            margin-bottom: 15px;
+
+            border-left: 4px solid #087f5b;
+        }
+
+        .comment-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 12px;
+
+            gap: 10px;
+        }
+
+        .comment-user {
+            font-weight: bold;
+        }
+
+        .comment-date {
+            color: #777;
+
+            font-size: 13px;
+        }
+
+        .comment-text {
+            line-height: 1.6;
+
+            white-space: pre-wrap;
+        }
+
+        .empty-comments {
+            color: #777;
+
+            padding: 15px 0;
+        }
+
+       
+        textarea {
+            width: 100%;
+
+            min-height: 130px;
+
+            resize: vertical;
+
+            padding: 14px;
+
+            border: 1px solid #ced4da;
+
+            border-radius: 7px;
+
+            font-family: Arial, sans-serif;
+
+            font-size: 15px;
+        }
+
+        textarea:focus {
+            outline: none;
+
+            border-color: #087f5b;
+        }
+
+        .button {
+            display: inline-block;
+
+            border: none;
+
+            padding: 11px 18px;
+
+            background-color: #087f5b;
+
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 15px;
+        }
+
+        .button:hover {
+            background-color: #066b4d;
+        }
+
+        
+
+        .not-found {
+            text-align: center;
+
+            padding: 40px;
+        }
+
+        .not-found h2 {
+            margin-bottom: 10px;
+        }
+
+        .not-found p {
+            color: #6c757d;
+
+            margin-bottom: 25px;
+        }
+
+      
+
+        @media (max-width: 800px) {
+
+            .container {
+                width: 94%;
+            }
+
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .ticket-header {
+                flex-direction: column;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comment-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    
+
+    <div class="navbar">
+
+        <h2>
+            IT Service Desk
+        </h2>
+
+
+        <div class="nav-links">
+
+            {% if role == "EMPLOYEE" %}
+
+                <a
+                    href="{{ url_for('ticket_controller.my_tickets') }}"
+                    class="nav-button"
+                >
+                    My Tickets
+                </a>
+
+            {% elif role == "AGENT" %}
+
+                <a
+                    href="{{ url_for('user_controller.agent_dashboard') }}"
+                    class="nav-button"
+                >
+                    Dashboard
+                </a>
+
+            {% elif role == "ADMIN" %}
+
+                <a
+                    href="{{ url_for('user_controller.admin_dashboard') }}"
+                    class="nav-button"
+                >
+                    Dashboard
+                </a>
+
+            {% endif %}
+
+
+            <a
+                href="{{ url_for('user_controller.logout') }}"
+                class="logout"
+            >
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+     
+
+    <div class="container">
+
+
+        {% if error %}
+
+            <div class="error">
+                {{ error }}
+            </div>
+
+        {% endif %}
+
+
+        {% if ticket %}
+
+ 
+
+            <div class="card">
+
+
+                <div class="ticket-header">
+
+                    <div>
+
+                        <h1 class="ticket-title">
+                            {{ ticket.title }}
+                        </h1>
+
+                        <div class="ticket-id">
+                            Ticket #{{ ticket.id }}
+                        </div>
+
+                    </div>
+
+
+                     
+
+                    {% if ticket.status == "OPEN" %}
+
+                        <span class="status status-open">
+                            OPEN
+                        </span>
+
+                    {% elif ticket.status == "ASSIGNED" %}
+
+                        <span class="status status-assigned">
+                            ASSIGNED
+                        </span>
+
+                    {% elif ticket.status == "IN_PROGRESS" %}
+
+                        <span class="status status-progress">
+                            IN PROGRESS
+                        </span>
+
+                    {% elif ticket.status == "RESOLVED" %}
+
+                        <span class="status status-resolved">
+                            RESOLVED
+                        </span>
+
+                    {% elif ticket.status == "CLOSED" %}
+
+                        <span class="status status-closed">
+                            CLOSED
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+ 
+
+                <h3 class="section-title">
+                    Problem Description
+                </h3>
+
+                <div class="description">
+
+                    {{ ticket.description }}
+
+                </div>
+
+
+               
+                <div class="details-grid">
+
+
+                   
+
+                    <div class="detail-box">
+
+                        <div class="detail-label">
+                            Category
+                        </div>
+
+                        <div class="detail-value">
+
+                            {{ ticket.category.name }}
+
+                        </div>
+
+                    </div>
+
+
+                    
+                    <div class="detail-box">
+
+                        <div class="detail-label">
+                            Priority
+                        </div>
+
+                        <div
+                            class="
+                                detail-value
+                                priority-{{ ticket.priority|lower }}
+                            "
+                        >
+
+                            {{ ticket.priority }}
+
+                        </div>
+
+                    </div>
+
+
+                   
+
+                    <div class="detail-box">
+
+                        <div class="detail-label">
+                            Severity
+                        </div>
+
+                        <div class="detail-value">
+
+                            {{ ticket.severity }}
+
+                        </div>
+
+                    </div>
+
+
+                    
+
+                    <div class="detail-box">
+
+                        <div class="detail-label">
+                            Created By
+                        </div>
+
+                        <div class="detail-value">
+
+                            {{ ticket.creator.name }}
+
+                        </div>
+
+                    </div>
+
+
+                   
+
+                    <div class="detail-box">
+
+                        <div class="detail-label">
+                            Created At
+                        </div>
+
+                        <div class="detail-value">
+
+                            {% if ticket.created_at %}
+
+                                {{ ticket.created_at.strftime(
+                                    '%d-%m-%Y %I:%M %p'
+                                ) }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                     
+
+                    <div class="detail-box">
+
+                        <div class="detail-label">
+                            Last Updated
+                        </div>
+
+                        <div class="detail-value">
+
+                            {% if ticket.updated_at %}
+
+                                {{ ticket.updated_at.strftime(
+                                    '%d-%m-%Y %I:%M %p'
+                                ) }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    
+
+                    {% if ticket.due_date %}
+
+                        <div class="detail-box">
+
+                            <div class="detail-label">
+                                SLA Due Date
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ ticket.due_date.strftime(
+                                    '%d-%m-%Y %I:%M %p'
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- RESOLVED -->
+
+                    {% if ticket.resolved_at %}
+
+                        <div class="detail-box">
+
+                            <div class="detail-label">
+                                Resolved At
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ ticket.resolved_at.strftime(
+                                    '%d-%m-%Y %I:%M %p'
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    
+
+                    {% if ticket.closed_at %}
+
+                        <div class="detail-box">
+
+                            <div class="detail-label">
+                                Closed At
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ ticket.closed_at.strftime(
+                                    '%d-%m-%Y %I:%M %p'
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                
+
+                {% if ticket.is_escalated %}
+
+                    <div class="escalated">
+
+                        <strong>
+                            ⚠ Ticket Escalated
+                        </strong>
+
+                        <br>
+
+                        This ticket has been escalated
+                        and requires additional attention.
+
+                    </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+           
+
+            <div class="card">
+
+                <h2 class="section-title">
+                    Ticket Comments
+                </h2>
+
+
+                {% if comments %}
+
+
+                    {% for comment in comments %}
+
+                        <div class="comment">
+
+
+                            <div class="comment-header">
+
+                                <div class="comment-user">
+
+                                    {% if comment.user %}
+
+                                        {{ comment.user.name }}
+
+                                    {% else %}
+
+                                        User
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="comment-date">
+
+                                    {% if comment.created_at %}
+
+                                        {{ comment.created_at.strftime(
+                                            '%d-%m-%Y %I:%M %p'
+                                        ) }}
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="comment-text">
+
+                                {{ comment.comment }}
+
+                            </div>
+
+
+                        </div>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                    <div class="empty-comments">
+
+                        No comments have been added yet.
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+           
+
+            {% if ticket.status != "CLOSED" %}
+
+                <div class="card">
+
+                    <h2 class="section-title">
+                        Add Comment
+                    </h2>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'ticket_controller.add_comment',
+                            ticket_id=ticket.id
+                        ) }}"
+                    >
+
+
+                        <textarea
+                            name="comment"
+                            placeholder="Write your comment here..."
+                            maxlength="2000"
+                            required
+                        ></textarea>
+
+
+                        <br>
+                        <br>
+
+
+                        <button
+                            type="submit"
+                            class="button"
+                        >
+
+                            Add Comment
+
+                        </button>
+
+
+                    </form>
+
+                </div>
+
+            {% endif %}
+
+
+        {% else %}
+
+
+            
+
+            <div class="card not-found">
+
+                <h2>
+                    Ticket Not Found
+                </h2>
+
+                <p>
+                    The requested ticket does not exist
+                    or you do not have permission to view it.
+                </p>
+
+
+                {% if role == "EMPLOYEE" %}
+
+                    <a
+                        href="{{ url_for(
+                            'ticket_controller.my_tickets'
+                        ) }}"
+                        class="button"
+                    >
+
+                        Back to My Tickets
+
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{{ url_for(
+                            'user_controller.employee_dashboard'
+                        ) }}"
+                        class="button"
+                    >
+
+                        Back to Dashboard
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</body>
+
+</html>

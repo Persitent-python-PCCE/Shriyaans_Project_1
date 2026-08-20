@@ -1,14 +1,18 @@
 from config.database import db
 from models.ticket_history import TicketHistory
-
-
 class TicketHistoryDAO:
 
     @staticmethod
     def create(history):
-        db.session.add(history)
-        db.session.commit()
-        return history
+        try:
+            db.session.add(history)
+            db.session.commit()
+
+            return history
+
+        except Exception:
+            db.session.rollback()
+            raise
 
     @staticmethod
     def get_by_ticket(ticket_id):

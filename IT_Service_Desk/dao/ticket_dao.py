@@ -4,9 +4,15 @@ class TicketDAO:
 
     @staticmethod
     def create(ticket):
-        db.session.add(ticket)
-        db.session.commit()
-        return ticket
+        try:
+            db.session.add(ticket)
+            db.session.commit()
+
+            return ticket
+
+        except Exception:
+            db.session.rollback()
+            raise
 
     @staticmethod
     def get_by_id(ticket_id):
@@ -20,13 +26,26 @@ class TicketDAO:
 
     @staticmethod
     def update(ticket):
-        db.session.commit()
-        return ticket
+        try:
+            db.session.commit()
+
+            return ticket
+
+        except Exception:
+            db.session.rollback()
+            raise
 
     @staticmethod
     def delete(ticket):
-        db.session.delete(ticket)
-        db.session.commit()
+        try:
+            db.session.delete(ticket)
+            db.session.commit()
+
+            return True
+
+        except Exception:
+            db.session.rollback()
+            raise
 
     @staticmethod
     def get_by_creator(user_id):
@@ -40,26 +59,34 @@ class TicketDAO:
     def get_by_status(status):
         return Ticket.query.filter_by(
             status=status
+        ).order_by(
+            Ticket.created_at.desc()
         ).all()
 
     @staticmethod
     def get_by_priority(priority):
         return Ticket.query.filter_by(
             priority=priority
+        ).order_by(
+            Ticket.created_at.desc()
         ).all()
 
     @staticmethod
     def get_by_category(category_id):
         return Ticket.query.filter_by(
             category_id=category_id
+        ).order_by(
+            Ticket.created_at.desc()
         ).all()
 
     @staticmethod
     def get_escalated():
         return Ticket.query.filter_by(
             is_escalated=True
+        ).order_by(
+            Ticket.created_at.desc()
         ).all()
-    
+
     @staticmethod
     def search(
         title=None,

@@ -131,13 +131,19 @@
 
             <h3>Employee Services</h3>
 
-            <a href="#" class="button">
-                Create Ticket
-            </a>
+            <a href="{{ url_for('ticket_controller.create_ticket') }}"
+   class="button">
 
-            <a href="#" class="button">
-                My Tickets
-            </a>
+    Create Ticket
+
+</a>
+
+<a href="{{ url_for('ticket_controller.my_tickets') }}"
+   class="button">
+
+    My Tickets
+
+</a>
 
         </div>
 

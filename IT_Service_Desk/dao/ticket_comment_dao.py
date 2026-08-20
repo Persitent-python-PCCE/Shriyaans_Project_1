@@ -1,12 +1,20 @@
 from config.database import db
 from models.ticket_comment import TicketComment
+
+
 class TicketCommentDAO:
 
     @staticmethod
     def create(comment):
-        db.session.add(comment)
-        db.session.commit()
-        return comment
+        try:
+            db.session.add(comment)
+            db.session.commit()
+
+            return comment
+
+        except Exception:
+            db.session.rollback()
+            raise
 
     @staticmethod
     def get_by_id(comment_id):
@@ -25,5 +33,12 @@ class TicketCommentDAO:
 
     @staticmethod
     def delete(comment):
-        db.session.delete(comment)
-        db.session.commit()
+        try:
+            db.session.delete(comment)
+            db.session.commit()
+
+            return True
+
+        except Exception:
+            db.session.rollback()
+            raise
