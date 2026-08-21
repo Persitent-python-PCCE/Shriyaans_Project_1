@@ -1,14 +1,4 @@
-from flask import (
-    Blueprint,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    session,
-    flash,
-    current_app
-)
-
+from flask import Blueprint,render_template,request,redirect,url_for,session,flash,current_app
 from services.ticket_service import TicketService
 from services.ticket_assignment_service import (
     TicketAssignmentService
@@ -175,75 +165,13 @@ def ticket_details(ticket_id):
 
             for assignment in assignments:
 
-                if getattr(
-                    assignment,
-                    "agent",
-                    None
-                ):
+                if assignment.agent:
 
                     assigned_agent = assignment.agent
+
                     break
 
-                if getattr(
-                    assignment,
-                    "user",
-                    None
-                ):
-
-                    assigned_agent = assignment.user
-                    break
-
-        employee = None
-
-        ticket_list = ticket_service.get_all_tickets(
-            user_id=admin_id
-        )
-
-        for listed_ticket in ticket_list:
-
-            listed_ticket_id = getattr(
-                listed_ticket,
-                "id",
-                None
-            )
-
-            if listed_ticket_id == ticket_id:
-
-                if getattr(
-                    listed_ticket,
-                    "employee",
-                    None
-                ):
-
-                    employee = listed_ticket.employee
-
-                elif getattr(
-                    listed_ticket,
-                    "user",
-                    None
-                ):
-
-                    employee = listed_ticket.user
-
-                break
-
-        if employee is None:
-
-            if getattr(
-                ticket,
-                "employee",
-                None
-            ):
-
-                employee = ticket.employee
-
-            elif getattr(
-                ticket,
-                "user",
-                None
-            ):
-
-                employee = ticket.user
+        employee = ticket.creator
 
         return render_template(
             "admin_ticket_details.html",

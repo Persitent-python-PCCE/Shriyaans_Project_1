@@ -1,91 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Manage Users - IT Service Desk</title>
+    <title>Users | Admin</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #212529;
-        }
-
-        .navbar {
-            background-color: #343a40;
-            color: white;
-            padding: 18px 40px;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar h2 {
-            margin: 0;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-        }
-
-        .dashboard {
-            background-color: #495057;
-        }
-
-        .logout {
-            background-color: #dc3545;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #20252b;
         }
 
         .container {
-            width: 94%;
-            max-width: 1300px;
-            margin: 35px auto;
+            width: 92%;
+            max-width: 1400px;
+            margin: 40px auto;
         }
 
         .card {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-
-            box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.05);
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
 
-        .page-header {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
         }
 
-        .page-header h1 {
+        .header h1 {
             margin: 0 0 8px;
+            font-size: 36px;
         }
 
-        .page-header p {
+        .header p {
             margin: 0;
-            color: #6c757d;
+            color: #667085;
+            font-size: 17px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #343a40;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #23272b;
+        }
+
+        .notice {
+            background: #eef6ff;
+            border-left: 4px solid #2196f3;
+            padding: 16px 18px;
+            border-radius: 8px;
+            color: #344054;
+            margin-bottom: 24px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .stat {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #667085;
+            font-size: 15px;
+        }
+
+        .section-title {
+            margin: 0 0 24px;
+            font-size: 24px;
         }
 
         .table-wrapper {
@@ -98,449 +113,382 @@
         }
 
         th {
-            padding: 14px 12px;
             text-align: left;
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-            font-size: 13px;
-            white-space: nowrap;
+            background: #f8f9fa;
+            padding: 16px;
+            font-size: 14px;
+            color: #344054;
         }
 
         td {
-            padding: 14px 12px;
-            border-bottom: 1px solid #e9ecef;
-            vertical-align: middle;
+            padding: 18px 16px;
+            border-top: 1px solid #e4e7ec;
+            font-size: 15px;
+        }
+
+        tr:hover td {
+            background: #fafafa;
+        }
+
+        .name {
+            font-weight: bold;
+            color: #20252b;
+            font-size: 16px;
+        }
+
+        .email {
+            color: #667085;
+            margin-top: 5px;
             font-size: 14px;
         }
 
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .user-id {
-            color: #087f5b;
-            font-weight: bold;
-        }
-
-        .user-name {
-            font-weight: bold;
-        }
-
-        .user-email {
-            color: #6c757d;
-            font-size: 13px;
-        }
-
-        .role {
+        .badge {
             display: inline-block;
-            padding: 6px 10px;
-            border-radius: 15px;
-            font-size: 11px;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: bold;
         }
 
         .role-admin {
-            background-color: #f3d9fa;
-            color: #862e9c;
+            background: #f3d8ff;
+            color: #8e24aa;
         }
 
         .role-agent {
-            background-color: #d0ebff;
-            color: #1864ab;
+            background: #d9ecff;
+            color: #1769aa;
         }
 
         .role-employee {
-            background-color: #d3f9d8;
-            color: #2b8a3e;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: bold;
+            background: #d8f8df;
+            color: #218838;
         }
 
         .status-active {
-            background-color: #d3f9d8;
-            color: #2b8a3e;
+            background: #d8f8df;
+            color: #218838;
         }
 
         .status-inactive {
-            background-color: #f8d7da;
-            color: #842029;
-        }
-
-        .actions {
-            display: flex;
-            gap: 7px;
-            flex-wrap: wrap;
-        }
-
-        .button {
-            display: inline-block;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .edit-button {
-            background-color: #087f5b;
-        }
-
-        .activate-button {
-            background-color: #2b8a3e;
-        }
-
-        .deactivate-button {
-            background-color: #dc3545;
+            background: #fde2e2;
+            color: #c62828;
         }
 
         .empty {
             text-align: center;
-            padding: 50px;
-            color: #6c757d;
+            padding: 50px 20px;
+            color: #667085;
+            font-size: 16px;
         }
 
-        .flash {
-            padding: 13px 16px;
-            border-radius: 7px;
-            margin-bottom: 15px;
+        .flash-container {
+            margin-bottom: 24px;
         }
 
-        .flash-success {
-            background-color: #d3f9d8;
-            color: #2b8a3e;
+        .alert {
+            padding: 15px 18px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 15px;
         }
 
-        .flash-danger {
-            background-color: #f8d7da;
-            color: #842029;
+        .alert-success {
+            background: #d8f8df;
+            color: #218838;
         }
 
-        .flash-warning {
-            background-color: #fff3bf;
+        .alert-danger {
+            background: #fde2e2;
+            color: #c62828;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
             color: #856404;
         }
 
-        @media (max-width: 700px) {
-
-            .navbar {
-                padding: 15px 20px;
-            }
-
-            .container {
-                width: 94%;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
+        .alert-info {
+            background: #d9ecff;
+            color: #1769aa;
         }
 
+        @media (max-width: 1000px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .container {
+                width: 95%;
+                margin: 20px auto;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            th,
+            td {
+                padding: 12px;
+            }
+        }
     </style>
-
 </head>
-
 
 <body>
 
-    <div class="navbar">
+<div class="container">
 
-        <h2>
-            IT Service Desk
-        </h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
 
-        <div class="nav-links">
-
-            <a
-                href="{{ url_for(
-                    'user_controller.admin_dashboard'
-                ) }}"
-                class="dashboard"
-            >
-                Dashboard
-            </a>
-
-            <a
-                href="{{ url_for(
-                    'user_controller.logout'
-                ) }}"
-                class="logout"
-            >
-                Logout
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <div class="container">
-
-        {% with messages = get_flashed_messages(
-            with_categories=true
-        ) %}
-
-            {% if messages %}
+            <div class="flash-container">
 
                 {% for category, message in messages %}
 
-                    <div class="flash flash-{{ category }}">
+                    <div class="alert alert-{{ category }}">
                         {{ message }}
                     </div>
 
                 {% endfor %}
 
-            {% endif %}
+            </div>
 
-        {% endwith %}
+        {% endif %}
+    {% endwith %}
 
 
-        <div class="card page-header">
+    <div class="card header">
 
-            <div>
+        <div>
+            <h1>Users</h1>
 
-                <h1>
-                    Manage Users
-                </h1>
+            <p>
+                View employees, support agents, and administrators.
+            </p>
+        </div>
 
-                <p>
-                    View and manage employees, agents,
-                    and administrators.
-                </p>
+        <a
+            href="{{ url_for('user_controller.admin_dashboard') }}"
+            class="back-btn"
+        >
+            Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <div class="notice">
+
+        User accounts are displayed here for administrative
+        visibility. User editing and account management are handled
+        outside this page.
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    {{ users|length }}
+                </div>
+
+                <div class="stat-label">
+                    Total Users
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    {{ employees|length }}
+                </div>
+
+                <div class="stat-label">
+                    Employees
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    {{ agents|length }}
+                </div>
+
+                <div class="stat-label">
+                    Support Agents
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    {{ admins|length }}
+                </div>
+
+                <div class="stat-label">
+                    Administrators
+                </div>
 
             </div>
 
         </div>
 
+    </div>
 
-        <div class="card">
+
+    <div class="card">
+
+        <h2 class="section-title">
+            User Accounts
+        </h2>
+
+        <div class="table-wrapper">
 
             {% if users %}
 
-                <div class="table-wrapper">
+            <table>
 
-                    <table>
+                <thead>
 
-                        <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                    </tr>
 
-                            <tr>
+                </thead>
 
-                                <th>
-                                    ID
-                                </th>
 
-                                <th>
-                                    User
-                                </th>
+                <tbody>
 
-                                <th>
-                                    Role
-                                </th>
+                {% for user in users %}
 
-                                <th>
-                                    Status
-                                </th>
+                    <tr>
 
-                                <th>
-                                    Created
-                                </th>
+                        <td>
+                            #{{ user.id }}
+                        </td>
 
-                                <th>
-                                    Actions
-                                </th>
 
-                            </tr>
+                        <td>
 
-                        </thead>
+                            <div class="name">
+                                {{ user.name }}
+                            </div>
 
+                            <div class="email">
+                                {{ user.email }}
+                            </div>
 
-                        <tbody>
+                        </td>
 
-                            {% for user in users %}
 
-                                <tr>
+                        <td>
 
-                                    <td>
+                            {% if user.role and user.role.name == "ADMIN" %}
 
-                                        <span class="user-id">
-                                            #{{ user.id }}
-                                        </span>
+                                <span class="badge role-admin">
+                                    ADMIN
+                                </span>
 
-                                    </td>
+                            {% elif user.role and user.role.name == "AGENT" %}
 
+                                <span class="badge role-agent">
+                                    AGENT
+                                </span>
 
-                                    <td>
+                            {% elif user.role and user.role.name == "EMPLOYEE" %}
 
-                                        <div class="user-name">
-                                            {{ user.name }}
-                                        </div>
+                                <span class="badge role-employee">
+                                    EMPLOYEE
+                                </span>
 
-                                        <div class="user-email">
-                                            {{ user.email }}
-                                        </div>
+                            {% else %}
 
-                                    </td>
+                                <span class="badge">
+                                    {{ user.role.name if user.role else "UNKNOWN" }}
+                                </span>
 
+                            {% endif %}
 
-                                    <td>
+                        </td>
 
-                                        {% if user.role %}
 
-                                            <span
-                                                class="
-                                                    role
-                                                    role-{{ user.role.name|lower }}
-                                                "
-                                            >
+                        <td>
 
-                                                {{ user.role.name }}
+                            {% if user.is_active %}
 
-                                            </span>
+                                <span class="badge status-active">
+                                    ACTIVE
+                                </span>
 
-                                        {% else %}
+                            {% else %}
 
-                                            -
+                                <span class="badge status-inactive">
+                                    INACTIVE
+                                </span>
 
-                                        {% endif %}
+                            {% endif %}
 
-                                    </td>
+                        </td>
 
 
-                                    <td>
+                        <td>
 
-                                        {% if user.is_active %}
+                            {% if user.created_at %}
 
-                                            <span
-                                                class="status status-active"
-                                            >
-                                                ACTIVE
-                                            </span>
+                                {{ user.created_at.strftime('%d-%m-%Y') }}
 
-                                        {% else %}
+                            {% else %}
 
-                                            <span
-                                                class="status status-inactive"
-                                            >
-                                                INACTIVE
-                                            </span>
+                                -
 
-                                        {% endif %}
+                            {% endif %}
 
-                                    </td>
+                        </td>
 
+                    </tr>
 
-                                    <td>
+                {% endfor %}
 
-                                        {% if user.created_at %}
+                </tbody>
 
-                                            {{ user.created_at.strftime(
-                                                '%d-%m-%Y'
-                                            ) }}
-
-                                        {% else %}
-
-                                            -
-
-                                        {% endif %}
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <div class="actions">
-
-                                            <a
-                                                href="{{ url_for(
-                                                    'admin_user.edit_user',
-                                                    user_id=user.id
-                                                ) }}"
-                                                class="
-                                                    button
-                                                    edit-button
-                                                "
-                                            >
-                                                Edit
-                                            </a>
-
-
-                                            {% if user.id != session.get('user_id') %}
-
-                                                <form
-                                                    method="POST"
-                                                    action="{{ url_for(
-                                                        'admin_user.toggle_user_status',
-                                                        user_id=user.id
-                                                    ) }}"
-                                                >
-
-                                                    {% if user.is_active %}
-
-                                                        <button
-                                                            type="submit"
-                                                            class="
-                                                                button
-                                                                deactivate-button
-                                                            "
-                                                        >
-                                                            Deactivate
-                                                        </button>
-
-                                                    {% else %}
-
-                                                        <button
-                                                            type="submit"
-                                                            class="
-                                                                button
-                                                                activate-button
-                                                            "
-                                                        >
-                                                            Activate
-                                                        </button>
-
-                                                    {% endif %}
-
-                                                </form>
-
-                                            {% endif %}
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+            </table>
 
             {% else %}
 
                 <div class="empty">
-
-                    <h2>
-                        No Users Found
-                    </h2>
-
-                    <p>
-                        There are currently no users
-                        in the system.
-                    </p>
-
+                    No users found.
                 </div>
 
             {% endif %}
@@ -549,6 +497,7 @@
 
     </div>
 
-</body>
+</div>
 
+</body>
 </html>

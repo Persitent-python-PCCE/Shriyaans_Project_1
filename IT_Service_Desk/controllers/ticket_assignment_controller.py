@@ -1,13 +1,4 @@
-from flask import (
-    Blueprint,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    session,
-    flash,
-    current_app
-)
+from flask import Blueprint,render_template,request,redirect,url_for,session,flash,current_app
 
 from services.ticket_assignment_service import (
     TicketAssignmentService

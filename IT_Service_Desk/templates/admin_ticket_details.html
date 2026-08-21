@@ -2,13 +2,10 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Ticket Details - IT Service Desk</title>
+    <title>Ticket Details</title>
 
     <style>
 
@@ -19,14 +16,15 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f4f6f8;
+            background: #f5f7fa;
             color: #212529;
         }
 
         .navbar {
             background: #343a40;
             color: white;
-            padding: 18px 40px;
+            padding: 18px 35px;
+
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -34,391 +32,256 @@
 
         .navbar h2 {
             margin: 0;
-            font-size: 22px;
         }
 
         .nav-links {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
         }
 
         .nav-links a {
             color: white;
             text-decoration: none;
-            padding: 10px 16px;
+            padding: 9px 14px;
             border-radius: 6px;
             font-size: 14px;
         }
 
-        .dashboard-btn {
+        .dashboard {
             background: #495057;
         }
 
-        .tickets-btn {
+        .tickets {
             background: #087f5b;
         }
 
-        .logout-btn {
+        .logout {
             background: #dc3545;
-        }
-
-        .nav-links a:hover {
-            opacity: 0.9;
         }
 
         .container {
             width: 92%;
-            max-width: 1250px;
-            margin: 40px auto;
+            max-width: 1100px;
+            margin: 35px auto;
         }
 
-        .page-header {
+        .header {
             background: white;
-            padding: 28px 32px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 10px;
             margin-bottom: 25px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-        }
+            box-shadow: 0 2px 10px rgba(0,0,0,.06);
 
-        .page-header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 20px;
         }
 
-        .page-header h1 {
-            margin: 0 0 8px;
-            font-size: 32px;
+        .header h1 {
+            margin: 0 0 6px;
         }
 
-        .page-header p {
+        .header p {
             margin: 0;
             color: #6c757d;
-            font-size: 15px;
         }
 
-        .ticket-number {
+        .ticket-id {
             background: #e6fcf5;
             color: #087f5b;
-            padding: 9px 15px;
+            padding: 8px 14px;
             border-radius: 20px;
             font-weight: bold;
-            white-space: nowrap;
         }
 
-        .details-grid {
+        .grid {
             display: grid;
-            grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+            grid-template-columns: 2fr 1fr;
             gap: 25px;
         }
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 28px;
+            padding: 25px;
+            border-radius: 10px;
             margin-bottom: 25px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 10px rgba(0,0,0,.06);
         }
 
         .card h2 {
-            margin: 0 0 22px;
-            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 19px;
         }
 
-        .ticket-title {
-            font-size: 25px;
+        .title {
+            font-size: 24px;
             font-weight: bold;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }
 
         .description {
             background: #f8f9fa;
+            padding: 18px;
             border-radius: 8px;
-            padding: 20px;
-            line-height: 1.7;
-            color: #495057;
+            line-height: 1.6;
             white-space: pre-wrap;
         }
 
-        .meta-grid {
+        .details {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
-            margin-top: 25px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        .meta-item {
-            padding: 15px;
+        .detail {
             background: #f8f9fa;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 7px;
         }
 
-        .meta-label {
+        .label {
             display: block;
-            font-size: 12px;
             color: #6c757d;
-            margin-bottom: 7px;
+            font-size: 12px;
+            margin-bottom: 5px;
             text-transform: uppercase;
             font-weight: bold;
         }
 
-        .meta-value {
-            font-size: 15px;
+        .value {
             font-weight: 600;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 7px 13px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-open {
-            background: #fff3bf;
-            color: #856404;
-        }
-
-        .status-assigned {
-            background: #d0ebff;
-            color: #1864ab;
-        }
-
-        .status-in-progress {
-            background: #dbe4ff;
-            color: #364fc7;
-        }
-
-        .status-resolved {
-            background: #d3f9d8;
-            color: #2b8a3e;
-        }
-
-        .status-closed {
-            background: #dee2e6;
-            color: #495057;
-        }
-
-        .priority-high {
-            background: #ffe3e3;
-            color: #d9480f;
-        }
-
-        .priority-medium {
-            background: #fff3bf;
-            color: #e67700;
-        }
-
-        .priority-low {
-            background: #d3f9d8;
-            color: #2b8a3e;
         }
 
         .person {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
         }
 
         .avatar {
-            width: 54px;
-            height: 54px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: #343a40;
             color: white;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+
             font-weight: bold;
-            flex-shrink: 0;
+            font-size: 18px;
         }
 
         .person-name {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 5px;
         }
 
         .person-email {
             color: #6c757d;
-            font-size: 14px;
+            font-size: 13px;
+            margin-top: 4px;
         }
 
-        .agent-box {
+        .not-found {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .assignment {
             background: #f8f9fa;
-            border-radius: 9px;
-            padding: 18px;
+            padding: 16px;
+            border-radius: 8px;
         }
 
         .agent-name {
-            font-size: 17px;
             font-weight: bold;
+            font-size: 16px;
         }
 
         .agent-email {
             color: #6c757d;
-            font-size: 14px;
+            font-size: 13px;
             margin-top: 5px;
         }
 
         .not-assigned {
             color: #dc3545;
             font-weight: bold;
-            font-size: 16px;
         }
 
-        .history-item {
-            padding: 15px 0;
+        .history {
             border-bottom: 1px solid #e9ecef;
+            padding: 13px 0;
         }
 
-        .history-item:last-child {
+        .history:last-child {
             border-bottom: none;
         }
 
         .history-title {
             font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
         }
 
         .history-info {
             color: #6c757d;
             font-size: 13px;
-            line-height: 1.6;
+            margin-top: 4px;
         }
 
-        .empty {
-            color: #6c757d;
-            font-size: 14px;
-            padding: 10px 0;
-        }
-
-        .agent-list {
-            margin-top: 15px;
-        }
-
-        .available-agent {
-            background: #f8f9fa;
-            border-radius: 9px;
-            padding: 18px;
-            margin-top: 12px;
-        }
-
-        .available-agent-name {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .available-agent-email {
-            color: #6c757d;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .bottom-actions {
+        .buttons {
             background: white;
-            padding: 22px 28px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            border-radius: 10px;
+
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .bottom-actions-left,
-        .bottom-actions-right {
-            display: flex;
             gap: 10px;
+
+            box-shadow: 0 2px 10px rgba(0,0,0,.06);
         }
 
         .button {
-            display: inline-block;
-            border: none;
-            padding: 11px 18px;
-            border-radius: 7px;
-            font-size: 14px;
-            font-weight: bold;
+            padding: 10px 16px;
+            border-radius: 6px;
             text-decoration: none;
-            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        .primary-button {
-            background: #087f5b;
-            color: white;
-        }
-
-        .primary-button:hover {
-            background: #066c4d;
-        }
-
-        .dark-button {
-            background: #343a40;
-            color: white;
-        }
-
-        .dark-button:hover {
-            background: #23272b;
-        }
-
-        .secondary-button {
+        .back {
             background: #e9ecef;
             color: #343a40;
         }
 
-        .secondary-button:hover {
-            background: #dee2e6;
+        .manage {
+            background: #087f5b;
+            color: white;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 800px) {
 
-            .details-grid {
+            .grid {
                 grid-template-columns: 1fr;
             }
 
-        }
-
-        @media (max-width: 650px) {
-
-            .navbar {
-                padding: 15px 20px;
+            .header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
             }
 
-            .container {
-                width: 94%;
-                margin: 25px auto;
-            }
-
-            .page-header-top {
+            .navbar {
                 flex-direction: column;
+                gap: 15px;
                 align-items: flex-start;
             }
 
-            .meta-grid {
+            .details {
                 grid-template-columns: 1fr;
-            }
-
-            .bottom-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .bottom-actions-left,
-            .bottom-actions-right {
-                width: 100%;
-            }
-
-            .button {
-                text-align: center;
-                flex: 1;
             }
 
         }
@@ -428,6 +291,7 @@
 </head>
 
 <body>
+
 
     <div class="navbar">
 
@@ -439,21 +303,21 @@
 
             <a
                 href="{{ url_for('user_controller.admin_dashboard') }}"
-                class="dashboard-btn"
+                class="dashboard"
             >
                 Dashboard
             </a>
 
             <a
                 href="{{ url_for('admin_ticket.manage_tickets') }}"
-                class="tickets-btn"
+                class="tickets"
             >
                 Manage Tickets
             </a>
 
             <a
                 href="{{ url_for('user_controller.logout') }}"
-                class="logout-btn"
+                class="logout"
             >
                 Logout
             </a>
@@ -465,35 +329,33 @@
 
     <div class="container">
 
-        <div class="page-header">
 
-            <div class="page-header-top">
+        <div class="header">
 
-                <div>
+            <div>
 
-                    <h1>
-                        Ticket Details
-                    </h1>
+                <h1>
+                    Ticket Details
+                </h1>
 
-                    <p>
-                        View and manage support ticket information.
-                    </p>
+                <p>
+                    View support ticket information
+                </p>
 
-                </div>
+            </div>
 
-                <div class="ticket-number">
-                    #{{ ticket.id }}
-                </div>
-
+            <div class="ticket-id">
+                #{{ ticket.id }}
             </div>
 
         </div>
 
 
-        <div class="details-grid">
+        <div class="grid">
 
 
             <div>
+
 
                 <div class="card">
 
@@ -501,143 +363,78 @@
                         Ticket Information
                     </h2>
 
-                    <div class="ticket-title">
+                    <div class="title">
 
-                        {% if ticket.title %}
-                            {{ ticket.title }}
-                        {% elif ticket.issue %}
-                            {{ ticket.issue }}
-                        {% else %}
-                            Support Ticket
-                        {% endif %}
+                        {{ ticket.title }}
 
                     </div>
-
 
                     <div class="description">
 
-                        {% if ticket.description %}
-                            {{ ticket.description }}
-                        {% elif ticket.issue_description %}
-                            {{ ticket.issue_description }}
-                        {% else %}
-                            No description provided.
-                        {% endif %}
+                        {{ ticket.description }}
 
                     </div>
 
 
-                    <div class="meta-grid">
+                    <div class="details">
 
 
-                        <div class="meta-item">
+                        <div class="detail">
 
-                            <span class="meta-label">
+                            <span class="label">
                                 Category
                             </span>
 
-                            <span class="meta-value">
+                            <span class="value">
 
-                                {% if ticket.category %}
-
-                                    {% if ticket.category.name %}
-                                        {{ ticket.category.name }}
-                                    {% else %}
-                                        {{ ticket.category }}
-                                    {% endif %}
-
-                                {% else %}
-
-                                    Other
-
-                                {% endif %}
+                                {{ ticket.category.name
+                                   if ticket.category
+                                   else 'Other' }}
 
                             </span>
 
                         </div>
 
 
-                        <div class="meta-item">
+                        <div class="detail">
 
-                            <span class="meta-label">
+                            <span class="label">
                                 Priority
                             </span>
 
-                            <span class="badge priority-{{ ticket.priority|lower }}">
+                            <span class="value">
 
-                                {{ ticket.priority or 'MEDIUM' }}
+                                {{ ticket.priority }}
 
                             </span>
 
                         </div>
 
 
-                        <div class="meta-item">
+                        <div class="detail">
 
-                            <span class="meta-label">
+                            <span class="label">
                                 Status
                             </span>
 
-                            <span class="badge status-{{ ticket.status|lower|replace(' ', '-') }}">
+                            <span class="value">
 
-                                {{ ticket.status or 'OPEN' }}
+                                {{ ticket.status }}
 
                             </span>
 
                         </div>
 
 
-                        <div class="meta-item">
+                        <div class="detail">
 
-                            <span class="meta-label">
+                            <span class="label">
                                 Created
                             </span>
 
-                            <span class="meta-value">
+                            <span class="value">
 
-                                {% if ticket.created_at %}
-                                    {{ ticket.created_at }}
-                                {% else %}
-                                    —
-                                {% endif %}
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="meta-item">
-
-                            <span class="meta-label">
-                                Updated
-                            </span>
-
-                            <span class="meta-value">
-
-                                {% if ticket.updated_at %}
-                                    {{ ticket.updated_at }}
-                                {% else %}
-                                    —
-                                {% endif %}
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="meta-item">
-
-                            <span class="meta-label">
-                                Severity
-                            </span>
-
-                            <span class="meta-value">
-
-                                {% if ticket.severity %}
-                                    {{ ticket.severity }}
-                                {% else %}
-                                    —
-                                {% endif %}
+                                {{ ticket.created_at }}
 
                             </span>
 
@@ -659,7 +456,7 @@
 
                         {% for assignment in assignments %}
 
-                            <div class="history-item">
+                            <div class="history">
 
                                 <div class="history-title">
 
@@ -668,36 +465,19 @@
                                         Assigned to
                                         {{ assignment.agent.name }}
 
-                                    {% elif assignment.user %}
-
-                                        Assigned to
-                                        {{ assignment.user.name }}
-
                                     {% else %}
 
-                                        Ticket assignment
+                                        Assignment
 
                                     {% endif %}
 
                                 </div>
 
-
                                 <div class="history-info">
 
                                     {% if assignment.created_at %}
 
-                                        Date:
                                         {{ assignment.created_at }}
-
-                                    {% endif %}
-
-
-                                    {% if assignment.status %}
-
-                                        <br>
-
-                                        Status:
-                                        {{ assignment.status }}
 
                                     {% endif %}
 
@@ -709,13 +489,14 @@
 
                     {% else %}
 
-                        <div class="empty">
-                            No assignment history available.
-                        </div>
+                        <p class="history-info">
+                            No assignment history.
+                        </p>
 
                     {% endif %}
 
                 </div>
+
 
             </div>
 
@@ -729,38 +510,27 @@
                         Employee
                     </h2>
 
-
-                    {% if employee %}
+                    {% if ticket.creator %}
 
                         <div class="person">
 
                             <div class="avatar">
 
-                                {% if employee.name %}
-
-                                    {{ employee.name[0]|upper }}
-
-                                {% else %}
-
-                                    ?
-
-                                {% endif %}
+                                {{ ticket.creator.name[0]|upper }}
 
                             </div>
-
 
                             <div>
 
                                 <div class="person-name">
 
-                                    {{ employee.name }}
+                                    {{ ticket.creator.name }}
 
                                 </div>
 
-
                                 <div class="person-email">
 
-                                    {{ employee.email or 'No email available' }}
+                                    {{ ticket.creator.email }}
 
                                 </div>
 
@@ -770,23 +540,9 @@
 
                     {% else %}
 
-                        <div class="person">
+                        <div class="not-found">
 
-                            <div class="avatar">
-                                ?
-                            </div>
-
-                            <div>
-
-                                <div class="person-name">
-                                    Unknown User
-                                </div>
-
-                                <div class="person-email">
-                                    No employee information available
-                                </div>
-
-                            </div>
+                            Employee information not available.
 
                         </div>
 
@@ -801,18 +557,19 @@
                         Assigned Agent
                     </h2>
 
-
                     {% if assigned_agent %}
 
-                        <div class="agent-box">
+                        <div class="assignment">
 
                             <div class="agent-name">
+
                                 {{ assigned_agent.name }}
+
                             </div>
 
                             <div class="agent-email">
 
-                                {{ assigned_agent.email or 'No email available' }}
+                                {{ assigned_agent.email }}
 
                             </div>
 
@@ -820,11 +577,9 @@
 
                     {% else %}
 
-                        <div class="agent-box">
+                        <div class="not-assigned">
 
-                            <span class="not-assigned">
-                                Not assigned
-                            </span>
+                            Not assigned
 
                         </div>
 
@@ -833,98 +588,33 @@
                 </div>
 
 
-                <div class="card">
-
-                    <h2>
-                        Available Agents
-                    </h2>
-
-
-                    {% if agents %}
-
-                        <div class="empty">
-
-                            {{ agents|length }}
-                            active agent(s) available.
-
-                        </div>
-
-
-                        <div class="agent-list">
-
-                            {% for agent in agents %}
-
-                                <div class="available-agent">
-
-                                    <div class="available-agent-name">
-
-                                        {{ agent.name }}
-
-                                    </div>
-
-                                    <div class="available-agent-email">
-
-                                        {{ agent.email or 'No email available' }}
-
-                                    </div>
-
-                                </div>
-
-                            {% endfor %}
-
-                        </div>
-
-                    {% else %}
-
-                        <div class="empty">
-                            No active agents available.
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-
             </div>
+
 
         </div>
 
 
-        <div class="bottom-actions">
+        <div class="buttons">
 
-            <div class="bottom-actions-left">
+            <a
+                href="{{ url_for('user_controller.admin_dashboard') }}"
+                class="button back"
+            >
+                ← Dashboard
+            </a>
 
-                <a
-                    href="{{ url_for('user_controller.admin_dashboard') }}"
-                    class="button secondary-button"
-                >
-                    ← Back to Dashboard
-                </a>
-
-                <a
-                    href="{{ url_for('admin_ticket.manage_tickets') }}"
-                    class="button dark-button"
-                >
-                    ← Manage Tickets
-                </a>
-
-            </div>
-
-
-            <div class="bottom-actions-right">
-
-                <a
-                    href="{{ url_for('admin_ticket.manage_tickets') }}"
-                    class="button primary-button"
-                >
-                    Done
-                </a>
-
-            </div>
+            <a
+                href="{{ url_for('admin_ticket.manage_tickets') }}"
+                class="button manage"
+            >
+                Manage Tickets
+            </a>
 
         </div>
+
 
     </div>
+
 
 </body>
 
