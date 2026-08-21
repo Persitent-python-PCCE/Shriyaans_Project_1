@@ -65,6 +65,10 @@
             margin-right: 10px;
         }
 
+        .button:hover {
+            background-color: #23272b;
+        }
+
         .statistics {
             display: flex;
             gap: 20px;
@@ -80,6 +84,28 @@
 
         .stat h2 {
             margin: 10px 0;
+            font-size: 32px;
+        }
+
+        .stat p {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        @media (max-width: 768px) {
+
+            .container {
+                width: 90%;
+            }
+
+            .statistics {
+                flex-direction: column;
+            }
+
+            .button {
+                margin-bottom: 10px;
+            }
+
         }
 
     </style>
@@ -102,6 +128,8 @@
 
     <div class="container">
 
+      
+
         <div class="welcome">
 
             <h1>Admin Dashboard</h1>
@@ -112,6 +140,8 @@
 
         </div>
 
+
+        
 
         <div class="card">
 
@@ -130,11 +160,13 @@
             </div>
 
             <div class="info">
-                <strong>Status:</strong> Active
+                <strong>Status:</strong> {{ status|default('Active') }}
             </div>
 
         </div>
 
+
+         
 
         <div class="card">
 
@@ -142,24 +174,63 @@
 
             <div class="statistics">
 
-                <div class="stat">
-                    <h2>0</h2>
-                    <p>Total Users</p>
-                </div>
+                
 
                 <div class="stat">
-                    <h2>0</h2>
-                    <p>Total Tickets</p>
+
+                    <h2>
+                        {{ user_statistics.total_users|default(0) }}
+                    </h2>
+
+                    <p>
+                        Total Users
+                    </p>
+
                 </div>
 
-                <div class="stat">
-                    <h2>0</h2>
-                    <p>Open Tickets</p>
-                </div>
+
+                 
 
                 <div class="stat">
-                    <h2>0</h2>
-                    <p>Resolved Tickets</p>
+
+                    <h2>
+                        {{ ticket_statistics.total_tickets|default(0) }}
+                    </h2>
+
+                    <p>
+                        Total Tickets
+                    </p>
+
+                </div>
+
+
+                 
+
+                <div class="stat">
+
+                    <h2>
+                        {{ ticket_statistics.open_tickets|default(0) }}
+                    </h2>
+
+                    <p>
+                        Open Tickets
+                    </p>
+
+                </div>
+
+
+                
+
+                <div class="stat">
+
+                    <h2>
+                        {{ ticket_statistics.resolved_tickets|default(0) }}
+                    </h2>
+
+                    <p>
+                        Resolved Tickets
+                    </p>
+
                 </div>
 
             </div>
@@ -167,19 +238,24 @@
         </div>
 
 
+         
+
         <div class="card">
 
             <h3>Administration</h3>
 
-            <a href="{{ url_for('admin_user.manage_users') }}" class="button">
+            <a href="{{ url_for('admin_user.manage_users') }}"
+               class="button">
                 Manage Users
             </a>
 
-            <a href="{{ url_for('admin_ticket.manage_tickets') }}" class="button">
+            <a href="{{ url_for('admin_ticket.manage_tickets') }}"
+               class="button">
                 Manage Tickets
             </a>
 
-            <a href="#" class="button">
+            <a href="#"
+               class="button">
                 Reports
             </a>
 

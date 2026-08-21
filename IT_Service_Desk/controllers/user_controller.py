@@ -333,6 +333,7 @@ def admin_dashboard():
         "user_id"
     )
 
+    # Check whether the user is logged in
     if not user_id:
 
         return redirect(
@@ -341,12 +342,29 @@ def admin_dashboard():
             )
         )
 
+    # Only ADMIN users can access this dashboard
     if session.get("role") != "ADMIN":
 
         return "Unauthorized", 403
 
     try:
 
+        # Get the current logged-in user
+        current_user = user_service.get_user_by_id(
+            user_id
+        )
+
+        if not current_user:
+
+            session.clear()
+
+            return redirect(
+                url_for(
+                    "user_controller.login"
+                )
+            )
+
+        # Get system statistics
         user_statistics = (
             user_service.get_system_statistics()
         )
@@ -355,6 +373,7 @@ def admin_dashboard():
             ticket_service.get_system_statistics()
         )
 
+        # Log statistics for debugging
         current_app.logger.info(
             "Admin statistics loaded: "
             "users=%s tickets=%s",
@@ -365,29 +384,40 @@ def admin_dashboard():
         return render_template(
             "admin_dashboard.html",
 
-            name=session.get(
-                "user_name"
+            # Current user information
+            name=current_user.name,
+
+            email=current_user.email,
+
+            role=(
+                current_user.role.name
+                if current_user.role
+                else "ADMIN"
             ),
 
-            email=session.get(
-                "user_email"
+            status=(
+                "Active"
+                if current_user.is_active
+                else "Inactive"
             ),
 
-            role=session.get(
-                "role"
-            ),
-
+            # User statistics
             user_statistics=user_statistics,
 
+            # Ticket statistics
             ticket_statistics=ticket_statistics
         )
 
-    except Exception:
+    except Exception as exc:
 
+        # IMPORTANT:
+        # This logs the actual backend error instead
+        # of hiding it.
         current_app.logger.exception(
             "Failed to load admin dashboard "
-            "statistics for user %s.",
-            user_id
+            "statistics for user %s: %s",
+            user_id,
+            exc
         )
 
         return render_template(
@@ -404,6 +434,8 @@ def admin_dashboard():
             role=session.get(
                 "role"
             ),
+
+            status="Active",
 
             user_statistics={
                 "total_users": 0,
@@ -426,7 +458,6 @@ def admin_dashboard():
 
             error="Unable to load system statistics."
         )
-
 
 @user_controller.route(
     "/logout"

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit User - IT Service Desk</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #212529;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================== */
+
+        .navbar {
+            background: #343a40;
+            color: white;
+
+            padding: 18px 40px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+
+            padding: 10px 16px;
+
+            border-radius: 6px;
+
+            font-size: 14px;
+        }
+
+        .dashboard-btn {
+            background: #495057;
+        }
+
+        .users-btn {
+            background: #087f5b;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.9;
+        }
+
+
+        /* =========================
+           MAIN CONTAINER
+        ========================== */
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+
+            margin: 45px auto;
+        }
+
+
+        /* =========================
+           HEADER
+        ========================== */
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+
+            font-size: 32px;
+        }
+
+        .page-header p {
+            margin: 0;
+
+            color: #6c757d;
+
+            font-size: 15px;
+        }
+
+
+        /* =========================
+           CARD
+        ========================== */
+
+        .card {
+            background: white;
+
+            border-radius: 12px;
+
+            padding: 30px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+
+        /* =========================
+           USER HEADER
+        ========================== */
+
+        .user-header {
+            display: flex;
+
+            align-items: center;
+
+            gap: 18px;
+
+            padding-bottom: 25px;
+
+            margin-bottom: 25px;
+
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+
+            border-radius: 50%;
+
+            background: #087f5b;
+
+            color: white;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            font-size: 24px;
+
+            font-weight: bold;
+        }
+
+        .user-header h2 {
+            margin: 0 0 5px;
+
+            font-size: 22px;
+        }
+
+        .user-header p {
+            margin: 0;
+
+            color: #6c757d;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           FORM
+        ========================== */
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            color: #343a40;
+        }
+
+        .form-control {
+            width: 100%;
+
+            padding: 13px 14px;
+
+            border: 1px solid #ced4da;
+
+            border-radius: 7px;
+
+            font-size: 15px;
+
+            outline: none;
+
+            background: white;
+
+            transition: border-color 0.2s,
+                        box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #087f5b;
+
+            box-shadow:
+                0 0 0 3px rgba(8, 127, 91, 0.12);
+        }
+
+        .help-text {
+            margin-top: 6px;
+
+            font-size: 12px;
+
+            color: #6c757d;
+        }
+
+
+        /* =========================
+           USER ID
+        ========================== */
+
+        .user-id-box {
+            display: inline-block;
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            background: #e6fcf5;
+
+            color: #087f5b;
+
+            font-size: 13px;
+
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           ROLE BADGES
+        ========================== */
+
+        .current-role {
+            margin-top: 8px;
+        }
+
+        .role-badge {
+            display: inline-block;
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: bold;
+        }
+
+        .role-admin {
+            background: #f3d9fa;
+            color: #862e9c;
+        }
+
+        .role-agent {
+            background: #d0ebff;
+            color: #1864ab;
+        }
+
+        .role-employee {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+
+        /* =========================
+           ACTIONS
+        ========================== */
+
+        .form-actions {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-top: 30px;
+
+            padding-top: 22px;
+
+            border-top: 1px solid #e9ecef;
+        }
+
+        .left-actions,
+        .right-actions {
+            display: flex;
+
+            gap: 10px;
+        }
+
+        .button {
+            border: none;
+
+            padding: 12px 20px;
+
+            border-radius: 7px;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            text-decoration: none;
+
+            display: inline-block;
+        }
+
+        .save-button {
+            background: #087f5b;
+            color: white;
+        }
+
+        .save-button:hover {
+            background: #066c4d;
+        }
+
+        .cancel-button {
+            background: #e9ecef;
+            color: #343a40;
+        }
+
+        .cancel-button:hover {
+            background: #dee2e6;
+        }
+
+
+        /* =========================
+           FLASH MESSAGES
+        ========================== */
+
+        .flash {
+            padding: 14px 18px;
+
+            border-radius: 8px;
+
+            margin-bottom: 20px;
+
+            font-size: 14px;
+        }
+
+        .flash-success {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .flash-danger {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .flash-warning {
+            background: #fff3bf;
+            color: #856404;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                padding: 15px 20px;
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 15px;
+            }
+
+            .nav-links {
+                width: 100%;
+
+                flex-wrap: wrap;
+            }
+
+            .container {
+                width: 94%;
+
+                margin: 25px auto;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+
+                align-items: stretch;
+            }
+
+            .left-actions,
+            .right-actions {
+                width: 100%;
+            }
+
+            .button {
+                text-align: center;
+
+                flex: 1;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <div class="navbar">
+
+        <h2>
+            IT Service Desk
+        </h2>
+
+        <div class="nav-links">
+
+            <!-- BACK TO ADMIN DASHBOARD -->
+
+            <a
+                href="{{ url_for(
+                    'user_controller.admin_dashboard'
+                ) }}"
+                class="dashboard-btn"
+            >
+                Dashboard
+            </a>
+
+
+            <!-- BACK TO MANAGE USERS -->
+
+            <a
+                href="{{ url_for(
+                    'admin_user.manage_users'
+                ) }}"
+                class="users-btn"
+            >
+                Manage Users
+            </a>
+
+
+            <!-- LOGOUT -->
+
+            <a
+                href="{{ url_for(
+                    'user_controller.logout'
+                ) }}"
+                class="logout-btn"
+            >
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <div class="container">
+
+
+        <!-- FLASH MESSAGES -->
+
+        {% with messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="flash flash-{{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-header">
+
+            <h1>
+                Edit User
+            </h1>
+
+            <p>
+                Update the user's account information,
+                email address, or role.
+            </p>
+
+        </div>
+
+
+
+        <!-- EDIT CARD -->
+
+        <div class="card">
+
+
+            <!-- USER INFORMATION -->
+
+            <div class="user-header">
+
+                <div class="avatar">
+
+                    {{ user.name[0]|upper }}
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        {{ user.name }}
+                    </h2>
+
+                    <p>
+                        {{ user.email }}
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+             
+
+
+
+            <!-- EDIT FORM -->
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'admin_user.edit_user',
+                    user_id=user.id
+                ) }}"
+            >
+
+
+                <!-- NAME -->
+
+                <div class="form-group">
+
+                    <label for="name">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        class="form-control"
+                        value="{{ user.name }}"
+                        placeholder="Enter user's full name"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- EMAIL -->
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-control"
+                        value="{{ user.email }}"
+                        placeholder="Enter user's email"
+                        required
+                    >
+
+                    <div class="help-text">
+                        The email address must be unique.
+                    </div>
+
+                </div>
+
+
+
+                <!-- ROLE -->
+
+                <div class="form-group">
+
+                    <label for="role_id">
+                        User Role
+                    </label>
+
+                    <select
+                        id="role_id"
+                        name="role_id"
+                        class="form-control"
+                        required
+                    >
+
+                        {% set displayed_roles = [] %}
+
+                        {% for current_user in users %}
+
+                            {% if current_user.role
+                                  and current_user.role.id
+                                  not in displayed_roles %}
+
+                                <option
+                                    value="{{ current_user.role.id }}"
+
+                                    {% if user.role_id
+                                          == current_user.role.id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ current_user.role.name }}
+                                </option>
+
+                                {% set _ = displayed_roles.append(
+                                    current_user.role.id
+                                ) %}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </select>
+
+                    <div class="help-text">
+                        Select the access level for this user.
+                    </div>
+
+                </div>
+
+
+
+                <!-- CURRENT ROLE -->
+
+                {% if user.role %}
+
+                    <div class="current-role">
+
+                        Current role:
+
+                        <span
+                            class="
+                                role-badge
+                                role-{{ user.role.name|lower }}
+                            "
+                        >
+                            {{ user.role.name }}
+                        </span>
+
+                    </div>
+
+                {% endif %}
+
+
+
+                <!-- FORM ACTIONS -->
+
+                <div class="form-actions">
+
+
+                    <div class="left-actions">
+
+                        <!-- CALLBACK TO DASHBOARD -->
+
+                        <a
+                            href="{{ url_for(
+                                'user_controller.admin_dashboard'
+                            ) }}"
+                            class="button cancel-button"
+                        >
+                            ← Back to Dashboard
+                        </a>
+
+
+                        <!-- MANAGE USERS -->
+
+                        <a
+                            href="{{ url_for(
+                                'admin_user.manage_users'
+                            ) }}"
+                            class="button cancel-button"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+
+                    <div class="right-actions">
+
+                        <button
+                            type="submit"
+                            class="button save-button"
+                        >
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

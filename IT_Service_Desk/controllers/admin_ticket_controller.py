@@ -30,6 +30,7 @@ user_service = UserService()
 def _require_admin():
 
     if "user_id" not in session:
+
         flash(
             "Please log in first.",
             "warning"
@@ -40,6 +41,7 @@ def _require_admin():
         )
 
     if session.get("role") != "ADMIN":
+
         flash(
             "Access denied. Administrator privileges are required.",
             "danger"
@@ -139,6 +141,19 @@ def ticket_details(ticket_id):
             ticket_id=ticket_id
         )
 
+        if not ticket:
+
+            flash(
+                "Ticket not found.",
+                "warning"
+            )
+
+            return redirect(
+                url_for(
+                    "admin_ticket.manage_tickets"
+                )
+            )
+
         all_users = user_service.get_all_users()
 
         agents = [
@@ -149,22 +164,94 @@ def ticket_details(ticket_id):
             and user.is_active
         ]
 
-        from services.ticket_assignment_service import (
-            TicketAssignmentService
+        assignments = assignment_service.get_ticket_assignments(
+            user_id=admin_id,
+            ticket_id=ticket_id
         )
 
-        assignments = (
-            TicketAssignmentService.get_ticket_assignments(
-                user_id=admin_id,
-                ticket_id=ticket_id
-            )
+        assigned_agent = None
+
+        if assignments:
+
+            for assignment in assignments:
+
+                if getattr(
+                    assignment,
+                    "agent",
+                    None
+                ):
+
+                    assigned_agent = assignment.agent
+                    break
+
+                if getattr(
+                    assignment,
+                    "user",
+                    None
+                ):
+
+                    assigned_agent = assignment.user
+                    break
+
+        employee = None
+
+        ticket_list = ticket_service.get_all_tickets(
+            user_id=admin_id
         )
+
+        for listed_ticket in ticket_list:
+
+            listed_ticket_id = getattr(
+                listed_ticket,
+                "id",
+                None
+            )
+
+            if listed_ticket_id == ticket_id:
+
+                if getattr(
+                    listed_ticket,
+                    "employee",
+                    None
+                ):
+
+                    employee = listed_ticket.employee
+
+                elif getattr(
+                    listed_ticket,
+                    "user",
+                    None
+                ):
+
+                    employee = listed_ticket.user
+
+                break
+
+        if employee is None:
+
+            if getattr(
+                ticket,
+                "employee",
+                None
+            ):
+
+                employee = ticket.employee
+
+            elif getattr(
+                ticket,
+                "user",
+                None
+            ):
+
+                employee = ticket.user
 
         return render_template(
             "admin_ticket_details.html",
             ticket=ticket,
+            employee=employee,
             agents=agents,
             assignments=assignments,
+            assigned_agent=assigned_agent,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -178,24 +265,13 @@ def ticket_details(ticket_id):
         )
 
         return redirect(
-            url_for("admin_ticket.manage_tickets")
-        )
-
-    except ValueError as exc:
-
-        flash(
-            str(exc),
-            "warning"
-        )
-
-        return redirect(
-            url_for("admin_ticket.manage_tickets")
+            url_for("user_controller.login")
         )
 
     except Exception:
 
         current_app.logger.exception(
-            "Failed to load ticket %s.",
+            "Failed to load ticket details for ticket %s.",
             ticket_id
         )
 
@@ -205,7 +281,9 @@ def ticket_details(ticket_id):
         )
 
         return redirect(
-            url_for("admin_ticket.manage_tickets")
+            url_for(
+                "admin_ticket.manage_tickets"
+            )
         )
 
 
@@ -236,7 +314,9 @@ def assign_ticket(ticket_id):
 
         return redirect(
             request.referrer
-            or url_for("admin_ticket.manage_tickets")
+            or url_for(
+                "admin_ticket.manage_tickets"
+            )
         )
 
     try:
@@ -252,7 +332,9 @@ def assign_ticket(ticket_id):
 
         return redirect(
             request.referrer
-            or url_for("admin_ticket.manage_tickets")
+            or url_for(
+                "admin_ticket.manage_tickets"
+            )
         )
 
     try:
@@ -262,6 +344,7 @@ def assign_ticket(ticket_id):
         )
 
         if not agent:
+
             flash(
                 "Agent not found.",
                 "warning"
@@ -269,7 +352,9 @@ def assign_ticket(ticket_id):
 
             return redirect(
                 request.referrer
-                or url_for("admin_ticket.manage_tickets")
+                or url_for(
+                    "admin_ticket.manage_tickets"
+                )
             )
 
         if not agent.role or agent.role.name != "AGENT":
@@ -281,7 +366,9 @@ def assign_ticket(ticket_id):
 
             return redirect(
                 request.referrer
-                or url_for("admin_ticket.manage_tickets")
+                or url_for(
+                    "admin_ticket.manage_tickets"
+                )
             )
 
         if not agent.is_active:
@@ -293,7 +380,9 @@ def assign_ticket(ticket_id):
 
             return redirect(
                 request.referrer
-                or url_for("admin_ticket.manage_tickets")
+                or url_for(
+                    "admin_ticket.manage_tickets"
+                )
             )
 
         assignment_service.assign_ticket(
@@ -337,7 +426,9 @@ def assign_ticket(ticket_id):
 
     return redirect(
         request.referrer
-        or url_for("admin_ticket.manage_tickets")
+        or url_for(
+            "admin_ticket.manage_tickets"
+        )
     )
 
 
@@ -397,5 +488,7 @@ def unassign_ticket(
 
     return redirect(
         request.referrer
-        or url_for("admin_ticket.manage_tickets")
+        or url_for(
+            "admin_ticket.manage_tickets"
+        )
     )
