@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from models.ticket import Ticket
-from models.user import User
 
 from dao.ticket_dao import TicketDAO
 from dao.user_dao import UserDAO
@@ -33,35 +32,56 @@ class TicketService:
     }
 
     STATUS_FLOW = {
-        "OPEN": {"ASSIGNED"},
-        "ASSIGNED": {"IN_PROGRESS", "OPEN"},
-        "IN_PROGRESS": {"RESOLVED"},
-        "RESOLVED": {"CLOSED", "IN_PROGRESS"},
+        "OPEN": {
+            "ASSIGNED"
+        },
+        "ASSIGNED": {
+            "IN_PROGRESS",
+            "OPEN"
+        },
+        "IN_PROGRESS": {
+            "RESOLVED"
+        },
+        "RESOLVED": {
+            "CLOSED",
+            "IN_PROGRESS"
+        },
         "CLOSED": set()
     }
 
     @staticmethod
     def _get_user(user_id):
-        user = UserDAO.get_by_id(user_id)
+
+        user = UserDAO.get_by_id(
+            user_id
+        )
 
         if not user:
-            raise ValueError("User not found.")
+            raise ValueError(
+                "User not found."
+            )
 
         if not user.is_active:
-            raise PermissionError("User account is inactive.")
+            raise PermissionError(
+                "User account is inactive."
+            )
 
         return user
 
     @staticmethod
     def _get_ticket(ticket_id):
-        ticket = TicketDAO.get_by_id(ticket_id)
+
+        ticket = TicketDAO.get_by_id(
+            ticket_id
+        )
 
         if not ticket:
-            raise ValueError("Ticket not found.")
+            raise ValueError(
+                "Ticket not found."
+            )
 
         return ticket
 
-   
     @staticmethod
     def create_ticket(
         user_id,
@@ -71,32 +91,47 @@ class TicketService:
         priority="MEDIUM",
         severity="MODERATE"
     ):
-        user = TicketService._get_user(user_id)
 
-        if user.role.name != "EMPLOYEE":
+        user = TicketService._get_user(
+            user_id
+        )
+
+        if not user.role or user.role.name != "EMPLOYEE":
             raise PermissionError(
                 "Only employees can create tickets."
             )
 
         if not title or not title.strip():
-            raise ValueError("Ticket title is required.")
+            raise ValueError(
+                "Ticket title is required."
+            )
 
         if not description or not description.strip():
-            raise ValueError("Ticket description is required.")
+            raise ValueError(
+                "Ticket description is required."
+            )
 
-        category = TicketCategoryDAO.get_by_id(category_id)
+        category = TicketCategoryDAO.get_by_id(
+            category_id
+        )
 
         if not category:
-            raise ValueError("Invalid ticket category.")
+            raise ValueError(
+                "Invalid ticket category."
+            )
 
         priority = priority.upper()
         severity = severity.upper()
 
         if priority not in TicketService.VALID_PRIORITIES:
-            raise ValueError("Invalid priority.")
+            raise ValueError(
+                "Invalid priority."
+            )
 
         if severity not in TicketService.VALID_SEVERITIES:
-            raise ValueError("Invalid severity.")
+            raise ValueError(
+                "Invalid severity."
+            )
 
         ticket = Ticket(
             title=title.strip(),
@@ -108,64 +143,127 @@ class TicketService:
             status="OPEN"
         )
 
-        return TicketDAO.create(ticket)
+        return TicketDAO.create(
+            ticket
+        )
 
     @staticmethod
     def get_employee_tickets(user_id):
-        user = TicketService._get_user(user_id)
 
-        if user.role.name != "EMPLOYEE":
+        user = TicketService._get_user(
+            user_id
+        )
+
+        if not user.role or user.role.name != "EMPLOYEE":
             raise PermissionError(
                 "Only employees can access their tickets."
             )
 
-        return TicketDAO.get_by_creator(user_id)
+        return TicketDAO.get_by_creator(
+            user_id
+        )
 
-    
     @staticmethod
     def get_agent_tickets(user_id):
-        user = TicketService._get_user(user_id)
 
-        if user.role.name != "AGENT":
+        user = TicketService._get_user(
+            user_id
+        )
+
+        if not user.role or user.role.name != "AGENT":
             raise PermissionError(
                 "Only agents can access assigned tickets."
             )
 
-        from dao.ticket_assignment_dao import TicketAssignmentDAO
+        from dao.ticket_assignment_dao import (
+            TicketAssignmentDAO
+        )
 
-        assignments = TicketAssignmentDAO.get_by_agent(user_id)
+        assignments = TicketAssignmentDAO.get_by_agent(
+            user_id
+        )
 
-        return [
-            assignment.ticket
-            for assignment in assignments
-            if assignment.ticket is not None
-        ]
+        tickets = []
 
- 
+        for assignment in assignments:
+
+            if assignment.ticket is not None:
+                tickets.append(
+                    assignment.ticket
+                )
+
+        return tickets
+
+    @staticmethod
+    def get_agent_statistics(agent_id):
+
+        tickets = TicketService.get_agent_tickets(
+            agent_id
+        )
+
+        assigned_tickets = len(
+            tickets
+        )
+
+        in_progress_tickets = sum(
+            1
+            for ticket in tickets
+            if ticket.status == "IN_PROGRESS"
+        )
+
+        resolved_tickets = sum(
+            1
+            for ticket in tickets
+            if ticket.status == "RESOLVED"
+        )
+
+        escalated_tickets = sum(
+            1
+            for ticket in tickets
+            if ticket.is_escalated
+        )
+
+        return {
+            "assigned_tickets": assigned_tickets,
+            "in_progress_tickets": in_progress_tickets,
+            "resolved_tickets": resolved_tickets,
+            "escalated_tickets": escalated_tickets
+        }
 
     @staticmethod
     def get_all_tickets(user_id):
-        user = TicketService._get_user(user_id)
 
-        if user.role.name != "ADMIN":
+        user = TicketService._get_user(
+            user_id
+        )
+
+        if not user.role or user.role.name != "ADMIN":
             raise PermissionError(
                 "Only administrators can access all tickets."
             )
 
         return TicketDAO.get_all()
 
-    
     @staticmethod
-    def get_ticket_by_id(user_id, ticket_id):
-        user = TicketService._get_user(user_id)
-        ticket = TicketService._get_ticket(ticket_id)
+    def get_ticket_by_id(
+        user_id,
+        ticket_id
+    ):
 
-        role = user.role.name
+        user = TicketService._get_user(
+            user_id
+        )
 
-        if role == "ADMIN":
+        ticket = TicketService._get_ticket(
+            ticket_id
+        )
+
+        if user.role.name == "ADMIN":
+
             return ticket
 
-        if role == "EMPLOYEE":
+        if user.role.name == "EMPLOYEE":
+
             if ticket.created_by != user_id:
                 raise PermissionError(
                     "You are not allowed to access this ticket."
@@ -173,11 +271,15 @@ class TicketService:
 
             return ticket
 
-        if role == "AGENT":
+        if user.role.name == "AGENT":
 
-            from dao.ticket_assignment_dao import TicketAssignmentDAO
+            from dao.ticket_assignment_dao import (
+                TicketAssignmentDAO
+            )
 
-            assignments = TicketAssignmentDAO.get_by_agent(user_id)
+            assignments = TicketAssignmentDAO.get_by_agent(
+                user_id
+            )
 
             assigned_ticket_ids = {
                 assignment.ticket_id
@@ -191,18 +293,31 @@ class TicketService:
 
             return ticket
 
-        raise PermissionError("Invalid role.")
+        raise PermissionError(
+            "Invalid role."
+        )
 
-    
     @staticmethod
-    def update_status(user_id, ticket_id, new_status):
-        user = TicketService._get_user(user_id)
-        ticket = TicketService._get_ticket(ticket_id)
+    def update_status(
+        user_id,
+        ticket_id,
+        new_status
+    ):
+
+        user = TicketService._get_user(
+            user_id
+        )
+
+        ticket = TicketService._get_ticket(
+            ticket_id
+        )
 
         new_status = new_status.upper()
 
         if new_status not in TicketService.VALID_STATUSES:
-            raise ValueError("Invalid ticket status.")
+            raise ValueError(
+                "Invalid ticket status."
+            )
 
         current_status = ticket.status
 
@@ -222,18 +337,21 @@ class TicketService:
                 f"{current_status} -> {new_status}"
             )
 
-         
         if user.role.name == "EMPLOYEE":
+
             raise PermissionError(
                 "Employees cannot change ticket status."
             )
 
-       
         if user.role.name == "AGENT":
 
-            from dao.ticket_assignment_dao import TicketAssignmentDAO
+            from dao.ticket_assignment_dao import (
+                TicketAssignmentDAO
+            )
 
-            assignments = TicketAssignmentDAO.get_by_agent(user_id)
+            assignments = TicketAssignmentDAO.get_by_agent(
+                user_id
+            )
 
             assigned_ticket_ids = {
                 assignment.ticket_id
@@ -252,31 +370,39 @@ class TicketService:
 
             if new_status not in allowed_for_agent:
                 raise PermissionError(
-                    "Agents can only move tickets to "
+                    "Agents can only change tickets to "
                     "IN_PROGRESS or RESOLVED."
                 )
 
-        
         elif user.role.name == "ADMIN":
+
             pass
 
         else:
-            raise PermissionError("Invalid role.")
+
+            raise PermissionError(
+                "Invalid role."
+            )
 
         old_status = ticket.status
 
         ticket.status = new_status
 
         if new_status == "RESOLVED":
+
             ticket.resolved_at = datetime.utcnow()
 
         elif new_status == "CLOSED":
+
             ticket.closed_at = datetime.utcnow()
 
-        TicketDAO.update(ticket)
+        TicketDAO.update(
+            ticket
+        )
 
-      
-        from services.ticket_history_service import TicketHistoryService
+        from services.ticket_history_service import (
+            TicketHistoryService
+        )
 
         TicketHistoryService.create_history(
             user_id=user_id,
@@ -292,8 +418,6 @@ class TicketService:
 
         return ticket
 
-    
-
     @staticmethod
     def search_tickets(
         user_id,
@@ -302,27 +426,23 @@ class TicketService:
         priority=None,
         category_id=None
     ):
-        user = TicketService._get_user(user_id)
 
-        role = user.role.name
+        user = TicketService._get_user(
+            user_id
+        )
 
-        if role == "ADMIN":
+        tickets = TicketDAO.search(
+            title=title,
+            status=status,
+            priority=priority,
+            category_id=category_id
+        )
 
-            return TicketDAO.search(
-                title=title,
-                status=status,
-                priority=priority,
-                category_id=category_id
-            )
+        if user.role.name == "ADMIN":
 
-        if role == "EMPLOYEE":
+            return tickets
 
-            tickets = TicketDAO.search(
-                title=title,
-                status=status,
-                priority=priority,
-                category_id=category_id
-            )
+        if user.role.name == "EMPLOYEE":
 
             return [
                 ticket
@@ -330,23 +450,20 @@ class TicketService:
                 if ticket.created_by == user_id
             ]
 
-        if role == "AGENT":
+        if user.role.name == "AGENT":
 
-            from dao.ticket_assignment_dao import TicketAssignmentDAO
+            from dao.ticket_assignment_dao import (
+                TicketAssignmentDAO
+            )
 
-            assignments = TicketAssignmentDAO.get_by_agent(user_id)
+            assignments = TicketAssignmentDAO.get_by_agent(
+                user_id
+            )
 
             assigned_ids = {
                 assignment.ticket_id
                 for assignment in assignments
             }
-
-            tickets = TicketDAO.search(
-                title=title,
-                status=status,
-                priority=priority,
-                category_id=category_id
-            )
 
             return [
                 ticket
@@ -354,49 +471,51 @@ class TicketService:
                 if ticket.id in assigned_ids
             ]
 
-        raise PermissionError("Invalid role.")
+        raise PermissionError(
+            "Invalid role."
+        )
 
     @staticmethod
     def get_system_statistics():
+
         tickets = TicketDAO.get_all()
 
-        total_tickets = len(tickets)
-
-        open_tickets = sum(
-            1
-            for ticket in tickets
-            if ticket.status == "OPEN"
+        total_tickets = len(
+            tickets
         )
 
-        assigned_tickets = sum(
-            1
-            for ticket in tickets
-            if ticket.status == "ASSIGNED"
-        )
+        open_tickets = 0
+        assigned_tickets = 0
+        in_progress_tickets = 0
+        resolved_tickets = 0
+        closed_tickets = 0
+        escalated_tickets = 0
 
-        in_progress_tickets = sum(
-            1
-            for ticket in tickets
-            if ticket.status == "IN_PROGRESS"
-        )
+        for ticket in tickets:
 
-        resolved_tickets = sum(
-            1
-            for ticket in tickets
-            if ticket.status == "RESOLVED"
-        )
+            if ticket.status == "OPEN":
 
-        closed_tickets = sum(
-            1
-            for ticket in tickets
-            if ticket.status == "CLOSED"
-        )
+                open_tickets += 1
 
-        escalated_tickets = sum(
-            1
-            for ticket in tickets
-            if ticket.is_escalated
-        )
+            elif ticket.status == "ASSIGNED":
+
+                assigned_tickets += 1
+
+            elif ticket.status == "IN_PROGRESS":
+
+                in_progress_tickets += 1
+
+            elif ticket.status == "RESOLVED":
+
+                resolved_tickets += 1
+
+            elif ticket.status == "CLOSED":
+
+                closed_tickets += 1
+
+            if ticket.is_escalated:
+
+                escalated_tickets += 1
 
         return {
             "total_tickets": total_tickets,

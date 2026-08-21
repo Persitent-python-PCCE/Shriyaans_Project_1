@@ -1,22 +1,26 @@
 from datetime import datetime
 
+from models.ticket_assignment import TicketAssignment
+
 from dao.ticket_assignment_dao import TicketAssignmentDAO
 from dao.ticket_dao import TicketDAO
 from dao.user_dao import UserDAO
-from models.ticket_assignment import TicketAssignment
-from services.ticket_history_service import TicketHistoryService
+
 
 class TicketAssignmentService:
 
     @staticmethod
     def _get_user(user_id):
+
         user = UserDAO.get_by_id(user_id)
 
         if not user:
             raise ValueError("User not found.")
 
         if not user.is_active:
-            raise PermissionError("User account is inactive.")
+            raise PermissionError(
+                "User account is inactive."
+            )
 
         return user
 
@@ -26,9 +30,12 @@ class TicketAssignmentService:
         ticket_id,
         agent_id
     ):
-        admin = TicketAssignmentService._get_user(admin_id)
 
-        if admin.role.name != "ADMIN":
+        admin = TicketAssignmentService._get_user(
+            admin_id
+        )
+
+        if not admin.role or admin.role.name != "ADMIN":
             raise PermissionError(
                 "Only administrators can assign tickets."
             )
@@ -36,18 +43,28 @@ class TicketAssignmentService:
         ticket = TicketDAO.get_by_id(ticket_id)
 
         if not ticket:
-            raise ValueError("Ticket not found.")
-
-        agent = TicketAssignmentService._get_user(agent_id)
-
-        if agent.role.name != "AGENT":
             raise ValueError(
-                "Selected user is not an agent."
+                "Ticket not found."
             )
 
-        # Check existing active assignments
-        existing_assignments = TicketAssignmentDAO.get_by_ticket(
-            ticket_id
+        agent = TicketAssignmentService._get_user(
+            agent_id
+        )
+
+        if not agent.role or agent.role.name != "AGENT":
+            raise ValueError(
+                "Selected user is not a support agent."
+            )
+
+        if not agent.is_active:
+            raise ValueError(
+                "Selected agent is inactive."
+            )
+
+        existing_assignments = (
+            TicketAssignmentDAO.get_by_ticket(
+                ticket_id
+            )
         )
 
         for assignment in existing_assignments:
@@ -56,11 +73,17 @@ class TicketAssignmentService:
 
                 if assignment.agent_id == agent_id:
                     raise ValueError(
-                        "Ticket is already assigned to this agent."
+                        "Ticket is already assigned "
+                        "to this agent."
                     )
 
-                assignment.unassigned_at = datetime.utcnow()
-                TicketAssignmentDAO.update(assignment)
+                assignment.unassigned_at = (
+                    datetime.utcnow()
+                )
+
+                TicketAssignmentDAO.update(
+                    assignment
+                )
 
         assignment = TicketAssignment(
             ticket_id=ticket_id,
@@ -72,14 +95,18 @@ class TicketAssignmentService:
             assignment
         )
 
-        # Update ticket status
         old_status = ticket.status
 
         if ticket.status == "OPEN":
+
             ticket.status = "ASSIGNED"
+
             TicketDAO.update(ticket)
 
-    
+        from services.ticket_history_service import (
+            TicketHistoryService
+        )
+
         TicketHistoryService.create_history(
             user_id=admin_id,
             ticket_id=ticket_id,
@@ -95,10 +122,16 @@ class TicketAssignmentService:
         return assignment
 
     @staticmethod
-    def unassign_ticket(admin_id, assignment_id):
-        admin = TicketAssignmentService._get_user(admin_id)
+    def unassign_ticket(
+        admin_id,
+        assignment_id
+    ):
 
-        if admin.role.name != "ADMIN":
+        admin = TicketAssignmentService._get_user(
+            admin_id
+        )
+
+        if not admin.role or admin.role.name != "ADMIN":
             raise PermissionError(
                 "Only administrators can unassign tickets."
             )
@@ -119,19 +152,25 @@ class TicketAssignmentService:
 
         assignment.unassigned_at = datetime.utcnow()
 
-        TicketAssignmentDAO.update(assignment)
+        TicketAssignmentDAO.update(
+            assignment
+        )
 
         ticket = TicketDAO.get_by_id(
             assignment.ticket_id
         )
 
         if ticket and ticket.status == "ASSIGNED":
+
             old_status = ticket.status
+
             ticket.status = "OPEN"
 
             TicketDAO.update(ticket)
 
-            from services.ticket_history_service import TicketHistoryService
+            from services.ticket_history_service import (
+                TicketHistoryService
+            )
 
             TicketHistoryService.create_history(
                 user_id=admin_id,
@@ -145,16 +184,27 @@ class TicketAssignmentService:
         return assignment
 
     @staticmethod
-    def get_ticket_assignments(user_id, ticket_id):
-        user = TicketAssignmentService._get_user(user_id)
+    def get_ticket_assignments(
+        user_id,
+        ticket_id
+    ):
+
+        user = TicketAssignmentService._get_user(
+            user_id
+        )
 
         ticket = TicketDAO.get_by_id(ticket_id)
 
         if not ticket:
-            raise ValueError("Ticket not found.")
+            raise ValueError(
+                "Ticket not found."
+            )
 
         if user.role.name == "ADMIN":
-            return TicketAssignmentDAO.get_by_ticket(ticket_id)
+
+            return TicketAssignmentDAO.get_by_ticket(
+                ticket_id
+            )
 
         if user.role.name == "EMPLOYEE":
 
@@ -169,14 +219,19 @@ class TicketAssignmentService:
 
         if user.role.name == "AGENT":
 
-            assignments = TicketAssignmentDAO.get_by_ticket(
-                ticket_id
+            assignments = (
+                TicketAssignmentDAO.get_by_ticket(
+                    ticket_id
+                )
             )
 
             allowed = [
                 assignment
                 for assignment in assignments
-                if assignment.agent_id == user_id
+                if (
+                    assignment.agent_id == user_id
+                    and assignment.unassigned_at is None
+                )
             ]
 
             if not allowed:
@@ -186,13 +241,18 @@ class TicketAssignmentService:
 
             return allowed
 
-        raise PermissionError("Invalid role.")
+        raise PermissionError(
+            "Invalid role."
+        )
 
     @staticmethod
     def get_agent_assignments(agent_id):
-        agent = TicketAssignmentService._get_user(agent_id)
 
-        if agent.role.name != "AGENT":
+        agent = TicketAssignmentService._get_user(
+            agent_id
+        )
+
+        if not agent.role or agent.role.name != "AGENT":
             raise PermissionError(
                 "Only agents can view agent assignments."
             )

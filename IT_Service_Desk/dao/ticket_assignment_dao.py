@@ -1,7 +1,5 @@
 from config.database import db
 from models.ticket_assignment import TicketAssignment
-
-
 class TicketAssignmentDAO:
 
     @staticmethod

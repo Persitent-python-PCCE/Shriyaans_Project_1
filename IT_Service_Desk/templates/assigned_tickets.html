@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Assigned Tickets - IT Service Desk</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #212529;
+        }
+
+        .navbar {
+            background-color: #087f5b;
+            color: white;
+            padding: 18px 40px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+        }
+
+        .dashboard {
+            background-color: #066b4d;
+        }
+
+        .logout {
+            background-color: #dc3545;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 35px auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background-color: white;
+            font-size: 14px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #087f5b;
+        }
+
+        .button {
+            border: none;
+            padding: 10px 15px;
+            background-color: #087f5b;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            background-color: #066b4d;
+        }
+
+        .clear-button {
+            background-color: #6c757d;
+        }
+
+        .clear-button:hover {
+            background-color: #5c636a;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 13px;
+            background-color: #f8f9fa;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 13px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .ticket-id {
+            color: #087f5b;
+            font-weight: bold;
+        }
+
+        .ticket-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .ticket-description {
+            color: #6c757d;
+            font-size: 12px;
+            max-width: 280px;
+            line-height: 1.4;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-assigned {
+            background-color: #fff3bf;
+            color: #856404;
+        }
+
+        .status-progress {
+            background-color: #e5dbff;
+            color: #6741d9;
+        }
+
+        .status-resolved {
+            background-color: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .status-closed {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .priority-low {
+            color: #2b8a3e;
+            font-weight: bold;
+        }
+
+        .priority-medium {
+            color: #e67700;
+            font-weight: bold;
+        }
+
+        .priority-high {
+            color: #d9480f;
+            font-weight: bold;
+        }
+
+        .priority-critical {
+            color: #c92a2a;
+            font-weight: bold;
+        }
+
+        .update-form {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .update-form select {
+            min-width: 140px;
+        }
+
+        .view-button {
+            display: inline-block;
+            padding: 8px 13px;
+            background-color: #087f5b;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .view-button:hover {
+            background-color: #066b4d;
+        }
+
+        .no-action {
+            display: inline-block;
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+
+        .empty h2 {
+            color: #343a40;
+        }
+
+        .flash {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 15px;
+        }
+
+        .flash-success {
+            background-color: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .flash-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .flash-warning {
+            background-color: #fff3bf;
+            color: #856404;
+        }
+
+        @media (max-width: 800px) {
+
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .update-form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="navbar">
+
+        <h2>
+            IT Service Desk
+        </h2>
+
+        <div class="nav-links">
+
+            <a
+                href="{{ url_for(
+                    'user_controller.agent_dashboard'
+                ) }}"
+                class="dashboard"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'user_controller.logout'
+                ) }}"
+                class="logout"
+            >
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        {% with messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="flash flash-{{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <div class="card page-header">
+
+            <div>
+
+                <h1>
+                    Assigned Tickets
+                </h1>
+
+                <p>
+                    Welcome,
+                    <strong>{{ name }}</strong>.
+                    Manage tickets assigned to you.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <form
+                method="GET"
+                action="{{ url_for(
+                    'ticket_assignment.view_assigned_tickets'
+                ) }}"
+                class="filter-form"
+            >
+
+                <div class="filter-group">
+
+                    <label for="status">
+                        Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                    >
+
+                        <option
+                            value=""
+                            {% if not current_status %}
+                                selected
+                            {% endif %}
+                        >
+                            All
+                        </option>
+
+                        <option
+                            value="ASSIGNED"
+                            {% if current_status == "ASSIGNED" %}
+                                selected
+                            {% endif %}
+                        >
+                            Assigned
+                        </option>
+
+                        <option
+                            value="IN_PROGRESS"
+                            {% if current_status == "IN_PROGRESS" %}
+                                selected
+                            {% endif %}
+                        >
+                            In Progress
+                        </option>
+
+                        <option
+                            value="RESOLVED"
+                            {% if current_status == "RESOLVED" %}
+                                selected
+                            {% endif %}
+                        >
+                            Resolved
+                        </option>
+
+                        <option
+                            value="CLOSED"
+                            {% if current_status == "CLOSED" %}
+                                selected
+                            {% endif %}
+                        >
+                            Closed
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    Filter
+                </button>
+
+
+                <a
+                    href="{{ url_for(
+                        'ticket_assignment.view_assigned_tickets'
+                    ) }}"
+                    class="button clear-button"
+                >
+                    Clear
+                </a>
+
+            </form>
+
+        </div>
+
+
+        <div class="card">
+
+            {% if tickets %}
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    Ticket
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Priority
+                                </th>
+
+                                <th>
+                                    Severity
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for ticket in tickets %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <span class="ticket-id">
+                                            #{{ ticket.id }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="ticket-title">
+                                            {{ ticket.title }}
+                                        </div>
+
+                                        <div class="ticket-description">
+
+                                            {{ ticket.description[:120] }}
+
+                                            {% if ticket.description|length > 120 %}
+                                                ...
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if ticket.category %}
+
+                                            {{ ticket.category.name }}
+
+                                        {% else %}
+
+                                            -
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                priority-{{ ticket.priority|lower }}
+                                            "
+                                        >
+
+                                            {{ ticket.priority }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ ticket.severity }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if ticket.status == "ASSIGNED" %}
+
+                                            <span
+                                                class="status status-assigned"
+                                            >
+                                                ASSIGNED
+                                            </span>
+
+                                        {% elif ticket.status == "IN_PROGRESS" %}
+
+                                            <span
+                                                class="status status-progress"
+                                            >
+                                                IN PROGRESS
+                                            </span>
+
+                                        {% elif ticket.status == "RESOLVED" %}
+
+                                            <span
+                                                class="status status-resolved"
+                                            >
+                                                RESOLVED
+                                            </span>
+
+                                        {% elif ticket.status == "CLOSED" %}
+
+                                            <span
+                                                class="status status-closed"
+                                            >
+                                                CLOSED
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="status">
+                                                {{ ticket.status }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if ticket.status == "ASSIGNED" %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for(
+                                                    'ticket_assignment.update_ticket_status',
+                                                    ticket_id=ticket.id
+                                                ) }}"
+                                                class="update-form"
+                                            >
+
+                                                <select
+                                                    name="status"
+                                                    required
+                                                >
+
+                                                    <option
+                                                        value=""
+                                                    >
+                                                        Select Status
+                                                    </option>
+
+                                                    <option
+                                                        value="IN_PROGRESS"
+                                                    >
+                                                        In Progress
+                                                    </option>
+
+                                                </select>
+
+
+                                                <button
+                                                    type="submit"
+                                                    class="button"
+                                                >
+                                                    Update
+                                                </button>
+
+                                            </form>
+
+
+                                        {% elif ticket.status == "IN_PROGRESS" %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for(
+                                                    'ticket_assignment.update_ticket_status',
+                                                    ticket_id=ticket.id
+                                                ) }}"
+                                                class="update-form"
+                                            >
+
+                                                <select
+                                                    name="status"
+                                                    required
+                                                >
+
+                                                    <option
+                                                        value=""
+                                                    >
+                                                        Select Status
+                                                    </option>
+
+                                                    <option
+                                                        value="RESOLVED"
+                                                    >
+                                                        Resolved
+                                                    </option>
+
+                                                </select>
+
+
+                                                <button
+                                                    type="submit"
+                                                    class="button"
+                                                >
+                                                    Update
+                                                </button>
+
+                                            </form>
+
+
+                                        {% else %}
+
+                                            <span class="no-action">
+                                                No status action available
+                                            </span>
+
+                                        {% endif %}
+
+
+                                        <a
+                                            href="{{ url_for(
+                                                'ticket_controller.ticket_details',
+                                                ticket_id=ticket.id
+                                            ) }}"
+                                            class="view-button"
+                                        >
+                                            View
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+
+                    <h2>
+                        No Assigned Tickets
+                    </h2>
+
+                    <p>
+                        There are currently no tickets
+                        assigned to you.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

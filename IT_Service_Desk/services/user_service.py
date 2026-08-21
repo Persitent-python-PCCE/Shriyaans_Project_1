@@ -1,79 +1,166 @@
+from dataclasses import asdict
+
 from models.user import User
+
 from dao.user_dao import UserDAO
-from werkzeug.security import check_password_hash, generate_password_hash
-from utils.password_v import validate_password
+
+from werkzeug.security import generate_password_hash
+
 from utils.email_v import verify_email
+from utils.password_v import validate_password
+
+
 class UserService:
-    def __init__(self):
-        self.user_dao = UserDAO()
 
-    def get_all_users(self):
-        users = self.user_dao.get_all()
-        return users
+    @staticmethod
+    def create_user(data):
 
-    def get_user_by_name(self, name):
-        user = self.user_dao.get_by_name(name)
-        return user
+        email = data["email"].strip().lower()
+        password = data["password"]
 
-    def get_user_by_email(self, email):
-        user_email = self.user_dao.get_by_email(email=email)
-        return user_email
+        if not verify_email(email):
+            raise ValueError(
+                "Invalid email format."
+            )
 
-    def get_user_by_id(self, user_id):
-        user_id = self.user_dao.get_by_id(user_id=user_id)
-        return user_id
+        if not validate_password(password):
+            raise ValueError(
+                "Password must be at least 8 characters "
+                "and contain letters, digits and special characters."
+            )
 
-    def get_user_by_role(self, role_id):
-        user_role = self.user_dao.get_by_role(role_id=role_id)
-        return user_role
-    
-    def update_user(self, data):
-        user = self.user_dao.get_by_id(data["id"])
-        if not user:
-            return None
-        if "name" in data:
-            user.name = data["name"]
-        if "email" in data:
-            user.email = data["email"]
-        if "role_id" in data:
-            user.role_id = data["role_id"]
-        if "is_active" in data:
-            user.is_active = data["is_active"]
-        usr = self.user_dao.update(user)
-        return usr
+        existing_user = UserDAO.get_by_email(email)
 
-    def delete_user(self, email):
-        user = self.user_dao.get_by_email(email=email)
-        if not user:
-            return False
-        self.user_dao.delete(user)
-        return True
+        if existing_user:
+            raise ValueError(
+                "Email already registered."
+            )
 
-    def create_user(self, data):
-        exist = self.user_dao.get_by_email(data["email"])
-
-        v_password=validate_password(data["password"])
-
-        if not v_password:
-            raise ValueError("Password must be at least 8 characters long "
-            "and contain a digit and special character.")
-        
-        v_email=verify_email(data["email"])
-        if not v_email:
-            raise ValueError("Invalid Email format.")
-        if exist:
-            raise ValueError("User already exists.")
-        password_hash = generate_password_hash(
-            data["password"]
+        hashed_password = generate_password_hash(
+            password
         )
+
         user = User(
-            name=data["name"],
-            email=data["email"],
-            password_hash=password_hash,
-            role_id=data["role_id"]
+            name=data["name"].strip(),
+            email=email,
+            password_hash=hashed_password,
+            role_id=int(data["role_id"]),
+            is_active=True
         )
-        usr = self.user_dao.create(user)
-        return usr
+
+        return UserDAO.create(user)
+
+    @staticmethod
+    def get_user_by_email(email):
+
+        if not email:
+            return None
+
+        return UserDAO.get_by_email(
+            email.strip().lower()
+        )
+
+    @staticmethod
+    def get_user_by_id(user_id):
+
+        if not user_id:
+            return None
+
+        return UserDAO.get_by_id(
+            user_id
+        )
+
+    @staticmethod
+    def get_all_users():
+
+        return UserDAO.get_all()
+
+    @staticmethod
+    def update_user(data):
+
+        user_id = data.get("id")
+
+        if not user_id:
+            raise ValueError(
+                "User ID is required."
+            )
+
+        user = UserDAO.get_by_id(
+            user_id
+        )
+
+        if not user:
+            raise ValueError(
+                "User not found."
+            )
+
+        if "name" in data:
+
+            name = data["name"].strip()
+
+            if not name:
+                raise ValueError(
+                    "Name cannot be empty."
+                )
+
+            user.name = name
+
+        if "email" in data:
+
+            email = data["email"].strip().lower()
+
+            if not verify_email(email):
+                raise ValueError(
+                    "Invalid email format."
+                )
+
+            existing_user = UserDAO.get_by_email(
+                email
+            )
+
+            if existing_user and existing_user.id != user.id:
+                raise ValueError(
+                    "Email already registered."
+                )
+
+            user.email = email
+
+        if "role_id" in data:
+
+            if data["role_id"] is None:
+                raise ValueError(
+                    "Role ID is required."
+                )
+
+            user.role_id = int(
+                data["role_id"]
+            )
+
+        if "is_active" in data:
+
+            user.is_active = bool(
+                data["is_active"]
+            )
+
+        return UserDAO.update(
+            user
+        )
+
+    @staticmethod
+    def delete_user(email):
+
+        user = UserDAO.get_by_email(
+            email.strip().lower()
+        )
+
+        if not user:
+            raise ValueError(
+                "User not found."
+            )
+
+        return UserDAO.delete(
+            user
+        )
 
     @staticmethod
     def get_system_statistics():
@@ -82,35 +169,29 @@ class UserService:
 
         total_users = len(users)
 
-        total_employees = sum(
-            1
-            for user in users
-            if user.role and user.role.name == "EMPLOYEE"
-        )
+        total_employees = 0
+        total_agents = 0
+        total_admins = 0
+        active_users = 0
+        inactive_users = 0
 
-        total_agents = sum(
-            1
-            for user in users
-            if user.role and user.role.name == "AGENT"
-        )
+        for user in users:
 
-        total_admins = sum(
-            1
-            for user in users
-            if user.role and user.role.name == "ADMIN"
-        )
+            if user.role:
 
-        active_users = sum(
-            1
-            for user in users
-            if user.is_active
-        )
+                if user.role.name == "EMPLOYEE":
+                    total_employees += 1
 
-        inactive_users = sum(
-            1
-            for user in users
-            if not user.is_active
-        )
+                elif user.role.name == "AGENT":
+                    total_agents += 1
+
+                elif user.role.name == "ADMIN":
+                    total_admins += 1
+
+            if user.is_active:
+                active_users += 1
+            else:
+                inactive_users += 1
 
         return {
             "total_users": total_users,

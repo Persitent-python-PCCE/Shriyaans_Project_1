@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Tickets - IT Service Desk</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #212529;
+        }
+
+        .navbar {
+            background-color: #343a40;
+            color: white;
+            padding: 18px 40px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+        }
+
+        .dashboard {
+            background-color: #495057;
+        }
+
+        .logout {
+            background-color: #dc3545;
+        }
+
+        .container {
+            width: 96%;
+            max-width: 1400px;
+            margin: 35px auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .ticket-id {
+            color: #087f5b;
+            font-weight: bold;
+        }
+
+        .ticket-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .ticket-description {
+            color: #6c757d;
+            font-size: 12px;
+            max-width: 260px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-open {
+            background-color: #e7f5ff;
+            color: #1971c2;
+        }
+
+        .status-assigned {
+            background-color: #fff3bf;
+            color: #856404;
+        }
+
+        .status-progress {
+            background-color: #e5dbff;
+            color: #6741d9;
+        }
+
+        .status-resolved {
+            background-color: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .status-closed {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .priority {
+            font-weight: bold;
+        }
+
+        .priority-low {
+            color: #2b8a3e;
+        }
+
+        .priority-medium {
+            color: #e67700;
+        }
+
+        .priority-high {
+            color: #d9480f;
+        }
+
+        .priority-critical {
+            color: #c92a2a;
+        }
+
+        .agent-form {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+            min-width: 250px;
+        }
+
+        .agent-form select {
+            padding: 9px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            min-width: 150px;
+        }
+
+        .agent-form button {
+            border: none;
+            padding: 9px 12px;
+            border-radius: 6px;
+            background-color: #087f5b;
+            color: white;
+            cursor: pointer;
+        }
+
+        .agent-form button:hover {
+            background-color: #066b4d;
+        }
+
+        .assigned-agent {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .unassigned {
+            color: #c92a2a;
+            font-weight: bold;
+        }
+
+        .view-button {
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #343a40;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .view-button:hover {
+            background-color: #495057;
+        }
+
+        .escalated {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            background-color: #fff3bf;
+            color: #856404;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+
+        .flash {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 15px;
+        }
+
+        .flash-success {
+            background-color: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .flash-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .flash-warning {
+            background-color: #fff3bf;
+            color: #856404;
+        }
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="navbar">
+
+        <h2>
+            IT Service Desk
+        </h2>
+
+        <div class="nav-links">
+
+            <a
+                href="{{ url_for(
+                    'user_controller.admin_dashboard'
+                ) }}"
+                class="dashboard"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'user_controller.logout'
+                ) }}"
+                class="logout"
+            >
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        {% with messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="flash flash-{{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <div class="card page-header">
+
+            <div>
+
+                <h1>
+                    Manage Tickets
+                </h1>
+
+                <p>
+                    View all support tickets and assign
+                    tickets to support agents.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            {% if tickets %}
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Ticket
+                                </th>
+
+                                <th>
+                                    Issue
+                                </th>
+
+                                <th>
+                                    Employee
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Priority
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Assigned Agent
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for ticket in tickets %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <span class="ticket-id">
+
+                                            #{{ ticket.id }}
+
+                                        </span>
+
+
+                                        {% if ticket.is_escalated %}
+
+                                            <br>
+
+                                            <span class="escalated">
+                                                Escalated
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="ticket-title">
+
+                                            {{ ticket.title }}
+
+                                        </div>
+
+                                        <div class="ticket-description">
+
+                                            {{ ticket.description[:100] }}
+
+                                            {% if ticket.description|length > 100 %}
+                                                ...
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if ticket.creator %}
+
+                                            {{ ticket.creator.name }}
+
+                                        {% else %}
+
+                                            -
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if ticket.category %}
+
+                                            {{ ticket.category.name }}
+
+                                        {% else %}
+
+                                            -
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                priority
+                                                priority-{{ ticket.priority|lower }}
+                                            "
+                                        >
+
+                                            {{ ticket.priority }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if ticket.status == "OPEN" %}
+
+                                            <span
+                                                class="status status-open"
+                                            >
+                                                OPEN
+                                            </span>
+
+                                        {% elif ticket.status == "ASSIGNED" %}
+
+                                            <span
+                                                class="status status-assigned"
+                                            >
+                                                ASSIGNED
+                                            </span>
+
+                                        {% elif ticket.status == "IN_PROGRESS" %}
+
+                                            <span
+                                                class="status status-progress"
+                                            >
+                                                IN PROGRESS
+                                            </span>
+
+                                        {% elif ticket.status == "RESOLVED" %}
+
+                                            <span
+                                                class="status status-resolved"
+                                            >
+                                                RESOLVED
+                                            </span>
+
+                                        {% elif ticket.status == "CLOSED" %}
+
+                                            <span
+                                                class="status status-closed"
+                                            >
+                                                CLOSED
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% set active_assignment = namespace(
+                                            value=None
+                                        ) %}
+
+                                        {% for assignment in ticket.assignments %}
+
+                                            {% if assignment.unassigned_at is none %}
+
+                                                {% set active_assignment.value =
+                                                    assignment %}
+
+                                            {% endif %}
+
+                                        {% endfor %}
+
+
+                                        {% if active_assignment.value %}
+
+                                            <div class="assigned-agent">
+
+                                                {% if active_assignment.value.agent %}
+
+                                                    {{ active_assignment.value.agent.name }}
+
+                                                {% else %}
+
+                                                    Agent assigned
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                        {% else %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for(
+                                                    'admin_ticket.assign_ticket',
+                                                    ticket_id=ticket.id
+                                                ) }}"
+                                                class="agent-form"
+                                            >
+
+                                                <select
+                                                    name="agent_id"
+                                                    required
+                                                >
+
+                                                    <option value="">
+                                                        Select Agent
+                                                    </option>
+
+
+                                                    {% for agent in agents %}
+
+                                                        <option
+                                                            value="{{ agent.id }}"
+                                                        >
+
+                                                            {{ agent.name }}
+
+                                                        </option>
+
+                                                    {% endfor %}
+
+                                                </select>
+
+
+                                                <button
+                                                    type="submit"
+                                                >
+
+                                                    Assign
+
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin_ticket.ticket_details',
+                                                ticket_id=ticket.id
+                                            ) }}"
+                                            class="view-button"
+                                        >
+
+                                            View
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+
+                    <h2>
+                        No Tickets Found
+                    </h2>
+
+                    <p>
+                        There are currently no tickets
+                        in the system.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
