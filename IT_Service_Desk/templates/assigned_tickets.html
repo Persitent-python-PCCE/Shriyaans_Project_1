@@ -134,14 +134,6 @@
             background-color: #066b4d;
         }
 
-        .clear-button {
-            background-color: #6c757d;
-        }
-
-        .clear-button:hover {
-            background-color: #5c636a;
-        }
-
         .table-wrapper {
             overflow-x: auto;
         }
@@ -195,6 +187,11 @@
             font-size: 11px;
             font-weight: bold;
             white-space: nowrap;
+        }
+
+        .status-open {
+            background-color: #dbeafe;
+            color: #1d4ed8;
         }
 
         .status-assigned {
@@ -261,15 +258,7 @@
         .view-button:hover {
             background-color: #066b4d;
         }
-
-        .no-action {
-            display: inline-block;
-            color: #6c757d;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .empty {
+.empty {
             text-align: center;
             padding: 50px;
             color: #6c757d;
@@ -432,6 +421,15 @@
                         </option>
 
                         <option
+                            value="OPEN"
+                            {% if current_status == "OPEN" %}
+                                selected
+                            {% endif %}
+                        >
+                            Open
+                        </option>
+
+                        <option
                             value="ASSIGNED"
                             {% if current_status == "ASSIGNED" %}
                                 selected
@@ -478,17 +476,6 @@
                 >
                     Filter
                 </button>
-
-
-                <a
-                    href="{{ url_for(
-                        'ticket_assignment.view_assigned_tickets'
-                    ) }}"
-                    class="button clear-button"
-                >
-                    Clear
-                </a>
-
             </form>
 
         </div>
@@ -612,7 +599,15 @@
 
                                     <td>
 
-                                        {% if ticket.status == "ASSIGNED" %}
+                                        {% if ticket.status == "OPEN" %}
+
+                                            <span
+                                                class="status status-open"
+                                            >
+                                                OPEN
+                                            </span>
+
+                                        {% elif ticket.status == "ASSIGNED" %}
 
                                             <span
                                                 class="status status-assigned"
@@ -657,7 +652,15 @@
 
                                     <td>
 
-                                        {% if ticket.status == "ASSIGNED" %}
+                                        {% if ticket.status == "OPEN" %}
+
+                                            <span
+                                                class="status status-open"
+                                            >
+                                                OPEN
+                                            </span>
+
+                                        {% elif ticket.status == "ASSIGNED" %}
 
                                             <form
                                                 method="POST"
@@ -739,12 +742,6 @@
                                             </form>
 
 
-                                        {% else %}
-
-                                            <span class="no-action">
-                                                No status action available
-                                            </span>
-
                                         {% endif %}
 
 
@@ -774,14 +771,27 @@
 
                 <div class="empty">
 
-                    <h2>
-                        No Assigned Tickets
-                    </h2>
+                    {% if current_status %}
 
-                    <p>
-                        There are currently no tickets
-                        assigned to you.
-                    </p>
+                        <h2>
+                            No tickets in {{ current_status|replace("_", " ")|title }} section
+                        </h2>
+
+                        <p>
+                            There are currently no assigned tickets with this status.
+                        </p>
+
+                    {% else %}
+
+                        <h2>
+                            No Assigned Tickets
+                        </h2>
+
+                        <p>
+                            There are currently no tickets assigned to you.
+                        </p>
+
+                    {% endif %}
 
                 </div>
 

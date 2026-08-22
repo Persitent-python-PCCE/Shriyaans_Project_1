@@ -91,17 +91,7 @@
         .button-secondary:hover {
             background: #23272b;
         }
-
-        .notice {
-            background: #eef6ff;
-            border-left: 4px solid #2196f3;
-            padding: 15px 18px;
-            border-radius: 8px;
-            color: #344054;
-            margin-bottom: 24px;
-        }
-
-        .stats {
+.stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
@@ -265,29 +255,6 @@
             color: #1769aa;
         }
 
-        .role-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .role-box {
-            padding: 18px;
-            border-radius: 10px;
-            background: #f8f9fa;
-        }
-
-        .role-box strong {
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .role-box span {
-            color: #667085;
-            font-size: 13px;
-        }
-
         @media (max-width: 1000px) {
 
             .stats {
@@ -299,9 +266,6 @@
                 align-items: flex-start;
             }
 
-            .role-info {
-                grid-template-columns: 1fr;
-            }
         }
 
         @media (max-width: 600px) {
@@ -402,21 +366,7 @@
         </div>
 
     </div>
-
-
-    <div class="notice">
-
-        <strong>Administrator access:</strong>
-
-        You can register new Employee and Agent accounts
-        and remove existing Employee or Agent accounts.
-
-        Administrator accounts are protected.
-
-    </div>
-
-
-    <div class="card">
+<div class="card">
 
         <div class="stats">
 
@@ -715,62 +665,6 @@
 
     </div>
 
-
-    <div class="card">
-
-        <h2 class="section-title">
-            Account Roles
-        </h2>
-
-
-        <div class="role-info">
-
-
-            <div class="role-box">
-
-                <strong>
-                    Employee
-                </strong>
-
-                <span>
-                    Can create and manage their own
-                    service desk tickets.
-                </span>
-
-            </div>
-
-
-            <div class="role-box">
-
-                <strong>
-                    Support Agent
-                </strong>
-
-                <span>
-                    Handles assigned tickets and
-                    updates ticket status.
-                </span>
-
-            </div>
-
-
-            <div class="role-box">
-
-                <strong>
-                    Administrator
-                </strong>
-
-                <span>
-                    Manages users, agents and the
-                    overall service desk.
-                </span>
-
-            </div>
-
-
-        </div>
-
-    </div>
 
 
 </div>

@@ -494,47 +494,7 @@
             </h2>
 
             <div class="actions">
-
-                <a
-                    href="{{ url_for(
-                        'ticket_assignment.view_assigned_tickets'
-                    ) }}"
-                    class="action"
-                >
-
-                    <div class="action-title">
-                        Assigned Tickets
-                    </div>
-
-                    <div class="action-description">
-                        View all tickets currently assigned
-                        to you and update their status.
-                    </div>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for(
-                        'ticket_assignment.view_assigned_tickets',
-                        status='IN_PROGRESS'
-                    ) }}"
-                    class="action"
-                >
-
-                    <div class="action-title">
-                        In Progress Tickets
-                    </div>
-
-                    <div class="action-description">
-                        View tickets you are currently
-                        working on.
-                    </div>
-
-                </a>
-
-
-                <a
+<a
                     href="{{ url_for(
                         'ticket_assignment.view_assigned_tickets',
                         status='RESOLVED'
