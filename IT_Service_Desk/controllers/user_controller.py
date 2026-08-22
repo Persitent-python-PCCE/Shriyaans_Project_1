@@ -1,34 +1,72 @@
 from flask import Blueprint,request,render_template,redirect,url_for,session,current_app
 from services.user_service import UserService
 from services.ticket_service import TicketService
+
 from werkzeug.security import check_password_hash
-from sqlalchemy.exc import IntegrityError
+
 
 user_controller = Blueprint(
     "user_controller",
     __name__
 )
 
+
 user_service = UserService()
 ticket_service = TicketService()
 
 
-@user_controller.route(
-    "/login",
-    methods=["GET", "POST"]
-)
-def login():
+def _login_user(user):
+
+    session.clear()
+
+    session["user_id"] = user.id
+    session["user_name"] = user.name
+    session["user_email"] = user.email
+    session["role"] = user.role.name
+
+    if user.role.name == "EMPLOYEE":
+
+        return redirect(
+            url_for(
+                "user_controller.employee_dashboard"
+            )
+        )
+
+    if user.role.name == "AGENT":
+
+        return redirect(
+            url_for(
+                "user_controller.agent_dashboard"
+            )
+        )
+
+    if user.role.name == "ADMIN":
+
+        return redirect(
+            url_for(
+                "user_controller.admin_dashboard"
+            )
+        )
+
+    session.clear()
+
+    return redirect(
+        url_for("user_controller.employee_login")
+    )
+
+
+def _process_login(role_name, template_name):
 
     if request.method == "GET":
 
         return render_template(
-            "login_page.html"
+            template_name
         )
 
     email = request.form.get(
         "email",
         ""
-    ).strip()
+    ).strip().lower()
 
     password = request.form.get(
         "password",
@@ -38,7 +76,7 @@ def login():
     if not email or not password:
 
         return render_template(
-            "login_page.html",
+            template_name,
             error="Email and password are required."
         )
 
@@ -51,15 +89,32 @@ def login():
         if not user:
 
             return render_template(
-                "login_page.html",
+                template_name,
                 error="Invalid email or password."
             )
 
         if not user.is_active:
 
             return render_template(
-                "login_page.html",
+                template_name,
                 error="Your account is inactive."
+            )
+
+        if not user.role:
+
+            return render_template(
+                template_name,
+                error="User role is not configured."
+            )
+
+        if user.role.name != role_name:
+
+            return render_template(
+                template_name,
+                error=(
+                    f"This login is only for "
+                    f"{role_name.lower()} accounts."
+                )
             )
 
         if not check_password_hash(
@@ -68,74 +123,88 @@ def login():
         ):
 
             return render_template(
-                "login_page.html",
+                template_name,
                 error="Invalid email or password."
             )
 
-        if not user.role:
-
-            return render_template(
-                "login_page.html",
-                error="User role is not configured."
-            )
-
-        session["user_id"] = user.id
-        session["user_name"] = user.name
-        session["user_email"] = user.email
-        session["role"] = user.role.name
-
-        if user.role.name == "EMPLOYEE":
-
-            return redirect(
-                url_for(
-                    "user_controller.employee_dashboard"
-                )
-            )
-
-        elif user.role.name == "AGENT":
-
-            return redirect(
-                url_for(
-                    "user_controller.agent_dashboard"
-                )
-            )
-
-        elif user.role.name == "ADMIN":
-
-            return redirect(
-                url_for(
-                    "user_controller.admin_dashboard"
-                )
-            )
-
-        return render_template(
-            "login_page.html",
-            error="Invalid user role."
-        )
+        return _login_user(user)
 
     except Exception:
 
         current_app.logger.exception(
-            "Unexpected error during login."
+            "Login failed for role %s.",
+            role_name
         )
 
         return render_template(
-            "login_page.html",
+            template_name,
             error="Unable to process login. Please try again."
         )
 
 
 @user_controller.route(
-    "/users/add",
+    "/employee/login",
     methods=["GET", "POST"]
 )
-def register():
+def employee_login():
+
+    return _process_login(
+        "EMPLOYEE",
+        "employee_login.html"
+    )
+
+
+@user_controller.route(
+    "/agent/login",
+    methods=["GET", "POST"]
+)
+def agent_login():
+
+    return _process_login(
+        "AGENT",
+        "agent_login.html"
+    )
+
+
+@user_controller.route(
+    "/admin/login",
+    methods=["GET", "POST"]
+)
+def admin_login():
+
+    return _process_login(
+        "ADMIN",
+        "admin_login.html"
+    )
+
+
+@user_controller.route(
+    "/admin/register",
+    methods=["GET", "POST"]
+)
+def admin_register():
+
+    users = user_service.get_all_users()
+
+    admins = [
+        user
+        for user in users
+        if user.role
+        and user.role.name == "ADMIN"
+    ]
+
+    if admins:
+
+        return redirect(
+            url_for(
+                "user_controller.admin_login"
+            )
+        )
 
     if request.method == "GET":
 
         return render_template(
-            "login_page.html",
-            register=True
+            "admin_register.html"
         )
 
     data = {
@@ -143,17 +212,18 @@ def register():
             "name",
             ""
         ),
+
         "email": request.form.get(
             "email",
             ""
         ),
+
         "password": request.form.get(
             "password",
             ""
         ),
-        "role_id": request.form.get(
-            "role_id"
-        )
+
+        "role_name": "ADMIN"
     }
 
     try:
@@ -164,42 +234,26 @@ def register():
 
         return redirect(
             url_for(
-                "user_controller.login"
+                "user_controller.admin_login"
             )
         )
 
     except ValueError as exc:
 
         return render_template(
-            "login_page.html",
-            error=str(exc),
-            register=True
-        )
-
-    except IntegrityError:
-
-        return render_template(
-            "login_page.html",
-            error=(
-                "Database constraint error. "
-                "Please check your details."
-            ),
-            register=True
+            "admin_register.html",
+            error=str(exc)
         )
 
     except Exception:
 
         current_app.logger.exception(
-            "Unexpected error while creating user."
+            "Failed to create initial admin."
         )
 
         return render_template(
-            "login_page.html",
-            error=(
-                "Something went wrong while "
-                "creating the account."
-            ),
-            register=True
+            "admin_register.html",
+            error="Unable to create admin account."
         )
 
 
@@ -212,7 +266,7 @@ def employee_dashboard():
 
         return redirect(
             url_for(
-                "user_controller.login"
+                "user_controller.employee_login"
             )
         )
 
@@ -241,7 +295,7 @@ def agent_dashboard():
 
         return redirect(
             url_for(
-                "user_controller.login"
+                "user_controller.agent_login"
             )
         )
 
@@ -292,9 +346,7 @@ def agent_dashboard():
     except Exception:
 
         current_app.logger.exception(
-            "Failed to load agent dashboard "
-            "for user %s.",
-            user_id
+            "Failed to load agent dashboard."
         )
 
         return render_template(
@@ -317,10 +369,7 @@ def agent_dashboard():
             resolved_tickets=0,
             escalated_tickets=0,
 
-            error=(
-                "Unable to load dashboard "
-                "statistics."
-            )
+            error="Unable to load dashboard statistics."
         )
 
 
@@ -333,23 +382,20 @@ def admin_dashboard():
         "user_id"
     )
 
-     
     if not user_id:
 
         return redirect(
             url_for(
-                "user_controller.login"
+                "user_controller.admin_login"
             )
         )
 
-    
     if session.get("role") != "ADMIN":
 
         return "Unauthorized", 403
 
     try:
 
-         
         current_user = user_service.get_user_by_id(
             user_id
         )
@@ -360,11 +406,10 @@ def admin_dashboard():
 
             return redirect(
                 url_for(
-                    "user_controller.login"
+                    "user_controller.admin_login"
                 )
             )
 
-  
         user_statistics = (
             user_service.get_system_statistics()
         )
@@ -373,18 +418,9 @@ def admin_dashboard():
             ticket_service.get_system_statistics()
         )
 
-         
-        current_app.logger.info(
-            "Admin statistics loaded: "
-            "users=%s tickets=%s",
-            user_statistics,
-            ticket_statistics
-        )
-
         return render_template(
             "admin_dashboard.html",
 
-             
             name=current_user.name,
 
             email=current_user.email,
@@ -401,38 +437,23 @@ def admin_dashboard():
                 else "Inactive"
             ),
 
-           
             user_statistics=user_statistics,
 
-        
             ticket_statistics=ticket_statistics
         )
 
-    except Exception as exc:
+    except Exception:
 
-        
         current_app.logger.exception(
-            "Failed to load admin dashboard "
-            "statistics for user %s: %s",
-            user_id,
-            exc
+            "Failed to load admin dashboard."
         )
 
         return render_template(
             "admin_dashboard.html",
 
-            name=session.get(
-                "user_name"
-            ),
-
-            email=session.get(
-                "user_email"
-            ),
-
-            role=session.get(
-                "role"
-            ),
-
+            name=session.get("user_name"),
+            email=session.get("user_email"),
+            role=session.get("role"),
             status="Active",
 
             user_statistics={
@@ -457,6 +478,7 @@ def admin_dashboard():
             error="Unable to load system statistics."
         )
 
+
 @user_controller.route(
     "/logout"
 )
@@ -466,6 +488,16 @@ def logout():
 
     return redirect(
         url_for(
-            "user_controller.login"
+            "user_controller.employee_login"
+        )
+    )
+
+
+@user_controller.route("/")
+def login():
+
+    return redirect(
+        url_for(
+            "user_controller.employee_login"
         )
     )

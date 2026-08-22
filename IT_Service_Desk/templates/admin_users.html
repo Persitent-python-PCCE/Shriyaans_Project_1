@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Users | Admin</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>User Management | Admin</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -27,7 +34,7 @@
         .card {
             background: #ffffff;
             border-radius: 16px;
-            padding: 32px;
+            padding: 30px;
             margin-bottom: 24px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
@@ -41,34 +48,54 @@
 
         .header h1 {
             margin: 0 0 8px;
-            font-size: 36px;
+            font-size: 34px;
         }
 
         .header p {
             margin: 0;
             color: #667085;
-            font-size: 17px;
+            font-size: 16px;
         }
 
-        .back-btn {
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button {
             display: inline-block;
+            padding: 12px 18px;
+            border-radius: 8px;
             text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button-primary {
+            background: #087f5b;
+            color: #ffffff;
+        }
+
+        .button-primary:hover {
+            background: #066b4d;
+        }
+
+        .button-secondary {
             background: #343a40;
             color: #ffffff;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: 0.2s ease;
         }
 
-        .back-btn:hover {
+        .button-secondary:hover {
             background: #23272b;
         }
 
         .notice {
             background: #eef6ff;
             border-left: 4px solid #2196f3;
-            padding: 16px 18px;
+            padding: 15px 18px;
             border-radius: 8px;
             color: #344054;
             margin-bottom: 24px;
@@ -83,24 +110,24 @@
         .stat {
             background: #f8f9fa;
             border-radius: 12px;
-            padding: 24px;
+            padding: 22px;
             text-align: center;
         }
 
         .stat-number {
-            font-size: 32px;
+            font-size: 30px;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
         }
 
         .stat-label {
             color: #667085;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .section-title {
-            margin: 0 0 24px;
-            font-size: 24px;
+            margin: 0 0 22px;
+            font-size: 23px;
         }
 
         .table-wrapper {
@@ -115,38 +142,39 @@
         th {
             text-align: left;
             background: #f8f9fa;
-            padding: 16px;
-            font-size: 14px;
+            padding: 15px;
+            font-size: 13px;
             color: #344054;
+            white-space: nowrap;
         }
 
         td {
-            padding: 18px 16px;
+            padding: 17px 15px;
             border-top: 1px solid #e4e7ec;
-            font-size: 15px;
+            font-size: 14px;
+            vertical-align: middle;
         }
 
         tr:hover td {
             background: #fafafa;
         }
 
-        .name {
-            font-weight: bold;
-            color: #20252b;
-            font-size: 16px;
+        .user-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 5px;
         }
 
-        .email {
+        .user-email {
             color: #667085;
-            margin-top: 5px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .badge {
             display: inline-block;
-            padding: 7px 13px;
+            padding: 6px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
         }
 
@@ -175,22 +203,46 @@
             color: #c62828;
         }
 
+        .remove-button {
+            border: none;
+            background: #dc3545;
+            color: white;
+            padding: 8px 13px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .remove-button:hover {
+            background: #b02a37;
+        }
+
+        .protected {
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .removed {
+            color: #c62828;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         .empty {
             text-align: center;
-            padding: 50px 20px;
+            padding: 45px 20px;
             color: #667085;
-            font-size: 16px;
         }
 
         .flash-container {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .alert {
-            padding: 15px 18px;
+            padding: 14px 17px;
             border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
 
         .alert-success {
@@ -213,6 +265,29 @@
             color: #1769aa;
         }
 
+        .role-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .role-box {
+            padding: 18px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .role-box strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .role-box span {
+            color: #667085;
+            font-size: 13px;
+        }
+
         @media (max-width: 1000px) {
 
             .stats {
@@ -222,6 +297,10 @@
             .header {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+
+            .role-info {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -244,19 +323,31 @@
                 font-size: 28px;
             }
 
-            th,
-            td {
-                padding: 12px;
+            .header-actions {
+                width: 100%;
             }
+
+            .button {
+                text-align: center;
+                width: 100%;
+            }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
 <div class="container">
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
         {% if messages %}
 
             <div class="flash-container">
@@ -272,34 +363,55 @@
             </div>
 
         {% endif %}
+
     {% endwith %}
 
 
     <div class="card header">
 
         <div>
-            <h1>Users</h1>
+
+            <h1>
+                User Management
+            </h1>
 
             <p>
-                View employees, support agents, and administrators.
+                Manage employees and support agents.
             </p>
+
         </div>
 
-        <a
-            href="{{ url_for('user_controller.admin_dashboard') }}"
-            class="back-btn"
-        >
-            Back to Dashboard
-        </a>
+
+        <div class="header-actions">
+
+            <a
+                href="{{ url_for('admin_user.create_user') }}"
+                class="button button-primary"
+            >
+                + Register Employee / Agent
+            </a>
+
+
+            <a
+                href="{{ url_for('user_controller.admin_dashboard') }}"
+                class="button button-secondary"
+            >
+                Back to Dashboard
+            </a>
+
+        </div>
 
     </div>
 
 
     <div class="notice">
 
-        User accounts are displayed here for administrative
-        visibility. User editing and account management are handled
-        outside this page.
+        <strong>Administrator access:</strong>
+
+        You can register new Employee and Agent accounts
+        and remove existing Employee or Agent accounts.
+
+        Administrator accounts are protected.
 
     </div>
 
@@ -307,6 +419,7 @@
     <div class="card">
 
         <div class="stats">
+
 
             <div class="stat">
 
@@ -359,6 +472,7 @@
 
             </div>
 
+
         </div>
 
     </div>
@@ -370,134 +484,297 @@
             User Accounts
         </h2>
 
-        <div class="table-wrapper">
 
-            {% if users %}
+        {% if users %}
 
-            <table>
+            <div class="table-wrapper">
 
-                <thead>
+                <table>
 
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                    </tr>
+                    <thead>
 
-                </thead>
+                        <tr>
 
+                            <th>
+                                ID
+                            </th>
 
-                <tbody>
+                            <th>
+                                User
+                            </th>
 
-                {% for user in users %}
+                            <th>
+                                Role
+                            </th>
 
-                    <tr>
+                            <th>
+                                Status
+                            </th>
 
-                        <td>
-                            #{{ user.id }}
-                        </td>
+                            <th>
+                                Created
+                            </th>
 
+                            <th>
+                                Action
+                            </th>
 
-                        <td>
+                        </tr>
 
-                            <div class="name">
-                                {{ user.name }}
-                            </div>
-
-                            <div class="email">
-                                {{ user.email }}
-                            </div>
-
-                        </td>
+                    </thead>
 
 
-                        <td>
+                    <tbody>
 
-                            {% if user.role and user.role.name == "ADMIN" %}
+                    {% for user in users %}
 
-                                <span class="badge role-admin">
-                                    ADMIN
-                                </span>
-
-                            {% elif user.role and user.role.name == "AGENT" %}
-
-                                <span class="badge role-agent">
-                                    AGENT
-                                </span>
-
-                            {% elif user.role and user.role.name == "EMPLOYEE" %}
-
-                                <span class="badge role-employee">
-                                    EMPLOYEE
-                                </span>
-
-                            {% else %}
-
-                                <span class="badge">
-                                    {{ user.role.name if user.role else "UNKNOWN" }}
-                                </span>
-
-                            {% endif %}
-
-                        </td>
+                        <tr>
 
 
-                        <td>
-
-                            {% if user.is_active %}
-
-                                <span class="badge status-active">
-                                    ACTIVE
-                                </span>
-
-                            {% else %}
-
-                                <span class="badge status-inactive">
-                                    INACTIVE
-                                </span>
-
-                            {% endif %}
-
-                        </td>
+                            <td>
+                                #{{ user.id }}
+                            </td>
 
 
-                        <td>
+                            <td>
 
-                            {% if user.created_at %}
+                                <div class="user-name">
+                                    {{ user.name }}
+                                </div>
 
-                                {{ user.created_at.strftime('%d-%m-%Y') }}
+                                <div class="user-email">
+                                    {{ user.email }}
+                                </div>
 
-                            {% else %}
+                            </td>
 
-                                -
 
-                            {% endif %}
+                            <td>
 
-                        </td>
+                                {% if user.role
+                                      and user.role.name == "ADMIN" %}
 
-                    </tr>
+                                    <span
+                                        class="badge role-admin"
+                                    >
+                                        ADMIN
+                                    </span>
 
-                {% endfor %}
 
-                </tbody>
+                                {% elif user.role
+                                      and user.role.name == "AGENT" %}
 
-            </table>
+                                    <span
+                                        class="badge role-agent"
+                                    >
+                                        AGENT
+                                    </span>
 
-            {% else %}
 
-                <div class="empty">
-                    No users found.
-                </div>
+                                {% elif user.role
+                                      and user.role.name == "EMPLOYEE" %}
 
-            {% endif %}
+                                    <span
+                                        class="badge role-employee"
+                                    >
+                                        EMPLOYEE
+                                    </span>
+
+
+                                {% else %}
+
+                                    <span class="badge">
+                                        UNKNOWN
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if user.is_active %}
+
+                                    <span
+                                        class="badge status-active"
+                                    >
+                                        ACTIVE
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        class="badge status-inactive"
+                                    >
+                                        INACTIVE
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if user.created_at %}
+
+                                    {{ user.created_at.strftime(
+                                        '%d-%m-%Y'
+                                    ) }}
+
+                                {% else %}
+
+                                    -
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+
+                                {% if user.role
+                                      and user.role.name == "ADMIN" %}
+
+                                    <span class="protected">
+                                        Protected
+                                    </span>
+
+
+                                {% elif not user.is_active %}
+
+                                    <span class="removed">
+                                        Removed
+                                    </span>
+
+
+                                {% else %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'admin_user.remove_user',
+                                            user_id=user.id
+                                        ) }}"
+                                        onsubmit="return confirm(
+                                            'Are you sure you want to remove this user?'
+                                        );"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="remove-button"
+                                        >
+                                            Remove
+                                        </button>
+
+                                    </form>
+
+                                {% endif %}
+
+
+                            </td>
+
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+            <div class="empty">
+
+                <h3>
+                    No users found
+                </h3>
+
+                <p>
+                    There are currently no user accounts
+                    in the system.
+                </p>
+
+                <a
+                    href="{{ url_for('admin_user.create_user') }}"
+                    class="button button-primary"
+                >
+                    Register Employee / Agent
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="card">
+
+        <h2 class="section-title">
+            Account Roles
+        </h2>
+
+
+        <div class="role-info">
+
+
+            <div class="role-box">
+
+                <strong>
+                    Employee
+                </strong>
+
+                <span>
+                    Can create and manage their own
+                    service desk tickets.
+                </span>
+
+            </div>
+
+
+            <div class="role-box">
+
+                <strong>
+                    Support Agent
+                </strong>
+
+                <span>
+                    Handles assigned tickets and
+                    updates ticket status.
+                </span>
+
+            </div>
+
+
+            <div class="role-box">
+
+                <strong>
+                    Administrator
+                </strong>
+
+                <span>
+                    Manages users, agents and the
+                    overall service desk.
+                </span>
+
+            </div>
+
 
         </div>
 
     </div>
 
+
 </div>
 
 </body>
+
 </html>

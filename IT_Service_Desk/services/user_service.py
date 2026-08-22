@@ -1,86 +1,193 @@
-from dataclasses import asdict
-
-from models.user import User
-
-from dao.user_dao import UserDAO
+import re
 
 from werkzeug.security import generate_password_hash
 
-from utils.email_v import verify_email
-from utils.password_v import validate_password
+from dao.user_dao import UserDAO
+from dao.role_dao import RoleDAO
+from models.user import User
+
+
+def verify_email(email):
+
+    if not email:
+        return False
+
+    pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+    return re.match(
+        pattern,
+        email
+    ) is not None
+
+
+def validate_password(password):
+
+    if not password:
+        return False
+
+    if len(password) < 8:
+        return False
+
+    has_letter = any(
+        character.isalpha()
+        for character in password
+    )
+
+    has_digit = any(
+        character.isdigit()
+        for character in password
+    )
+
+    has_special = any(
+        not character.isalnum()
+        for character in password
+    )
+
+    return (
+        has_letter
+        and has_digit
+        and has_special
+    )
 
 
 class UserService:
 
-    @staticmethod
-    def create_user(data):
+    def get_all_users(self):
 
-        email = data["email"].strip().lower()
-        password = data["password"]
+        return UserDAO.get_all()
 
-        if not verify_email(email):
-            raise ValueError(
-                "Invalid email format."
-            )
-
-        if not validate_password(password):
-            raise ValueError(
-                "Password must be at least 8 characters "
-                "and contain letters, digits and special characters."
-            )
-
-        existing_user = UserDAO.get_by_email(email)
-
-        if existing_user:
-            raise ValueError(
-                "Email already registered."
-            )
-
-        hashed_password = generate_password_hash(
-            password
-        )
-
-        user = User(
-            name=data["name"].strip(),
-            email=email,
-            password_hash=hashed_password,
-            role_id=int(data["role_id"]),
-            is_active=True
-        )
-
-        return UserDAO.create(user)
-
-    @staticmethod
-    def get_user_by_email(email):
-
-        if not email:
-            return None
-
-        return UserDAO.get_by_email(
-            email.strip().lower()
-        )
-
-    @staticmethod
-    def get_user_by_id(user_id):
-
-        if not user_id:
-            return None
+    def get_user_by_id(self, user_id):
 
         return UserDAO.get_by_id(
             user_id
         )
 
-    @staticmethod
-    def get_all_users():
+    def get_user_by_email(self, email):
 
-        return UserDAO.get_all()
+        if not email:
+            return None
 
-    @staticmethod
-    def update_user(data):
+        email = email.strip().lower()
 
-        user_id = data.get("id")
+        return UserDAO.get_by_email(
+            email
+        )
+
+    def create_user(self, data):
+
+        name = data.get(
+            "name",
+            ""
+        ).strip()
+
+        email = data.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        password = data.get(
+            "password",
+            ""
+        )
+
+        role_name = data.get(
+            "role_name",
+            ""
+        ).strip().upper()
+
+        if not name:
+
+            raise ValueError(
+                "Name is required."
+            )
+
+        if not email:
+
+            raise ValueError(
+                "Email is required."
+            )
+
+        if not verify_email(email):
+
+            raise ValueError(
+                "Invalid email format."
+            )
+
+        if not password:
+
+            raise ValueError(
+                "Password is required."
+            )
+
+        if not validate_password(password):
+
+            raise ValueError(
+                "Password must be at least 8 characters "
+                "and contain letters, digits and special characters."
+            )
+
+        if not role_name:
+
+            raise ValueError(
+                "User role is required."
+            )
+
+        allowed_roles = {
+            "EMPLOYEE",
+            "AGENT",
+            "ADMIN"
+        }
+
+        if role_name not in allowed_roles:
+
+            raise ValueError(
+                "Invalid user role."
+            )
+
+        existing_user = UserDAO.get_by_email(
+            email
+        )
+
+        if existing_user:
+
+            raise ValueError(
+                "Email already registered."
+            )
+
+        role = RoleDAO.get_by_name(
+            role_name
+        )
+
+        if not role:
+
+            raise ValueError(
+                f"Role '{role_name}' does not exist."
+            )
+
+        password_hash = generate_password_hash(
+            password
+        )
+
+        user = User(
+            name=name,
+            email=email,
+            password_hash=password_hash,
+            role_id=role.id,
+            is_active=True
+        )
+
+        return UserDAO.create(
+            user
+        )
+
+    def update_user(self, data):
+
+        user_id = data.get(
+            "id"
+        )
 
         if not user_id:
+
             raise ValueError(
                 "User ID is required."
             )
@@ -90,15 +197,20 @@ class UserService:
         )
 
         if not user:
+
             raise ValueError(
                 "User not found."
             )
 
         if "name" in data:
 
-            name = data["name"].strip()
+            name = data.get(
+                "name",
+                ""
+            ).strip()
 
             if not name:
+
                 raise ValueError(
                     "Name cannot be empty."
                 )
@@ -107,9 +219,19 @@ class UserService:
 
         if "email" in data:
 
-            email = data["email"].strip().lower()
+            email = data.get(
+                "email",
+                ""
+            ).strip().lower()
+
+            if not email:
+
+                raise ValueError(
+                    "Email cannot be empty."
+                )
 
             if not verify_email(email):
+
                 raise ValueError(
                     "Invalid email format."
                 )
@@ -118,52 +240,128 @@ class UserService:
                 email
             )
 
-            if existing_user and existing_user.id != user.id:
+            if (
+                existing_user
+                and existing_user.id != user.id
+            ):
+
                 raise ValueError(
                     "Email already registered."
                 )
 
             user.email = email
 
-        if "role_id" in data:
+        if "password" in data:
 
-            if data["role_id"] is None:
-                raise ValueError(
-                    "Role ID is required."
+            password = data.get(
+                "password"
+            )
+
+            if password:
+
+                if not validate_password(
+                    password
+                ):
+
+                    raise ValueError(
+                        "Password must be at least 8 characters "
+                        "and contain letters, digits and special characters."
+                    )
+
+                user.password_hash = (
+                    generate_password_hash(
+                        password
+                    )
                 )
 
-            user.role_id = int(
-                data["role_id"]
+        if "role_name" in data:
+
+            role_name = data.get(
+                "role_name",
+                ""
+            ).strip().upper()
+
+            allowed_roles = {
+                "EMPLOYEE",
+                "AGENT",
+                "ADMIN"
+            }
+
+            if role_name not in allowed_roles:
+
+                raise ValueError(
+                    "Invalid user role."
+                )
+
+            role = RoleDAO.get_by_name(
+                role_name
             )
+
+            if not role:
+
+                raise ValueError(
+                    f"Role '{role_name}' does not exist."
+                )
+
+            user.role_id = role.id
 
         if "is_active" in data:
 
             user.is_active = bool(
-                data["is_active"]
+                data.get(
+                    "is_active"
+                )
             )
 
         return UserDAO.update(
             user
         )
 
-    @staticmethod
-    def delete_user(email):
+    def deactivate_user(self, user_id):
 
-        user = UserDAO.get_by_email(
-            email.strip().lower()
+        user = UserDAO.get_by_id(
+            user_id
         )
 
         if not user:
+
             raise ValueError(
                 "User not found."
             )
 
-        return UserDAO.delete(
+        if user.role:
+
+            if user.role.name == "ADMIN":
+
+                raise ValueError(
+                    "Admin accounts cannot be deactivated."
+                )
+
+        user.is_active = False
+
+        return UserDAO.update(
             user
         )
 
-    @staticmethod
-    def get_system_statistics():
+    def activate_user(self, user_id):
+
+        user = UserDAO.get_by_id(
+            user_id
+        )
+
+        if not user:
+
+            raise ValueError(
+                "User not found."
+            )
+
+        user.is_active = True
+
+        return UserDAO.update(
+            user
+        )
+
+    def get_system_statistics(self):
 
         users = UserDAO.get_all()
 
@@ -172,26 +370,36 @@ class UserService:
         total_employees = 0
         total_agents = 0
         total_admins = 0
+
         active_users = 0
         inactive_users = 0
 
         for user in users:
 
-            if user.role:
-
-                if user.role.name == "EMPLOYEE":
-                    total_employees += 1
-
-                elif user.role.name == "AGENT":
-                    total_agents += 1
-
-                elif user.role.name == "ADMIN":
-                    total_admins += 1
-
             if user.is_active:
+
                 active_users += 1
+
             else:
+
                 inactive_users += 1
+
+            if not user.role:
+                continue
+
+            role_name = user.role.name
+
+            if role_name == "EMPLOYEE":
+
+                total_employees += 1
+
+            elif role_name == "AGENT":
+
+                total_agents += 1
+
+            elif role_name == "ADMIN":
+
+                total_admins += 1
 
         return {
             "total_users": total_users,
