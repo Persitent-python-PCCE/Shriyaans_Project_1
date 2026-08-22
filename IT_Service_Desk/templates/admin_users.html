@@ -1,68 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management | Admin</title>
-
     <style>
-
         * {
             box-sizing: border-box;
         }
-
         body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
             background: #f4f6f8;
             color: #20252b;
         }
-
         .container {
             width: 92%;
             max-width: 1400px;
             margin: 40px auto;
         }
-
         .card {
             background: #ffffff;
             border-radius: 16px;
             padding: 30px;
             margin-bottom: 24px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
         }
-
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 20px;
         }
-
         .header h1 {
             margin: 0 0 8px;
             font-size: 34px;
         }
-
         .header p {
             margin: 0;
             color: #667085;
             font-size: 16px;
         }
-
         .header-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
-
         .button {
             display: inline-block;
             padding: 12px 18px;
@@ -73,62 +56,51 @@
             border: none;
             cursor: pointer;
         }
-
         .button-primary {
             background: #087f5b;
             color: #ffffff;
         }
-
         .button-primary:hover {
             background: #066b4d;
         }
-
         .button-secondary {
             background: #343a40;
             color: #ffffff;
         }
-
         .button-secondary:hover {
             background: #23272b;
         }
-.stats {
+        .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
         }
-
         .stat {
             background: #f8f9fa;
             border-radius: 12px;
             padding: 22px;
             text-align: center;
         }
-
         .stat-number {
             font-size: 30px;
             font-weight: bold;
             margin-bottom: 7px;
         }
-
         .stat-label {
             color: #667085;
             font-size: 14px;
         }
-
         .section-title {
             margin: 0 0 22px;
             font-size: 23px;
         }
-
         .table-wrapper {
             overflow-x: auto;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
         }
-
         th {
             text-align: left;
             background: #f8f9fa;
@@ -137,29 +109,24 @@
             color: #344054;
             white-space: nowrap;
         }
-
         td {
             padding: 17px 15px;
             border-top: 1px solid #e4e7ec;
             font-size: 14px;
             vertical-align: middle;
         }
-
         tr:hover td {
             background: #fafafa;
         }
-
         .user-name {
             font-weight: 600;
             font-size: 15px;
             margin-bottom: 5px;
         }
-
         .user-email {
             color: #667085;
             font-size: 13px;
         }
-
         .badge {
             display: inline-block;
             padding: 6px 12px;
@@ -167,508 +134,255 @@
             font-size: 11px;
             font-weight: bold;
         }
-
         .role-admin {
             background: #f3d8ff;
             color: #8e24aa;
         }
-
         .role-agent {
             background: #d9ecff;
             color: #1769aa;
         }
-
         .role-employee {
             background: #d8f8df;
             color: #218838;
         }
-
         .status-active {
             background: #d8f8df;
             color: #218838;
         }
-
         .status-inactive {
             background: #fde2e2;
             color: #c62828;
         }
-
-        .remove-button {
+        .action-form {
+            display: inline-block;
+            margin: 0 4px 4px 0;
+        }
+        .activate-button,
+        .deactivate-button,
+        .delete-button {
             border: none;
-            background: #dc3545;
-            color: white;
+            color: #ffffff;
             padding: 8px 13px;
             border-radius: 6px;
             font-size: 12px;
             cursor: pointer;
         }
-
-        .remove-button:hover {
+        .activate-button {
+            background: #198754;
+        }
+        .activate-button:hover {
+            background: #157347;
+        }
+        .deactivate-button {
+            background: #fd7e14;
+        }
+        .deactivate-button:hover {
+            background: #d9680b;
+        }
+        .delete-button {
             background: #b02a37;
         }
-
+        .delete-button:hover {
+            background: #8f1f2b;
+        }
         .protected {
             color: #667085;
             font-size: 12px;
         }
-
-        .removed {
-            color: #c62828;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
         .empty {
             text-align: center;
             padding: 45px 20px;
             color: #667085;
         }
-
         .flash-container {
             margin-bottom: 20px;
         }
-
         .alert {
             padding: 14px 17px;
             border-radius: 8px;
             margin-bottom: 10px;
             font-size: 14px;
         }
-
         .alert-success {
             background: #d8f8df;
             color: #218838;
         }
-
         .alert-danger {
             background: #fde2e2;
             color: #c62828;
         }
-
         .alert-warning {
             background: #fff3cd;
             color: #856404;
         }
-
         .alert-info {
             background: #d9ecff;
             color: #1769aa;
         }
-
         @media (max-width: 1000px) {
-
             .stats {
                 grid-template-columns: repeat(2, 1fr);
             }
-
             .header {
                 flex-direction: column;
                 align-items: flex-start;
             }
-
         }
-
         @media (max-width: 600px) {
-
             .container {
                 width: 95%;
                 margin: 20px auto;
             }
-
             .card {
                 padding: 20px;
             }
-
             .stats {
                 grid-template-columns: 1fr;
             }
-
             .header h1 {
                 font-size: 28px;
             }
-
             .header-actions {
                 width: 100%;
             }
-
             .button {
                 text-align: center;
                 width: 100%;
             }
-
         }
-
     </style>
-
 </head>
-
-
 <body>
-
 <div class="container">
-
-
-    {% with messages = get_flashed_messages(
-        with_categories=true
-    ) %}
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-
             <div class="flash-container">
-
                 {% for category, message in messages %}
-
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
                 {% endfor %}
-
             </div>
-
         {% endif %}
-
     {% endwith %}
 
-
     <div class="card header">
-
         <div>
-
-            <h1>
-                User Management
-            </h1>
-
-            <p>
-                Manage employees and support agents.
-            </p>
-
+            <h1>User Management</h1>
+            <p>Manage employees and support agents.</p>
         </div>
-
-
         <div class="header-actions">
-
-            <a
-                href="{{ url_for('admin_user.create_user') }}"
-                class="button button-primary"
-            >
-                + Register Employee / Agent
-            </a>
-
-
-            <a
-                href="{{ url_for('user_controller.admin_dashboard') }}"
-                class="button button-secondary"
-            >
-                Back to Dashboard
-            </a>
-
+            <a href="{{ url_for('admin_user.create_user') }}" class="button button-primary">+ Register Employee / Agent</a>
+            <a href="{{ url_for('user_controller.admin_dashboard') }}" class="button button-secondary">Back to Dashboard</a>
         </div>
-
     </div>
-<div class="card">
-
-        <div class="stats">
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    {{ users|length }}
-                </div>
-
-                <div class="stat-label">
-                    Total Users
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    {{ employees|length }}
-                </div>
-
-                <div class="stat-label">
-                    Employees
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    {{ agents|length }}
-                </div>
-
-                <div class="stat-label">
-                    Support Agents
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    {{ admins|length }}
-                </div>
-
-                <div class="stat-label">
-                    Administrators
-                </div>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
 
     <div class="card">
-
-        <h2 class="section-title">
-            User Accounts
-        </h2>
-
-
-        {% if users %}
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                User
-                            </th>
-
-                            <th>
-                                Role
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Created
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                    {% for user in users %}
-
-                        <tr>
-
-
-                            <td>
-                                #{{ user.id }}
-                            </td>
-
-
-                            <td>
-
-                                <div class="user-name">
-                                    {{ user.name }}
-                                </div>
-
-                                <div class="user-email">
-                                    {{ user.email }}
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                {% if user.role
-                                      and user.role.name == "ADMIN" %}
-
-                                    <span
-                                        class="badge role-admin"
-                                    >
-                                        ADMIN
-                                    </span>
-
-
-                                {% elif user.role
-                                      and user.role.name == "AGENT" %}
-
-                                    <span
-                                        class="badge role-agent"
-                                    >
-                                        AGENT
-                                    </span>
-
-
-                                {% elif user.role
-                                      and user.role.name == "EMPLOYEE" %}
-
-                                    <span
-                                        class="badge role-employee"
-                                    >
-                                        EMPLOYEE
-                                    </span>
-
-
-                                {% else %}
-
-                                    <span class="badge">
-                                        UNKNOWN
-                                    </span>
-
-                                {% endif %}
-
-                            </td>
-
-
-                            <td>
-
-                                {% if user.is_active %}
-
-                                    <span
-                                        class="badge status-active"
-                                    >
-                                        ACTIVE
-                                    </span>
-
-                                {% else %}
-
-                                    <span
-                                        class="badge status-inactive"
-                                    >
-                                        INACTIVE
-                                    </span>
-
-                                {% endif %}
-
-                            </td>
-
-
-                            <td>
-
-                                {% if user.created_at %}
-
-                                    {{ user.created_at.strftime(
-                                        '%d-%m-%Y'
-                                    ) }}
-
-                                {% else %}
-
-                                    -
-
-                                {% endif %}
-
-                            </td>
-
-
-                            <td>
-
-
-                                {% if user.role
-                                      and user.role.name == "ADMIN" %}
-
-                                    <span class="protected">
-                                        Protected
-                                    </span>
-
-
-                                {% elif not user.is_active %}
-
-                                    <span class="removed">
-                                        Removed
-                                    </span>
-
-
-                                {% else %}
-
-                                    <form
-                                        method="POST"
-                                        action="{{ url_for(
-                                            'admin_user.remove_user',
-                                            user_id=user.id
-                                        ) }}"
-                                        onsubmit="return confirm(
-                                            'Are you sure you want to remove this user?'
-                                        );"
-                                    >
-
-                                        <button
-                                            type="submit"
-                                            class="remove-button"
-                                        >
-                                            Remove
-                                        </button>
-
-                                    </form>
-
-                                {% endif %}
-
-
-                            </td>
-
-
-                        </tr>
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">{{ users|length }}</div>
+                <div class="stat-label">Total Users</div>
             </div>
-
-
-        {% else %}
-
-            <div class="empty">
-
-                <h3>
-                    No users found
-                </h3>
-
-                <p>
-                    There are currently no user accounts
-                    in the system.
-                </p>
-
-                <a
-                    href="{{ url_for('admin_user.create_user') }}"
-                    class="button button-primary"
-                >
-                    Register Employee / Agent
-                </a>
-
+            <div class="stat">
+                <div class="stat-number">{{ employees|length }}</div>
+                <div class="stat-label">Employees</div>
             </div>
-
-        {% endif %}
-
+            <div class="stat">
+                <div class="stat-number">{{ agents|length }}</div>
+                <div class="stat-label">Support Agents</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">{{ admins|length }}</div>
+                <div class="stat-label">Administrators</div>
+            </div>
+        </div>
     </div>
 
+    <div class="card">
+        <h2 class="section-title">User Accounts</h2>
 
+        {% if users %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>#{{ user.id }}</td>
 
+                                <td>
+                                    <div class="user-name">{{ user.name }}</div>
+                                    <div class="user-email">{{ user.email }}</div>
+                                </td>
+
+                                <td>
+                                    {% if user.role and user.role.name == "ADMIN" %}
+                                        <span class="badge role-admin">ADMIN</span>
+                                    {% elif user.role and user.role.name == "AGENT" %}
+                                        <span class="badge role-agent">AGENT</span>
+                                    {% elif user.role and user.role.name == "EMPLOYEE" %}
+                                        <span class="badge role-employee">EMPLOYEE</span>
+                                    {% else %}
+                                        <span class="badge">UNKNOWN</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if user.is_active %}
+                                        <span class="badge status-active">ACTIVE</span>
+                                    {% else %}
+                                        <span class="badge status-inactive">INACTIVE</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if user.created_at %}
+                                        {{ user.created_at.strftime('%d-%m-%Y') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if user.role and user.role.name == "ADMIN" %}
+                                        <span class="protected">Protected</span>
+                                    {% else %}
+                                        {% if user.is_active %}
+                                            <form class="action-form" method="POST" action="{{ url_for('admin_user.deactivate_user', user_id=user.id) }}" onsubmit="return confirm('Deactivate this user? They will no longer be able to log in until activated again.');">
+                                                <button type="submit" class="deactivate-button">Deactivate</button>
+                                            </form>
+                                        {% else %}
+                                            <form class="action-form" method="POST" action="{{ url_for('admin_user.activate_user', user_id=user.id) }}" onsubmit="return confirm('Activate this user?');">
+                                                <button type="submit" class="activate-button">Activate</button>
+                                            </form>
+                                        {% endif %}
+
+                                        <form class="action-form" method="POST" action="{{ url_for('admin_user.delete_user', user_id=user.id) }}" onsubmit="return confirm('PERMANENT DELETE: this account and its user-owned records may be permanently removed. Continue?');">
+                                            <button type="submit" class="delete-button">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty">
+                <h3>No users found</h3>
+                <p>There are currently no user accounts in the system.</p>
+                <a href="{{ url_for('admin_user.create_user') }}" class="button button-primary">Register Employee / Agent</a>
+            </div>
+        {% endif %}
+    </div>
 </div>
-
 </body>
-
 </html>

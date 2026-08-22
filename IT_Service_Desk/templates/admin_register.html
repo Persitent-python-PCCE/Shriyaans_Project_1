@@ -1,21 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Admin | IT Service Desk</title>
-
     <style>
         * {
             box-sizing: border-box;
         }
-
         body {
             margin: 0;
             min-height: 100vh;
@@ -25,7 +17,6 @@
             font-family: Arial, sans-serif;
             background: #f1f3f5;
         }
-
         .card {
             width: 420px;
             max-width: 92%;
@@ -34,17 +25,14 @@
             border-radius: 14px;
             box-shadow: 0 8px 30px rgba(0,0,0,.12);
         }
-
         h1 {
             text-align: center;
             margin: 0 0 8px;
         }
-
         h2 {
             text-align: center;
             margin-bottom: 15px;
         }
-
         .notice {
             background: #fff3cd;
             color: #856404;
@@ -53,7 +41,6 @@
             margin-bottom: 20px;
             font-size: 14px;
         }
-
         .error {
             background: #fde2e2;
             color: #c62828;
@@ -61,20 +48,22 @@
             border-radius: 7px;
             margin-bottom: 15px;
         }
-
         label {
             display: block;
             margin: 15px 0 7px;
             font-weight: bold;
         }
-
         input {
             width: 100%;
             padding: 12px;
             border: 1px solid #ced4da;
             border-radius: 7px;
+            font-size: 15px;
         }
-
+        input:focus {
+            outline: none;
+            border-color: #343a40;
+        }
         button {
             width: 100%;
             margin-top: 22px;
@@ -84,13 +73,12 @@
             background: #343a40;
             color: white;
             font-size: 16px;
+            cursor: pointer;
         }
-
         .link {
             text-align: center;
             margin-top: 20px;
         }
-
         a {
             color: #343a40;
             text-decoration: none;
@@ -98,18 +86,13 @@
         }
     </style>
 </head>
-
 <body>
-
 <div class="card">
-
     <h1>IT Service Desk</h1>
-
     <h2>Create Administrator</h2>
 
     <div class="notice">
-        This page is only available when no administrator
-        account exists in the system.
+        This page is only available when no administrator account exists in the system.
     </div>
 
     {% if error %}
@@ -118,56 +101,25 @@
         </div>
     {% endif %}
 
-    <form
-        method="POST"
-        action="{{ url_for('user_controller.admin_register') }}"
-    >
+    <form method="POST" action="{{ url_for('user_controller.admin_register') }}">
+        <label>Name</label>
+        <input type="text" name="name" value="{{ name|default('') }}" required>
 
-        <label>
-            Name
-        </label>
+        <label>Email</label>
+        <input type="email" name="email" value="{{ email|default('') }}" required>
 
-        <input
-            type="text"
-            name="name"
-            required
-        >
+        <label>Password</label>
+        <input type="password" name="password" required>
 
-        <label>
-            Email
-        </label>
+        <label>Confirm Password</label>
+        <input type="password" name="confirm_password" required>
 
-        <input
-            type="email"
-            name="email"
-            required
-        >
-
-        <label>
-            Password
-        </label>
-
-        <input
-            type="password"
-            name="password"
-            required
-        >
-
-        <button type="submit">
-            Create Administrator
-        </button>
-
+        <button type="submit">Create Administrator</button>
     </form>
 
     <div class="link">
-
-        <a href="{{ url_for('user_controller.admin_login') }}">
-            Back to Admin Login
-        </a>
-
+        <a href="{{ url_for('user_controller.admin_login') }}">Back to Admin Login</a>
     </div>
-
 </div>
-
 </body>
 </html>

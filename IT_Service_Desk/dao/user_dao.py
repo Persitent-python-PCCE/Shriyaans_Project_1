@@ -1,16 +1,13 @@
 from config.database import db
 from models.user import User
-class UserDAO:
 
+class UserDAO:
     @staticmethod
     def create(user):
-
         try:
             db.session.add(user)
             db.session.commit()
-
             return user
-
         except Exception:
             db.session.rollback()
             raise
@@ -21,7 +18,7 @@ class UserDAO:
 
     @staticmethod
     def get_by_email(email):
-        return db.session.query(User).filter( User.email == email).first()
+        return db.session.query(User).filter(User.email == email).first()
 
     @staticmethod
     def get_by_name(name):
@@ -33,25 +30,29 @@ class UserDAO:
 
     @staticmethod
     def update(user):
-
         try:
             db.session.commit()
-
             return user
-
         except Exception:
             db.session.rollback()
             raise
 
     @staticmethod
     def delete(user):
-
         try:
             db.session.delete(user)
             db.session.commit()
-
             return True
+        except Exception:
+            db.session.rollback()
+            raise
 
+    @staticmethod
+    def set_active(user, is_active):
+        try:
+            user.is_active = bool(is_active)
+            db.session.commit()
+            return user
         except Exception:
             db.session.rollback()
             raise

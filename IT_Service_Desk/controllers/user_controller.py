@@ -222,6 +222,9 @@ def admin_register():
             "password",
             ""
         ),
+        "confirm_password":request.form.get(
+            "confirm_password",""
+        ),
 
         "role_name": "ADMIN"
     }
