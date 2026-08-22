@@ -27,7 +27,6 @@
             background-color: #087f5b;
             color: white;
             padding: 18px 40px;
-
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -68,7 +67,6 @@
             padding: 25px;
             border-radius: 10px;
             margin-bottom: 25px;
-
             box-shadow:
                 0 2px 8px rgba(0, 0, 0, 0.05);
         }
@@ -258,7 +256,8 @@
         .view-button:hover {
             background-color: #066b4d;
         }
-.empty {
+
+        .empty {
             text-align: center;
             padding: 50px;
             color: #6c757d;
@@ -421,15 +420,6 @@
                         </option>
 
                         <option
-                            value="OPEN"
-                            {% if current_status == "OPEN" %}
-                                selected
-                            {% endif %}
-                        >
-                            Open
-                        </option>
-
-                        <option
                             value="ASSIGNED"
                             {% if current_status == "ASSIGNED" %}
                                 selected
@@ -476,6 +466,7 @@
                 >
                     Filter
                 </button>
+
             </form>
 
         </div>
@@ -652,15 +643,7 @@
 
                                     <td>
 
-                                        {% if ticket.status == "OPEN" %}
-
-                                            <span
-                                                class="status status-open"
-                                            >
-                                                OPEN
-                                            </span>
-
-                                        {% elif ticket.status == "ASSIGNED" %}
+                                        {% if ticket.status == "ASSIGNED" %}
 
                                             <form
                                                 method="POST"
@@ -741,6 +724,46 @@
 
                                             </form>
 
+
+                                        {% elif ticket.status == "RESOLVED" %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for(
+                                                    'ticket_assignment.update_ticket_status',
+                                                    ticket_id=ticket.id
+                                                ) }}"
+                                                class="update-form"
+                                            >
+
+                                                <select
+                                                    name="status"
+                                                    required
+                                                >
+
+                                                    <option
+                                                        value=""
+                                                    >
+                                                        Select Status
+                                                    </option>
+
+                                                    <option
+                                                        value="CLOSED"
+                                                    >
+                                                        Closed
+                                                    </option>
+
+                                                </select>
+
+
+                                                <button
+                                                    type="submit"
+                                                    class="button"
+                                                >
+                                                    Update
+                                                </button>
+
+                                            </form>
 
                                         {% endif %}
 

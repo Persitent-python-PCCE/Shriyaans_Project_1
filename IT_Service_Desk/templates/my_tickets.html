@@ -2,24 +2,31 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>My Tickets - IT Service Desk</title>
 
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #f4f6f8;
+            color: #212529;
         }
 
         .navbar {
             background-color: #087f5b;
             color: white;
-            padding: 20px 40px;
-
+            padding: 18px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -32,7 +39,6 @@
         .nav-links {
             display: flex;
             gap: 10px;
-            align-items: center;
         }
 
         .nav-button {
@@ -61,7 +67,6 @@
             padding: 25px;
             border-radius: 10px;
             margin-bottom: 25px;
-
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -83,6 +88,8 @@
             color: white;
             text-decoration: none;
             border-radius: 6px;
+            border: none;
+            cursor: pointer;
         }
 
         .ticket-card {
@@ -90,7 +97,6 @@
             padding: 22px;
             border-radius: 10px;
             margin-bottom: 18px;
-
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
@@ -178,13 +184,38 @@
             color: #c92a2a;
         }
 
-        .view-button {
+        .ticket-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .view-button,
+        .edit-button {
             display: inline-block;
             padding: 10px 16px;
-            background-color: #087f5b;
             color: white;
             text-decoration: none;
             border-radius: 6px;
+        }
+
+        .view-button {
+            background-color: #495057;
+        }
+
+        .edit-button {
+            background-color: #087f5b;
+        }
+
+        .delete-button {
+            padding: 10px 16px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
         }
 
         .empty-state {
@@ -236,6 +267,7 @@
         }
 
     </style>
+
 </head>
 
 
@@ -243,17 +275,27 @@
 
     <div class="navbar">
 
-        <h2>IT Service Desk</h2>
+        <h2>
+            IT Service Desk
+        </h2>
 
         <div class="nav-links">
 
-            <a href="{{ url_for('user_controller.employee_dashboard') }}"
-               class="nav-button">
+            <a
+                href="{{ url_for(
+                    'user_controller.employee_dashboard'
+                ) }}"
+                class="nav-button"
+            >
                 Dashboard
             </a>
 
-            <a href="{{ url_for('user_controller.logout') }}"
-               class="logout">
+            <a
+                href="{{ url_for(
+                    'user_controller.logout'
+                ) }}"
+                class="logout"
+            >
                 Logout
             </a>
 
@@ -267,19 +309,30 @@
         <div class="page-header">
 
             <div>
-                <h1>My Tickets</h1>
+
+                <h1>
+                    My Tickets
+                </h1>
 
                 <p>
-                    Welcome, <strong>{{ name }}</strong>.
+                    Welcome,
+                    <strong>{{ name }}</strong>.
                     Here you can view and track your support tickets.
                 </p>
+
             </div>
 
             <div>
-                <a href="{{ url_for('ticket_controller.create_ticket') }}"
-                   class="button">
+
+                <a
+                    href="{{ url_for(
+                        'ticket_controller.create_ticket'
+                    ) }}"
+                    class="button"
+                >
                     + Create Ticket
                 </a>
+
             </div>
 
         </div>
@@ -303,14 +356,18 @@
                     <div class="ticket-header">
 
                         <div>
+
                             <h2 class="ticket-title">
                                 #{{ ticket.id }} - {{ ticket.title }}
                             </h2>
 
                             <small>
                                 Created:
-                                {{ ticket.created_at.strftime('%d-%m-%Y %I:%M %p') }}
+                                {{ ticket.created_at.strftime(
+                                    '%d-%m-%Y %I:%M %p'
+                                ) }}
                             </small>
+
                         </div>
 
 
@@ -364,7 +421,9 @@
 
                         <div class="info-item">
 
-                            <strong>Category:</strong>
+                            <strong>
+                                Category:
+                            </strong>
 
                             {{ ticket.category.name }}
 
@@ -373,12 +432,11 @@
 
                         <div class="info-item">
 
-                            <strong>Priority:</strong>
+                            <strong>
+                                Priority:
+                            </strong>
 
-                            <span class="
-                                priority
-                                priority-{{ ticket.priority|lower }}
-                            ">
+                            <span class="priority priority-{{ ticket.priority|lower }}">
                                 {{ ticket.priority }}
                             </span>
 
@@ -387,7 +445,9 @@
 
                         <div class="info-item">
 
-                            <strong>Severity:</strong>
+                            <strong>
+                                Severity:
+                            </strong>
 
                             {{ ticket.severity }}
 
@@ -398,9 +458,13 @@
 
                             <div class="info-item">
 
-                                <strong>Due:</strong>
+                                <strong>
+                                    Due:
+                                </strong>
 
-                                {{ ticket.due_date.strftime('%d-%m-%Y %I:%M %p') }}
+                                {{ ticket.due_date.strftime(
+                                    '%d-%m-%Y %I:%M %p'
+                                ) }}
 
                             </div>
 
@@ -409,11 +473,13 @@
 
                         {% if ticket.is_escalated %}
 
-                            <div class="info-item"
-                                 style="color: #c92a2a;">
+                            <div
+                                class="info-item"
+                                style="color: #c92a2a;"
+                            >
 
                                 <strong>
-                                    ⚠ Escalated
+                                    Escalated
                                 </strong>
 
                             </div>
@@ -423,36 +489,75 @@
                     </div>
 
 
-                    <a href="{{ url_for(
-                        'ticket_controller.ticket_details',
-                        ticket_id=ticket.id
-                    ) }}"
-                       class="view-button">
+                    <div class="ticket-actions">
 
-                        View Ticket
+                        <a
+                            href="{{ url_for(
+                                'ticket_controller.ticket_details',
+                                ticket_id=ticket.id
+                            ) }}"
+                            class="view-button"
+                        >
+                            View Ticket
+                        </a>
 
-                    </a>
+
+                        <a
+                            href="{{ url_for(
+                                'ticket_controller.edit_ticket',
+                                ticket_id=ticket.id
+                            ) }}"
+                            class="edit-button"
+                        >
+                            Edit
+                        </a>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'ticket_controller.delete_ticket',
+                                ticket_id=ticket.id
+                            ) }}"
+                            onsubmit="return confirm(
+                                'Are you sure you want to delete ticket #{{ ticket.id }}?'
+                            );"
+                        >
+
+                            <button
+                                type="submit"
+                                class="delete-button"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
 
                 </div>
 
             {% endfor %}
 
-
         {% else %}
 
             <div class="empty-state">
 
-                <h2>No Tickets Found</h2>
+                <h2>
+                    No Tickets Found
+                </h2>
 
                 <p>
                     You have not created any support tickets yet.
                 </p>
 
-                <a href="{{ url_for('ticket_controller.create_ticket') }}"
-                   class="button">
-
+                <a
+                    href="{{ url_for(
+                        'ticket_controller.create_ticket'
+                    ) }}"
+                    class="button"
+                >
                     Create Your First Ticket
-
                 </a>
 
             </div>

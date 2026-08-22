@@ -418,15 +418,15 @@
                 <div class="stat">
 
                     <div class="stat-number">
-                        {{ escalated_tickets }}
+                        {{ closed_tickets }}
                     </div>
 
                     <p class="stat-label">
-                        Escalated
+                        Closed Tickets
                     </p>
 
                     <div class="stat-description">
-                        Tickets requiring attention
+                        Tickets closed by you
                     </div>
 
                 </div>
@@ -494,7 +494,8 @@
             </h2>
 
             <div class="actions">
-<a
+
+                <a
                     href="{{ url_for(
                         'ticket_assignment.view_assigned_tickets',
                         status='RESOLVED'

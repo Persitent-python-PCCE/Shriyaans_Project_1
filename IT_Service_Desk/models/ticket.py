@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from config.database import db
 
 
@@ -134,7 +133,6 @@ class Ticket(db.Model):
         cascade="all, delete-orphan"
     )
 
-   
     feedback = db.relationship(
         "Feedback",
         back_populates="ticket",

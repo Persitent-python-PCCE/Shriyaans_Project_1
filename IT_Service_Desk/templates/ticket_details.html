@@ -415,7 +415,12 @@
                 >
                     Dashboard
                 </a>
-
+                <a
+        href="{{ url_for('ticket_assignment.view_assigned_tickets') }}"
+        class="nav-button"
+    >
+        Assigned Tickets
+    </a>
             {% elif role == "ADMIN" %}
 
                 <a

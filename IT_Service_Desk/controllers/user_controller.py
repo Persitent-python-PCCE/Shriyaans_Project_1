@@ -338,8 +338,8 @@ def agent_dashboard():
                 "resolved_tickets"
             ],
 
-            escalated_tickets=statistics[
-                "escalated_tickets"
+            closed_tickets=statistics[
+                "closed_tickets"
             ]
         )
 
@@ -367,12 +367,11 @@ def agent_dashboard():
             assigned_tickets=0,
             in_progress_tickets=0,
             resolved_tickets=0,
-            escalated_tickets=0,
+            closed_tickets=0,
 
             error="Unable to load dashboard statistics."
         )
-
-
+    
 @user_controller.route(
     "/admin/dashboard"
 )

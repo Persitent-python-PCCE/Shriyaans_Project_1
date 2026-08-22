@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Ticket - IT Service Desk</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #212529;
+        }
+
+        .navbar {
+            background-color: #087f5b;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-button,
+        .logout {
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+        }
+
+        .nav-button {
+            background-color: #066b4d;
+        }
+
+        .logout {
+            background-color: #dc3545;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6c757d;
+            margin-bottom: 25px;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #842029;
+            padding: 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #087f5b;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .update-button,
+        .cancel-button {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .update-button {
+            border: none;
+            background-color: #087f5b;
+            color: white;
+            cursor: pointer;
+        }
+
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="navbar">
+
+        <h2>
+            IT Service Desk
+        </h2>
+
+        <div class="nav-links">
+
+            <a
+                href="{{ url_for(
+                    'user_controller.employee_dashboard'
+                ) }}"
+                class="nav-button"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'user_controller.logout'
+                ) }}"
+                class="logout"
+            >
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="card">
+
+            <h1>
+                Edit Ticket #{{ ticket.id }}
+            </h1>
+
+            <p class="subtitle">
+                Update your ticket information.
+            </p>
+
+
+            {% if error %}
+
+                <div class="error">
+                    {{ error }}
+                </div>
+
+            {% endif %}
+
+
+            {% if ticket %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'ticket_controller.edit_ticket',
+                        ticket_id=ticket.id
+                    ) }}"
+                >
+
+                    <div class="form-group">
+
+                        <label for="title">
+                            Ticket Title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            value="{{ ticket.title }}"
+                            maxlength="200"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            required
+                        >{{ ticket.description }}</textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="category_id">
+                            Category
+                        </label>
+
+                        <select
+                            id="category_id"
+                            name="category_id"
+                            required
+                        >
+
+                            <option value="">
+                                Select Category
+                            </option>
+
+                            {% for category in categories %}
+
+                                <option
+                                    value="{{ category.id }}"
+                                    {% if category.id == ticket.category_id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ category.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="priority">
+                            Priority
+                        </label>
+
+                        <select
+                            id="priority"
+                            name="priority"
+                            required
+                        >
+
+                            <option
+                                value="LOW"
+                                {% if ticket.priority == "LOW" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Low
+                            </option>
+
+                            <option
+                                value="MEDIUM"
+                                {% if ticket.priority == "MEDIUM" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Medium
+                            </option>
+
+                            <option
+                                value="HIGH"
+                                {% if ticket.priority == "HIGH" %}
+                                    selected
+                                {% endif %}
+                            >
+                                High
+                            </option>
+
+                            <option
+                                value="CRITICAL"
+                                {% if ticket.priority == "CRITICAL" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Critical
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="severity">
+                            Severity
+                        </label>
+
+                        <select
+                            id="severity"
+                            name="severity"
+                            required
+                        >
+
+                            <option
+                                value="MINOR"
+                                {% if ticket.severity == "MINOR" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Minor
+                            </option>
+
+                            <option
+                                value="MODERATE"
+                                {% if ticket.severity == "MODERATE" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Moderate
+                            </option>
+
+                            <option
+                                value="MAJOR"
+                                {% if ticket.severity == "MAJOR" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Major
+                            </option>
+
+                            <option
+                                value="CRITICAL"
+                                {% if ticket.severity == "CRITICAL" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Critical
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="update-button"
+                        >
+                            Update Ticket
+                        </button>
+
+                        <a
+                            href="{{ url_for(
+                                'ticket_controller.ticket_details',
+                                ticket_id=ticket.id
+                            ) }}"
+                            class="cancel-button"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

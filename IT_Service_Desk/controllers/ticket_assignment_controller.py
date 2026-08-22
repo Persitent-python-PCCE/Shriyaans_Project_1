@@ -1,16 +1,7 @@
 from flask import Blueprint,render_template,request,redirect,url_for,session,flash,current_app
-
-from services.ticket_assignment_service import (
-    TicketAssignmentService
-)
-
-from services.ticket_service import (
-    TicketService
-)
-
-from services.user_service import (
-    UserService
-)
+from services.ticket_assignment_service import TicketAssignmentService
+from services.ticket_service import TicketService
+from services.user_service import UserService
 
 
 ticket_assignment_bp = Blueprint(
@@ -24,10 +15,6 @@ assignment_service = TicketAssignmentService()
 ticket_service = TicketService()
 user_service = UserService()
 
-
-# ============================================================
-# AGENT - ASSIGNED TICKETS
-# ============================================================
 
 @ticket_assignment_bp.route(
     "/assigned-tickets",
@@ -60,8 +47,12 @@ def view_assigned_tickets():
         )
 
     status_filter = request.args.get(
-        "status"
-    )
+        "status",
+        ""
+    ).strip().upper()
+
+    if not status_filter:
+        status_filter = None
 
     try:
 
@@ -71,16 +62,7 @@ def view_assigned_tickets():
 
         if status_filter:
 
-            status_filter = status_filter.upper()
-
-            valid_statuses = {
-                "ASSIGNED",
-                "IN_PROGRESS",
-                "RESOLVED",
-                "CLOSED"
-            }
-
-            if status_filter not in valid_statuses:
+            if status_filter not in TicketService.VALID_STATUSES:
 
                 flash(
                     "Invalid status filter.",
@@ -139,10 +121,6 @@ def view_assigned_tickets():
             role=session.get("role")
         )
 
-
-# ============================================================
-# AGENT - UPDATE STATUS
-# ============================================================
 
 @ticket_assignment_bp.route(
     "/ticket/<int:ticket_id>/update-status",
@@ -241,10 +219,6 @@ def update_ticket_status(ticket_id):
         )
     )
 
-
-# ============================================================
-# ADMIN - ASSIGN TICKET
-# ============================================================
 
 @ticket_assignment_bp.route(
     "/ticket/<int:ticket_id>/assign",

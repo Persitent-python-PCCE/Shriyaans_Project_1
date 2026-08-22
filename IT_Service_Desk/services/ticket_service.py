@@ -1,7 +1,6 @@
 from datetime import datetime
-
+import os
 from models.ticket import Ticket
-
 from dao.ticket_dao import TicketDAO
 from dao.user_dao import UserDAO
 from dao.ticket_category_dao import TicketCategoryDAO
@@ -97,16 +96,19 @@ class TicketService:
         )
 
         if not user.role or user.role.name != "EMPLOYEE":
+
             raise PermissionError(
                 "Only employees can create tickets."
             )
 
         if not title or not title.strip():
+
             raise ValueError(
                 "Ticket title is required."
             )
 
         if not description or not description.strip():
+
             raise ValueError(
                 "Ticket description is required."
             )
@@ -116,19 +118,22 @@ class TicketService:
         )
 
         if not category:
+
             raise ValueError(
                 "Invalid ticket category."
             )
 
-        priority = priority.upper()
-        severity = severity.upper()
+        priority = priority.strip().upper()
+        severity = severity.strip().upper()
 
         if priority not in TicketService.VALID_PRIORITIES:
+
             raise ValueError(
                 "Invalid priority."
             )
 
         if severity not in TicketService.VALID_SEVERITIES:
+
             raise ValueError(
                 "Invalid severity."
             )
@@ -155,6 +160,7 @@ class TicketService:
         )
 
         if not user.role or user.role.name != "EMPLOYEE":
+
             raise PermissionError(
                 "Only employees can access their tickets."
             )
@@ -171,13 +177,12 @@ class TicketService:
         )
 
         if not user.role or user.role.name != "AGENT":
+
             raise PermissionError(
                 "Only agents can access assigned tickets."
             )
 
-        from dao.ticket_assignment_dao import (
-            TicketAssignmentDAO
-        )
+        from dao.ticket_assignment_dao import TicketAssignmentDAO
 
         assignments = TicketAssignmentDAO.get_by_agent(
             user_id
@@ -188,6 +193,7 @@ class TicketService:
         for assignment in assignments:
 
             if assignment.ticket is not None:
+
                 tickets.append(
                     assignment.ticket
                 )
@@ -217,17 +223,17 @@ class TicketService:
             if ticket.status == "RESOLVED"
         )
 
-        escalated_tickets = sum(
+        closed_tickets = sum(
             1
             for ticket in tickets
-            if ticket.is_escalated
+            if ticket.status == "CLOSED"
         )
 
         return {
             "assigned_tickets": assigned_tickets,
             "in_progress_tickets": in_progress_tickets,
             "resolved_tickets": resolved_tickets,
-            "escalated_tickets": escalated_tickets
+            "closed_tickets": closed_tickets
         }
 
     @staticmethod
@@ -238,6 +244,7 @@ class TicketService:
         )
 
         if not user.role or user.role.name != "ADMIN":
+
             raise PermissionError(
                 "Only administrators can access all tickets."
             )
@@ -265,6 +272,7 @@ class TicketService:
         if user.role.name == "EMPLOYEE":
 
             if ticket.created_by != user_id:
+
                 raise PermissionError(
                     "You are not allowed to access this ticket."
                 )
@@ -273,9 +281,7 @@ class TicketService:
 
         if user.role.name == "AGENT":
 
-            from dao.ticket_assignment_dao import (
-                TicketAssignmentDAO
-            )
+            from dao.ticket_assignment_dao import TicketAssignmentDAO
 
             assignments = TicketAssignmentDAO.get_by_agent(
                 user_id
@@ -287,6 +293,7 @@ class TicketService:
             }
 
             if ticket.id not in assigned_ticket_ids:
+
                 raise PermissionError(
                     "This ticket is not assigned to you."
                 )
@@ -312,9 +319,10 @@ class TicketService:
             ticket_id
         )
 
-        new_status = new_status.upper()
+        new_status = new_status.strip().upper()
 
         if new_status not in TicketService.VALID_STATUSES:
+
             raise ValueError(
                 "Invalid ticket status."
             )
@@ -322,6 +330,7 @@ class TicketService:
         current_status = ticket.status
 
         if current_status == new_status:
+
             raise ValueError(
                 "Ticket already has this status."
             )
@@ -332,9 +341,16 @@ class TicketService:
         )
 
         if new_status not in allowed_statuses:
+
             raise ValueError(
                 f"Invalid status transition: "
                 f"{current_status} -> {new_status}"
+            )
+
+        if not user.role:
+
+            raise PermissionError(
+                "Invalid role."
             )
 
         if user.role.name == "EMPLOYEE":
@@ -345,9 +361,7 @@ class TicketService:
 
         if user.role.name == "AGENT":
 
-            from dao.ticket_assignment_dao import (
-                TicketAssignmentDAO
-            )
+            from dao.ticket_assignment_dao import TicketAssignmentDAO
 
             assignments = TicketAssignmentDAO.get_by_agent(
                 user_id
@@ -359,19 +373,22 @@ class TicketService:
             }
 
             if ticket.id not in assigned_ticket_ids:
+
                 raise PermissionError(
                     "You can only update tickets assigned to you."
                 )
 
             allowed_for_agent = {
                 "IN_PROGRESS",
-                "RESOLVED"
+                "RESOLVED",
+                "CLOSED"
             }
 
             if new_status not in allowed_for_agent:
+
                 raise PermissionError(
                     "Agents can only change tickets to "
-                    "IN_PROGRESS or RESOLVED."
+                    "IN_PROGRESS, RESOLVED, or CLOSED."
                 )
 
         elif user.role.name == "ADMIN":
@@ -400,9 +417,7 @@ class TicketService:
             ticket
         )
 
-        from services.ticket_history_service import (
-            TicketHistoryService
-        )
+        from services.ticket_history_service import TicketHistoryService
 
         TicketHistoryService.create_history(
             user_id=user_id,
@@ -417,6 +432,152 @@ class TicketService:
         )
 
         return ticket
+
+    @staticmethod
+    def update_employee_ticket(
+        user_id,
+        ticket_id,
+        title,
+        description,
+        category_id,
+        priority,
+        severity
+    ):
+
+        user = TicketService._get_user(
+            user_id
+        )
+
+        if not user.role or user.role.name != "EMPLOYEE":
+
+            raise PermissionError(
+                "Only employees can update tickets."
+            )
+
+        ticket = TicketService._get_ticket(
+            ticket_id
+        )
+
+        if ticket.created_by != user_id:
+
+            raise PermissionError(
+                "You are not allowed to update this ticket."
+            )
+
+        if not title or not title.strip():
+
+            raise ValueError(
+                "Ticket title is required."
+            )
+
+        if not description or not description.strip():
+
+            raise ValueError(
+                "Ticket description is required."
+            )
+
+        try:
+
+            category_id = int(
+                category_id
+            )
+
+        except (TypeError, ValueError):
+
+            raise ValueError(
+                "Invalid ticket category."
+            )
+
+        category = TicketCategoryDAO.get_by_id(
+            category_id
+        )
+
+        if not category:
+
+            raise ValueError(
+                "Invalid ticket category."
+            )
+
+        priority = priority.strip().upper()
+        severity = severity.strip().upper()
+
+        if priority not in TicketService.VALID_PRIORITIES:
+
+            raise ValueError(
+                "Invalid priority."
+            )
+
+        if severity not in TicketService.VALID_SEVERITIES:
+
+            raise ValueError(
+                "Invalid severity."
+            )
+
+        ticket.title = title.strip()
+        ticket.description = description.strip()
+        ticket.category_id = category_id
+        ticket.priority = priority
+        ticket.severity = severity
+
+        TicketDAO.update(
+            ticket
+        )
+
+        return ticket
+
+    @staticmethod
+    def delete_employee_ticket(
+        user_id,
+        ticket_id
+    ):
+
+        user = TicketService._get_user(
+            user_id
+        )
+
+        if not user.role or user.role.name != "EMPLOYEE":
+
+            raise PermissionError(
+                "Only employees can delete tickets."
+            )
+
+        ticket = TicketService._get_ticket(
+            ticket_id
+        )
+
+        if ticket.created_by != user_id:
+
+            raise PermissionError(
+                "You are not allowed to delete this ticket."
+            )
+
+        attachment_paths = [
+            attachment.file_path
+            for attachment in ticket.attachments
+            if attachment.file_path
+        ]
+
+        deleted_ticket_id = ticket.id
+
+        TicketDAO.delete(
+            ticket
+        )
+
+        for file_path in attachment_paths:
+
+            if os.path.exists(file_path):
+
+                try:
+
+                    os.remove(
+                        file_path
+                    )
+
+                except OSError:
+
+                    pass
+
+        return deleted_ticket_id
 
     @staticmethod
     def search_tickets(
@@ -452,9 +613,7 @@ class TicketService:
 
         if user.role.name == "AGENT":
 
-            from dao.ticket_assignment_dao import (
-                TicketAssignmentDAO
-            )
+            from dao.ticket_assignment_dao import TicketAssignmentDAO
 
             assignments = TicketAssignmentDAO.get_by_agent(
                 user_id
