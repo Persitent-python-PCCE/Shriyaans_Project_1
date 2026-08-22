@@ -1,11 +1,10 @@
 from flask import Blueprint, jsonify, request, session
-
 from services.ticket_service import TicketService
 from services.ticket_comment_service import TicketCommentService
 from services.ticket_history_service import TicketHistoryService
 from services.ticket_category_service import TicketCategoryService
 from services.sla_rule_service import SLARuleService
-
+from services.feedback_service import FeedbackService
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -14,6 +13,7 @@ comment_service = TicketCommentService()
 category_service = TicketCategoryService()
 history_service = TicketHistoryService()
 sla_service = SLARuleService()
+feedback_service = FeedbackService()
 
 
 def _current_user():
@@ -70,6 +70,12 @@ def _ticket_to_dict(ticket):
             for attachment in ticket.attachments
         ],
         "assignments": assignments,
+        "feedback": ({
+            "id": ticket.feedback.id,
+            "rating": ticket.feedback.rating,
+            "comment": ticket.feedback.comment,
+            "created_at": _iso(ticket.feedback.created_at),
+        } if ticket.feedback else None),
     }
 
 
@@ -250,6 +256,47 @@ def ticket_history(ticket_id):
         return _error(str(exc), 404)
     except Exception:
         return _error("Unable to load ticket history.", 500)
+
+
+@api_bp.route("/tickets/<int:ticket_id>/feedback", methods=["GET", "POST"])
+def ticket_feedback(ticket_id):
+    user_id, auth_error = _current_user()
+    if auth_error:
+        return auth_error
+    try:
+        if request.method == "GET":
+            feedback = feedback_service.get_feedback(user_id, ticket_id)
+            return jsonify({
+                "feedback": ({
+                    "id": feedback.id,
+                    "ticket_id": feedback.ticket_id,
+                    "user_id": feedback.user_id,
+                    "rating": feedback.rating,
+                    "comment": feedback.comment,
+                    "created_at": _iso(feedback.created_at),
+                } if feedback else None)
+            })
+        data = request.get_json(silent=True) or request.form
+        feedback = feedback_service.submit_feedback(
+            user_id=user_id,
+            ticket_id=ticket_id,
+            rating=data.get("rating"),
+            comment=data.get("comment", ""),
+        )
+        return jsonify({
+            "id": feedback.id,
+            "ticket_id": feedback.ticket_id,
+            "user_id": feedback.user_id,
+            "rating": feedback.rating,
+            "comment": feedback.comment,
+            "created_at": _iso(feedback.created_at),
+        }), 201
+    except PermissionError as exc:
+        return _error(str(exc), 403)
+    except ValueError as exc:
+        return _error(str(exc), 400)
+    except Exception:
+        return _error("Unable to process feedback.", 500)
 
 
 @api_bp.route("/categories", methods=["GET"])

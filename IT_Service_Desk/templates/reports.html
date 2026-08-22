@@ -271,14 +271,6 @@
             margin-top: 5px;
         }
 
-        .back-link {
-            display: inline-block;
-            margin-top: 5px;
-            color: #343a40;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
         @media (max-width: 1000px) {
 
             .summary-grid {
@@ -750,7 +742,7 @@
             <div class="card">
 
                 <h3>
-                    Customer Feedback
+                    Employee Feedback
                 </h3>
 
                 <div class="rating">
@@ -758,7 +750,7 @@
                 </div>
 
                 <div class="rating-note">
-                    Based on {{ report.feedback_count }} feedback entr{{ 'y' if report.feedback_count == 1 else 'ies' }}.
+                    Based on {{ report.feedback_count }} employee feedback entr{{ 'y' if report.feedback_count == 1 else 'ies' }}.
                 </div>
 
                 <hr style="border: 0; border-top: 1px solid #e9ecef; margin: 20px 0;">
@@ -861,10 +853,84 @@
 
         <div class="card">
 
-            <a href="{{ url_for('user_controller.admin_dashboard') }}"
-               class="back-link">
-                ← Back to Admin Dashboard
-            </a>
+            <h3>
+                Employee Feedback Details
+            </h3>
+
+            {% if report.feedback_details %}
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Ticket</th>
+                                <th>Employee</th>
+                                <th>Rating</th>
+                                <th>Employee Comment</th>
+                                <th>Assigned Agent</th>
+                                <th>Submitted At</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in report.feedback_details %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong>#{{ item.ticket_id }}</strong><br>
+                                        {{ item.ticket_title }}
+                                    </td>
+
+                                    <td>
+                                        <strong>{{ item.employee_name }}</strong><br>
+                                        <small>{{ item.employee_email }}</small>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge badge-success">
+                                            {{ item.rating }} / 5
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ item.comment }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.agent_name }}
+                                    </td>
+
+                                    <td>
+                                        {% if item.created_at %}
+                                            {{ item.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+                    No employee feedback available for the selected period.
+                </div>
+
+            {% endif %}
 
         </div>
 

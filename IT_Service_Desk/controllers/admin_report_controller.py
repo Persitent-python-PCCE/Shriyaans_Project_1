@@ -63,6 +63,7 @@ def reports():
                 "feedback_count": 0,
                 "average_rating": 0,
                 "rating_distribution": [],
+                "feedback_details": [],
                 "recent_closed": [],
                 "monthly_report": []
             },

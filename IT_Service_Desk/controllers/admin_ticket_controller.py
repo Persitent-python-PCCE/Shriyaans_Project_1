@@ -1,9 +1,8 @@
 from flask import Blueprint,render_template,request,redirect,url_for,session,flash,current_app
 from services.ticket_service import TicketService
-from services.ticket_assignment_service import (
-    TicketAssignmentService
-)
+from services.ticket_assignment_service import TicketAssignmentService
 from services.user_service import UserService
+from services.ticket_category_service import TicketCategoryService
 
 
 admin_ticket_bp = Blueprint(
@@ -56,9 +55,22 @@ def manage_tickets():
 
         admin_id = session.get("user_id")
 
-        tickets = ticket_service.get_all_tickets(
-            user_id=admin_id
+        title = request.args.get('q', '').strip()
+        status_filter = request.args.get('status', '').strip().upper() or None
+        priority_filter = request.args.get('priority', '').strip().upper() or None
+        category_filter = request.args.get('category_id', '').strip() or None
+        try:
+            category_filter = int(category_filter) if category_filter else None
+        except ValueError:
+            category_filter = None
+        tickets = ticket_service.search_tickets(
+            user_id=admin_id,
+            title=title or None,
+            status=status_filter,
+            priority=priority_filter,
+            category_id=category_filter
         )
+        categories = TicketCategoryService.get_all_categories(admin_id)
 
         all_users = user_service.get_all_users()
 
@@ -74,6 +86,11 @@ def manage_tickets():
             "admin_tickets.html",
             tickets=tickets,
             agents=agents,
+            categories=categories,
+            current_query=title,
+            current_status=status_filter,
+            current_priority=priority_filter,
+            current_category=category_filter,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -105,6 +122,11 @@ def manage_tickets():
             "admin_tickets.html",
             tickets=[],
             agents=[],
+            categories=[],
+            current_query=request.args.get("q", "").strip(),
+            current_status=request.args.get("status", "").strip().upper() or None,
+            current_priority=request.args.get("priority", "").strip().upper() or None,
+            current_category=None,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")

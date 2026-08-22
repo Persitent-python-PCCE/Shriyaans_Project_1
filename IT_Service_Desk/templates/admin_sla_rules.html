@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>SLA Rules - IT Service Desk</title>
-
     <style>
         * {
             box-sizing: border-box;
@@ -23,7 +21,6 @@
             color: #ffffff;
             padding: 18px 40px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
         }
 
@@ -31,6 +28,27 @@
             margin: 0;
             font-size: 22px;
             font-weight: 600;
+        }
+
+        .nav-links {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard {
+            background: #087f5b;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .dashboard:hover {
+            background: #066b4d;
         }
 
         .logout {
@@ -51,19 +69,6 @@
             width: 94%;
             max-width: 1200px;
             margin: 35px auto;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #087f5b;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
         }
 
         .page-header {
@@ -290,9 +295,14 @@
                 grid-template-columns: 1fr;
             }
 
+            .dashboard,
             .logout {
                 padding: 8px 12px;
                 font-size: 13px;
+            }
+
+            .nav-links {
+                gap: 7px;
             }
         }
     </style>
@@ -303,16 +313,18 @@
     <div class="navbar">
         <h2>IT Service Desk</h2>
 
-        <a href="{{ url_for('user_controller.logout') }}" class="logout">
-            Logout
-        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('user_controller.admin_dashboard') }}" class="dashboard">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('user_controller.logout') }}" class="logout">
+                Logout
+            </a>
+        </div>
     </div>
 
     <div class="container">
-
-        <a href="{{ url_for('user_controller.admin_dashboard') }}" class="back-link">
-            ← Back to Dashboard
-        </a>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}

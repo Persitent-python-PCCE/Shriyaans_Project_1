@@ -1,9 +1,7 @@
 from models.ticket_history import TicketHistory
-
 from dao.ticket_history_dao import TicketHistoryDAO
 from dao.ticket_dao import TicketDAO
 from dao.user_dao import UserDAO
-
 
 class TicketHistoryService:
 

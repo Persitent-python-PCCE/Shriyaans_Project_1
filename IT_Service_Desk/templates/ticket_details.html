@@ -23,7 +23,7 @@
             color: #212529;
         }
 
-       
+
 
         .navbar {
             background-color: #087f5b;
@@ -60,14 +60,14 @@
             background-color: #dc3545;
         }
 
-         
+
         .container {
             width: 85%;
             max-width: 1100px;
             margin: 40px auto;
         }
 
-       
+
         .error {
             background-color: #f8d7da;
             color: #842029;
@@ -105,7 +105,7 @@
             border-radius: 7px;
         }
 
-        
+
 
         .card {
             background-color: white;
@@ -119,7 +119,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        
+
         .ticket-header {
             display: flex;
             justify-content: space-between;
@@ -140,7 +140,7 @@
             font-size: 14px;
         }
 
-         
+
 
         .status {
             display: inline-block;
@@ -181,7 +181,7 @@
             color: #495057;
         }
 
-       
+
 
         .section-title {
             margin-top: 0;
@@ -202,7 +202,7 @@
             margin-bottom: 30px;
         }
 
-      
+
         .details-grid {
             display: grid;
 
@@ -231,7 +231,7 @@
             font-weight: bold;
         }
 
-   
+
 
         .priority-low {
             color: #2b8a3e;
@@ -249,7 +249,7 @@
             color: #c92a2a;
         }
 
-        
+
 
         .escalated {
             margin-top: 20px;
@@ -263,7 +263,7 @@
             border-radius: 7px;
         }
 
-      
+
 
         .comment {
             background-color: #f8f9fa;
@@ -311,7 +311,7 @@
             padding: 15px 0;
         }
 
-       
+
         textarea {
             width: 100%;
 
@@ -360,7 +360,7 @@
             background-color: #066b4d;
         }
 
-        
+
 
         .not-found {
             text-align: center;
@@ -378,7 +378,7 @@
             margin-bottom: 25px;
         }
 
-      
+
 
         @media (max-width: 800px) {
 
@@ -413,7 +413,7 @@
 <body>
 
 
-    
+
 
     <div class="navbar">
 
@@ -471,7 +471,7 @@
     </div>
 
 
-     
+
 
     <div class="container">
 
@@ -492,7 +492,7 @@
 
         {% if ticket %}
 
- 
+
 
             <div class="card">
 
@@ -512,7 +512,7 @@
                     </div>
 
 
-                     
+
 
                     {% if ticket.status == "OPEN" %}
 
@@ -548,7 +548,7 @@
 
                 </div>
 
- 
+
 
                 <h3 class="section-title">
                     Problem Description
@@ -561,11 +561,11 @@
                 </div>
 
 
-               
+
                 <div class="details-grid">
 
 
-                   
+
 
                     <div class="detail-box">
 
@@ -582,7 +582,7 @@
                     </div>
 
 
-                    
+
                     <div class="detail-box">
 
                         <div class="detail-label">
@@ -603,7 +603,7 @@
                     </div>
 
 
-                   
+
 
                     <div class="detail-box">
 
@@ -620,7 +620,7 @@
                     </div>
 
 
-                    
+
 
                     <div class="detail-box">
 
@@ -637,7 +637,7 @@
                     </div>
 
 
-                   
+
 
                     <div class="detail-box">
 
@@ -664,7 +664,7 @@
                     </div>
 
 
-                     
+
 
                     <div class="detail-box">
 
@@ -691,7 +691,22 @@
                     </div>
 
 
-                    
+
+
+                    {% if ticket.due_date %}
+
+                        <div class="detail-box">
+                            <div class="detail-label">SLA Status</div>
+                            <div class="detail-value">
+                                {% if ticket.status != 'CLOSED' and ticket.due_date < now %}
+                                    <span style="color:#c92a2a;font-weight:bold;">BREACHED</span>
+                                {% else %}
+                                    <span style="color:#2b8a3e;font-weight:bold;">Within SLA</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    {% endif %}
 
                     {% if ticket.due_date %}
 
@@ -714,7 +729,7 @@
                     {% endif %}
 
 
-                    <!-- RESOLVED -->
+
 
                     {% if ticket.resolved_at %}
 
@@ -737,7 +752,7 @@
                     {% endif %}
 
 
-                    
+
 
                     {% if ticket.closed_at %}
 
@@ -762,7 +777,7 @@
                 </div>
 
 
-                
+
 
                 {% if ticket.is_escalated %}
 
@@ -785,7 +800,7 @@
             </div>
 
 
-           
+
 
             {% if ticket.status != "CLOSED" and role in ["AGENT", "ADMIN"] and not ticket.is_escalated %}
 
@@ -825,6 +840,7 @@
 
                             <div>
                                 <strong>{{ attachment.original_filename }}</strong>
+                                <a class="button" href="{{ url_for('ticket_controller.download_attachment', ticket_id=ticket.id, attachment_id=attachment.id) }}">Download</a>
                                 <div class="attachment-meta">
                                     {{ (attachment.file_size / 1024)|round(1) }} KB · {{ attachment.file_type|upper }}
                                 </div>
@@ -855,6 +871,36 @@
                 {% endif %}
 
             </div>
+
+            <div class="card">
+                <h2 class="section-title">Feedback</h2>
+                {% if feedback %}
+                    <p><strong>Rating:</strong> {{ feedback.rating }}/5</p>
+                    {% if feedback.comment %}<p>{{ feedback.comment }}</p>{% endif %}
+                    <p class="attachment-meta">Submitted {{ feedback.created_at.strftime('%d-%m-%Y %I:%M %p') if feedback.created_at else '' }}</p>
+                {% elif role == 'EMPLOYEE' and ticket.status in ['RESOLVED', 'CLOSED'] %}
+                    <form method="POST" action="{{ url_for('feedback.submit_feedback', ticket_id=ticket.id) }}">
+                        <label for="rating"><strong>How satisfied are you?</strong></label>
+                        <select id="rating" name="rating" required style="padding:10px;border:1px solid #ced4da;border-radius:6px;margin:10px 0;width:100%;">
+                            <option value="">Select a rating</option><option value="5">5 - Excellent</option><option value="4">4 - Good</option><option value="3">3 - Average</option><option value="2">2 - Poor</option><option value="1">1 - Very Poor</option>
+                        </select>
+                        <textarea name="comment" maxlength="2000" placeholder="Optional feedback" style="width:100%;min-height:110px;padding:10px;border:1px solid #ced4da;border-radius:6px;"></textarea>
+                        <br><br><button type="submit" class="button">Submit Feedback</button>
+                    </form>
+                {% else %}
+                    <p class="attachment-meta">Feedback becomes available after this ticket is resolved.</p>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h2 class="section-title">Audit History</h2>
+                {% if history %}
+                    {% for entry in history %}
+                        <div class="comment"><div class="comment-header"><div class="comment-user">{{ entry.user.name if entry.user else 'System User' }}</div><div class="comment-date">{{ entry.created_at.strftime('%d-%m-%Y %I:%M %p') if entry.created_at else '' }}</div></div><div class="comment-text"><strong>{{ entry.action|replace('_',' ')|title }}</strong>{% if entry.description %} — {{ entry.description }}{% endif %}</div></div>
+                    {% endfor %}
+                {% else %}<p class="attachment-meta">No history entries found.</p>{% endif %}
+            </div>
+
 
             <div class="card">
 
@@ -928,7 +974,7 @@
             </div>
 
 
-           
+
 
             {% if ticket.status != "CLOSED" %}
 
@@ -980,7 +1026,7 @@
         {% else %}
 
 
-            
+
 
             <div class="card not-found">
 

@@ -1,8 +1,12 @@
-from flask import Blueprint,request,render_template,redirect,url_for,session,flash
+import os
+from flask import Blueprint,request,render_template,redirect,url_for,session,flash,send_file,abort,current_app
 from services.ticket_service import TicketService
 from services.ticket_category_service import TicketCategoryService
 from services.ticket_comment_service import TicketCommentService
 from services.ticket_attachment_service import TicketAttachmentService
+from services.feedback_service import FeedbackService
+from services.ticket_history_service import TicketHistoryService
+from datetime import datetime
 
 
 ticket_controller = Blueprint(
@@ -65,13 +69,31 @@ def my_tickets():
             "user_id"
         )
 
-        tickets = ticket_service.get_employee_tickets(
-            user_id
+        title = request.args.get('q', '').strip()
+        status_filter = request.args.get('status', '').strip().upper() or None
+        priority_filter = request.args.get('priority', '').strip().upper() or None
+        category_filter = request.args.get('category_id', '').strip() or None
+        try:
+            category_filter = int(category_filter) if category_filter else None
+        except ValueError:
+            category_filter = None
+        tickets = ticket_service.search_tickets(
+            user_id=user_id,
+            title=title or None,
+            status=status_filter,
+            priority=priority_filter,
+            category_id=category_filter
         )
+        categories = category_service.get_all_categories(user_id)
 
         return render_template(
             "my_tickets.html",
             tickets=tickets,
+            categories=categories,
+            current_query=title,
+            current_status=status_filter,
+            current_priority=priority_filter,
+            current_category=category_filter,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -288,12 +310,17 @@ def ticket_details(ticket_id):
             user_id=user_id,
             ticket_id=ticket_id
         )
+        history = TicketHistoryService.get_ticket_history(user_id=user_id, ticket_id=ticket_id)
+        feedback = FeedbackService.get_feedback(user_id=user_id, ticket_id=ticket_id)
 
         return render_template(
             "ticket_details.html",
             ticket=ticket,
             comments=comments,
             attachments=attachments,
+            history=history,
+            feedback=feedback,
+            now=datetime.utcnow(),
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -318,6 +345,27 @@ def ticket_details(ticket_id):
             email=session.get("user_email"),
             role=session.get("role")
         ), 500
+
+
+@ticket_controller.route('/<int:ticket_id>/attachments/<int:attachment_id>/download')
+def download_attachment(ticket_id, attachment_id):
+    login_check = _require_login()
+    if login_check:
+        return login_check
+    try:
+        attachment = attachment_service.get_attachment(session['user_id'], attachment_id)
+        if attachment.ticket_id != ticket_id:
+            return 'Attachment does not belong to this ticket.', 404
+        if not attachment.file_path or not os.path.isfile(attachment.file_path):
+            return 'Attachment file not found.', 404
+        return send_file(attachment.file_path, as_attachment=True, download_name=attachment.original_filename, max_age=0)
+    except PermissionError as exc:
+        return str(exc), 403
+    except ValueError as exc:
+        return str(exc), 404
+    except Exception:
+        current_app.logger.exception('Failed to download attachment %s.', attachment_id)
+        return 'Unable to download attachment.', 500
 
 
 @ticket_controller.route(

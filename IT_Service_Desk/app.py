@@ -10,7 +10,8 @@ from controllers.admin_ticket_controller import admin_ticket_bp
 from controllers.admin_report_controller import admin_report_bp
 from controllers.api_controller import api_bp
 from controllers.admin_sla_rule_controller import admin_sla_rule_bp
-
+from controllers.admin_category_controller import admin_category_bp
+from controllers.feedback_controller import feedback_bp
 
 app = Flask(__name__)
 
@@ -26,6 +27,8 @@ app.register_blueprint(admin_ticket_bp)
 app.register_blueprint(admin_report_bp)
 app.register_blueprint(api_bp)
 app.register_blueprint(admin_sla_rule_bp)
+app.register_blueprint(admin_category_bp)
+app.register_blueprint(feedback_bp)
 
 @app.route("/")
 def home():

@@ -2,6 +2,7 @@ from flask import Blueprint,render_template,request,redirect,url_for,session,fla
 from services.ticket_assignment_service import TicketAssignmentService
 from services.ticket_service import TicketService
 from services.user_service import UserService
+from services.ticket_category_service import TicketCategoryService
 
 
 ticket_assignment_bp = Blueprint(
@@ -56,33 +57,33 @@ def view_assigned_tickets():
 
     try:
 
-        tickets = ticket_service.get_agent_tickets(
-            user_id=user_id
+        title = request.args.get('q', '').strip()
+        priority_filter = request.args.get('priority', '').strip().upper() or None
+        category_filter = request.args.get('category_id', '').strip() or None
+        try:
+            category_filter = int(category_filter) if category_filter else None
+        except ValueError:
+            category_filter = None
+        if status_filter and status_filter not in TicketService.VALID_STATUSES:
+            flash('Invalid status filter.', 'warning')
+            status_filter = None
+        tickets = ticket_service.search_tickets(
+            user_id=user_id,
+            title=title or None,
+            status=status_filter,
+            priority=priority_filter,
+            category_id=category_filter
         )
-
-        if status_filter:
-
-            if status_filter not in TicketService.VALID_STATUSES:
-
-                flash(
-                    "Invalid status filter.",
-                    "warning"
-                )
-
-                status_filter = None
-
-            else:
-
-                tickets = [
-                    ticket
-                    for ticket in tickets
-                    if ticket.status == status_filter
-                ]
+        categories = TicketCategoryService.get_all_categories(user_id)
 
         return render_template(
             "assigned_tickets.html",
             tickets=tickets,
+            categories=categories,
+            current_query=title,
             current_status=status_filter,
+            current_priority=priority_filter,
+            current_category=category_filter,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")

@@ -311,6 +311,9 @@
 
         }
 
+
+        .filter-card{background:#fff;padding:18px;border-radius:10px;margin-bottom:22px;box-shadow:0 2px 8px rgba(0,0,0,.05)} .filter-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.filter-form input,.filter-form select{padding:10px 12px;border:1px solid #ced4da;border-radius:6px;background:#fff}.filter-form button,.filter-form a{padding:10px 15px;border-radius:6px;border:none;background:#087f5b;color:#fff;text-decoration:none;cursor:pointer}.filter-form a{background:#6c757d}
+
     </style>
 
 </head>
@@ -350,6 +353,32 @@
 
 
     <div class="container">
+        <div class="filter-card">
+            <form method="GET" class="filter-form">
+                <input type="text" name="q" value="{{ current_query or '' }}" placeholder="Search title...">
+                <select name="status">
+                    <option value="">All statuses</option>
+                    {% for value,label in [('OPEN','Open'),('ASSIGNED','Assigned'),('IN_PROGRESS','In Progress'),('RESOLVED','Resolved'),('CLOSED','Closed')] %}
+                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <select name="priority">
+                    <option value="">All priorities</option>
+                    {% for value,label in [('LOW','Low'),('MEDIUM','Medium'),('HIGH','High'),('CRITICAL','Critical')] %}
+                    <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <select name="category_id">
+                    <option value="">All categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if current_category == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Filter</button>
+                <a href="{{ request.path }}">Reset</a>
+            </form>
+        </div>
+
 
         {% with messages = get_flashed_messages(
             with_categories=true

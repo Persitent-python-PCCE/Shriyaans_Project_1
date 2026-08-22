@@ -209,6 +209,33 @@ class ReportService:
                 "count": count
             })
 
+        feedback_details = []
+
+        for feedback in filtered_feedback:
+            ticket = next(
+                (ticket for ticket in tickets if ticket.id == feedback.ticket_id),
+                None
+            )
+
+            assignments = TicketAssignmentDAO.get_by_ticket(feedback.ticket_id)
+            latest_assignment = assignments[0] if assignments else None
+
+            feedback_details.append({
+                "ticket_id": feedback.ticket_id,
+                "ticket_title": ticket.title if ticket else "Unknown Ticket",
+                "employee_name": feedback.user.name if feedback.user else "Unknown Employee",
+                "employee_email": feedback.user.email if feedback.user else "",
+                "rating": feedback.rating,
+                "comment": feedback.comment or "No comment provided.",
+                "agent_name": latest_assignment.agent.name if latest_assignment and latest_assignment.agent else "Unassigned",
+                "created_at": feedback.created_at
+            })
+
+        feedback_details.sort(
+            key=lambda item: item["created_at"] or datetime.min,
+            reverse=True
+        )
+
         recent_closed = sorted(
             [
                 ticket for ticket in tickets
@@ -264,6 +291,7 @@ class ReportService:
             "feedback_count": feedback_count,
             "average_rating": average_rating,
             "rating_distribution": rating_distribution,
+            "feedback_details": feedback_details,
             "recent_closed": recent_closed,
             "monthly_report": monthly_report
         }

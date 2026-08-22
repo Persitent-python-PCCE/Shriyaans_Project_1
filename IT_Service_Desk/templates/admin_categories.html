@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categories - IT Service Desk</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#212529}.navbar{background:#343a40;color:#fff;padding:18px 40px;display:flex;justify-content:space-between;align-items:center}.nav-links{display:flex;gap:10px}.nav-links a{color:#fff;text-decoration:none;padding:10px 14px;border-radius:6px;background:#495057}.nav-links .logout{background:#dc3545}.container{width:92%;max-width:1200px;margin:35px auto}.card{background:#fff;padding:25px;border-radius:10px;margin-bottom:25px;box-shadow:0 2px 8px rgba(0,0,0,.05)}h1,h2{margin-top:0}.form-grid{display:grid;grid-template-columns:1fr 2fr auto;gap:12px;align-items:end}.input,.button{padding:11px 12px;border-radius:6px;border:1px solid #ced4da}.button{background:#087f5b;color:#fff;border:none;cursor:pointer;text-decoration:none}.button-danger{background:#dc3545}.table-wrapper{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:13px;border-bottom:1px solid #e9ecef;text-align:left;vertical-align:top}th{background:#f8f9fa}.actions{display:flex;gap:8px;flex-wrap:wrap}.flash{padding:12px 15px;border-radius:6px;margin-bottom:15px;background:#e2e3e5}.flash.success{background:#d1e7dd;color:#0f5132}.flash.danger,.flash.warning{background:#f8d7da;color:#842029}@media(max-width:800px){.form-grid{grid-template-columns:1fr}.navbar{padding:16px 20px;flex-direction:column;align-items:flex-start;gap:12px}}
+</style>
+</head>
+<body>
+<div class="navbar"><h2>IT Service Desk</h2><div class="nav-links"><a href="{{ url_for('user_controller.admin_dashboard') }}">Dashboard</a><a href="{{ url_for('admin_ticket.manage_tickets') }}">Tickets</a><a class="logout" href="{{ url_for('user_controller.logout') }}">Logout</a></div></div>
+<div class="container">
+<div class="card"><h1>Ticket Categories</h1><p>Create, update and delete categories used by employees when raising support tickets.</p>{% with messages=get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}<form method="POST" action="{{ url_for('admin_category.create_category') }}"><div class="form-grid"><div><label>Name</label><input class="input" name="name" maxlength="100" required></div><div><label>Description</label><input class="input" name="description" maxlength="255"></div><button class="button" type="submit">Add Category</button></div></form></div>
+<div class="card"><div class="table-wrapper"><table><thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Tickets</th><th>Actions</th></tr></thead><tbody>{% for category in categories %}<tr><td>{{ category.id }}</td><td><strong>{{ category.name }}</strong></td><td>{{ category.description or '—' }}</td><td>{{ category.tickets|length }}</td><td><div class="actions"><form method="POST" action="{{ url_for('admin_category.update_category', category_id=category.id) }}"><input class="input" name="name" value="{{ category.name }}" maxlength="100" required><input class="input" name="description" value="{{ category.description or '' }}" maxlength="255"><button class="button" type="submit">Update</button></form><form method="POST" action="{{ url_for('admin_category.delete_category', category_id=category.id) }}" onsubmit="return confirm('Delete this category?');"><button class="button button-danger" type="submit">Delete</button></form></div></td></tr>{% else %}<tr><td colspan="5">No categories found.</td></tr>{% endfor %}</tbody></table></div></div>
+</div>
+</body>
+</html>

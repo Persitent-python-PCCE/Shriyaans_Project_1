@@ -27,12 +27,9 @@ class TicketAttachmentService:
         "zip"
     }
 
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+    MAX_FILE_SIZE = 10 * 1024 * 1024
 
-    UPLOAD_FOLDER = os.path.join(
-        "uploads",
-        "tickets"
-    )
+    UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads', 'tickets'))
 
     @staticmethod
     def _get_user(user_id):
@@ -105,7 +102,7 @@ class TicketAttachmentService:
                 "File type is not allowed."
             )
 
-        # Move to end and determine size
+
         file.seek(0, os.SEEK_END)
         file_size = file.tell()
         file.seek(0)

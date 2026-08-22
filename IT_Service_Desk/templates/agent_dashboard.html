@@ -1,524 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Dashboard - IT Service Desk</title>
+<style>
+* {
+    box-sizing: border-box;
+}
 
-    <meta charset="UTF-8">
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    color: #212529;
+}
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+.navbar {
+    background-color: #087f5b;
+    color: white;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    <title>Agent Dashboard - IT Service Desk</title>
+.navbar h2 {
+    margin: 0;
+}
 
-    <style>
+.nav-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
 
-        * {
-            box-sizing: border-box;
-        }
+.dashboard-link,
+.logout {
+    color: white;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #212529;
-        }
+.dashboard-link {
+    background-color: #066b4d;
+}
 
-        .navbar {
-            background-color: #087f5b;
-            color: white;
-            padding: 18px 40px;
+.logout {
+    background-color: #dc3545;
+}
 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 35px auto;
+}
 
-        .navbar h2 {
-            margin: 0;
-        }
+.welcome,
+.card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
 
-        .nav-links {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+.welcome h1 {
+    margin: 0 0 10px;
+}
 
-        .dashboard-link,
-        .logout {
-            color: white;
-            text-decoration: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-        }
+.welcome p {
+    margin: 0;
+    color: #6c757d;
+    line-height: 1.6;
+}
 
-        .dashboard-link {
-            background-color: #066b4d;
-        }
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
 
-        .logout {
-            background-color: #dc3545;
-        }
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 35px auto;
-        }
+.account-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 7px;
+}
 
-        .welcome,
-        .card {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
+.account-label {
+    color: #6c757d;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
 
-            box-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.05);
-        }
+.account-value {
+    font-weight: bold;
+    word-break: break-word;
+}
 
-        .welcome h1 {
-            margin: 0 0 10px;
-        }
+.statistics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
 
-        .welcome p {
-            margin: 0;
-            color: #6c757d;
-            line-height: 1.6;
-        }
+.stat {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 9px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
 
-        .card h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
+.stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 8px 0;
+}
 
-        .account-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
+.stat-label {
+    margin: 0;
+    color: #6c757d;
+    font-size: 14px;
+}
 
-        .account-item {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 7px;
-        }
+.stat-description {
+    margin-top: 8px;
+    color: #868e96;
+    font-size: 12px;
+}
 
-        .account-label {
-            color: #6c757d;
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
+.status-section {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
 
-        .account-value {
-            font-weight: bold;
-            word-break: break-word;
-        }
+.status-card {
+    padding: 18px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
 
-        .statistics {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-        }
+.status-title {
+    color: #6c757d;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
 
-        .stat {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 9px;
-            text-align: center;
-            border: 1px solid #e9ecef;
-        }
+.status-value {
+    font-size: 25px;
+    font-weight: bold;
+}
 
-        .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            margin: 8px 0;
-        }
+.actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
 
-        .stat-label {
-            margin: 0;
-            color: #6c757d;
-            font-size: 14px;
-        }
+.action {
+    display: block;
+    padding: 20px;
+    background-color: #087f5b;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}
 
-        .stat-description {
-            margin-top: 8px;
-            color: #868e96;
-            font-size: 12px;
-        }
+.action:hover {
+    background-color: #066b4d;
+}
 
-        .status-section {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
+.action-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 7px;
+}
 
-        .status-card {
-            padding: 18px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
+.action-description {
+    font-size: 13px;
+    color: #e9f7f2;
+    line-height: 1.5;
+}
 
-        .status-title {
-            color: #6c757d;
-            font-size: 13px;
-            margin-bottom: 7px;
-        }
+.error {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 14px 18px;
+    border-radius: 7px;
+    margin-bottom: 20px;
+}
 
-        .status-value {
-            font-size: 25px;
-            font-weight: bold;
-        }
+@media (max-width: 1000px) {
+    .statistics {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-        .actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
+    .account-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-        .action {
-            display: block;
-            padding: 20px;
-            background-color: #087f5b;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-        }
+    .status-section {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 
-        .action:hover {
-            background-color: #066b4d;
-        }
+@media (max-width: 650px) {
+    .navbar {
+        padding: 15px 20px;
+    }
 
-        .action-title {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 7px;
-        }
+    .container {
+        width: 94%;
+    }
 
-        .action-description {
-            font-size: 13px;
-            color: #e9f7f2;
-            line-height: 1.5;
-        }
-
-        .error {
-            background-color: #f8d7da;
-            color: #842029;
-            padding: 14px 18px;
-            border-radius: 7px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 1000px) {
-
-            .statistics {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .account-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .status-section {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 650px) {
-
-            .navbar {
-                padding: 15px 20px;
-            }
-
-            .container {
-                width: 94%;
-            }
-
-            .statistics,
-            .account-grid,
-            .actions,
-            .status-section {
-                grid-template-columns: 1fr;
-            }
-        }
-
-    </style>
-
+    .statistics,
+    .account-grid,
+    .status-section {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 </head>
-
-
 <body>
 
-    <div class="navbar">
+<div class="navbar">
+    <h2>IT Service Desk</h2>
 
-        <h2>
-            IT Service Desk
-        </h2>
+    <div class="nav-links">
+        <a href="{{ url_for('user_controller.agent_dashboard') }}" class="dashboard-link">Dashboard</a>
+        <a href="{{ url_for('user_controller.logout') }}" class="logout">Logout</a>
+    </div>
+</div>
 
-        <div class="nav-links">
+<div class="container">
 
-            <a
-                href="{{ url_for(
-                    'user_controller.agent_dashboard'
-                ) }}"
-                class="dashboard-link"
-            >
-                Dashboard
-            </a>
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
 
-            <a
-                href="{{ url_for(
-                    'user_controller.logout'
-                ) }}"
-                class="logout"
-            >
-                Logout
-            </a>
-
-        </div>
-
+    <div class="welcome">
+        <h1>Agent Dashboard</h1>
+        <p>
+            Welcome back,
+            <strong>{{ name|default('Agent') }}</strong>.
+            Manage your assigned support tickets
+            and help resolve employee issues.
+        </p>
     </div>
 
+    <div class="card">
+        <h2>Account Information</h2>
 
-    <div class="container">
+        <div class="account-grid">
 
-        {% if error %}
-
-            <div class="error">
-                {{ error }}
+            <div class="account-item">
+                <div class="account-label">Name</div>
+                <div class="account-value">{{ name|default('N/A') }}</div>
             </div>
 
-        {% endif %}
+            <div class="account-item">
+                <div class="account-label">Email</div>
+                <div class="account-value">{{ email|default('N/A') }}</div>
+            </div>
 
-
-        <div class="welcome">
-
-            <h1>
-                Agent Dashboard
-            </h1>
-
-            <p>
-                Welcome back,
-                <strong>{{ name }}</strong>.
-                Manage your assigned support tickets
-                and help resolve employee issues.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h2>
-                Account Information
-            </h2>
-
-            <div class="account-grid">
-
-                <div class="account-item">
-
-                    <div class="account-label">
-                        Name
-                    </div>
-
-                    <div class="account-value">
-                        {{ name }}
-                    </div>
-
-                </div>
-
-                <div class="account-item">
-
-                    <div class="account-label">
-                        Email
-                    </div>
-
-                    <div class="account-value">
-                        {{ email }}
-                    </div>
-
-                </div>
-
-                <div class="account-item">
-
-                    <div class="account-label">
-                        Role
-                    </div>
-
-                    <div class="account-value">
-                        {{ role }}
-                    </div>
-
-                </div>
-
+            <div class="account-item">
+                <div class="account-label">Role</div>
+                <div class="account-value">{{ role|default('AGENT') }}</div>
             </div>
 
         </div>
-
-
-        <div class="card">
-
-            <h2>
-                Ticket Overview
-            </h2>
-
-            <div class="statistics">
-
-                <div class="stat">
-
-                    <div class="stat-number">
-                        {{ assigned_tickets }}
-                    </div>
-
-                    <p class="stat-label">
-                        Assigned Tickets
-                    </p>
-
-                    <div class="stat-description">
-                        Active tickets assigned to you
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-number">
-                        {{ in_progress_tickets }}
-                    </div>
-
-                    <p class="stat-label">
-                        In Progress
-                    </p>
-
-                    <div class="stat-description">
-                        Tickets currently being worked on
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-number">
-                        {{ resolved_tickets }}
-                    </div>
-
-                    <p class="stat-label">
-                        Resolved
-                    </p>
-
-                    <div class="stat-description">
-                        Tickets resolved by you
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-number">
-                        {{ closed_tickets }}
-                    </div>
-
-                    <p class="stat-label">
-                        Closed Tickets
-                    </p>
-
-                    <div class="stat-description">
-                        Tickets closed by you
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <h2>
-                Ticket Status
-            </h2>
-
-            <div class="status-section">
-
-                <div class="status-card">
-
-                    <div class="status-title">
-                        Assigned
-                    </div>
-
-                    <div class="status-value">
-                        {{ assigned_tickets }}
-                    </div>
-
-                </div>
-
-
-                <div class="status-card">
-
-                    <div class="status-title">
-                        In Progress
-                    </div>
-
-                    <div class="status-value">
-                        {{ in_progress_tickets }}
-                    </div>
-
-                </div>
-
-
-                <div class="status-card">
-
-                    <div class="status-title">
-                        Resolved
-                    </div>
-
-                    <div class="status-value">
-                        {{ resolved_tickets }}
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <h2>
-                Quick Actions
-            </h2>
-
-            <div class="actions">
-
-                <a
-                    href="{{ url_for(
-                        'ticket_assignment.view_assigned_tickets',
-                        status='RESOLVED'
-                    ) }}"
-                    class="action"
-                >
-
-                    <div class="action-title">
-                        Resolved Tickets
-                    </div>
-
-                    <div class="action-description">
-                        Review tickets that you have resolved.
-                    </div>
-
-                </a>
-
-            </div>
-
-        </div>
-
     </div>
+
+    <div class="card">
+        <h2>Ticket Overview</h2>
+
+        <div class="statistics">
+
+            <div class="stat">
+                <div class="stat-number">{{ assigned_tickets|default(0) }}</div>
+                <p class="stat-label">Assigned Tickets</p>
+                <div class="stat-description">Active tickets assigned to you</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">{{ in_progress_tickets|default(0) }}</div>
+                <p class="stat-label">In Progress</p>
+                <div class="stat-description">Tickets currently being worked on</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">{{ resolved_tickets|default(0) }}</div>
+                <p class="stat-label">Resolved</p>
+                <div class="stat-description">Tickets resolved by you</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">{{ closed_tickets|default(0) }}</div>
+                <p class="stat-label">Closed Tickets</p>
+                <div class="stat-description">Tickets closed by you</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Ticket Status</h2>
+
+        <div class="status-section">
+
+            <div class="status-card">
+                <div class="status-title">Assigned</div>
+                <div class="status-value">{{ assigned_tickets|default(0) }}</div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-title">In Progress</div>
+                <div class="status-value">{{ in_progress_tickets|default(0) }}</div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-title">Resolved</div>
+                <div class="status-value">{{ resolved_tickets|default(0) }}</div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-title">Closed</div>
+                <div class="status-value">{{ closed_tickets|default(0) }}</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Quick Actions</h2>
+
+        <div class="actions">
+            <a href="{{ url_for('ticket_assignment.view_assigned_tickets') }}" class="action">
+                <div class="action-title">Assigned Tickets</div>
+                <div class="action-description">
+                    View and manage all tickets currently assigned to you.
+                </div>
+            </a>
+        </div>
+    </div>
+
+</div>
 
 </body>
-
 </html>
