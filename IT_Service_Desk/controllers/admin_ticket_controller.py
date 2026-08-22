@@ -216,6 +216,35 @@ def ticket_details(ticket_id):
 
 
 @admin_ticket_bp.route(
+    "/<int:ticket_id>/escalate",
+    methods=["POST"]
+)
+def escalate_ticket(ticket_id):
+
+    auth_check = _require_admin()
+    if auth_check:
+        return auth_check
+
+    try:
+        ticket_service.escalate_ticket(
+            user_id=session.get("user_id"),
+            ticket_id=ticket_id,
+            reason=request.form.get("reason", "").strip()
+        )
+        flash(f"Ticket #{ticket_id} escalated successfully.", "success")
+    except (PermissionError, ValueError) as exc:
+        flash(str(exc), "warning")
+    except Exception:
+        current_app.logger.exception("Failed to escalate ticket %s.", ticket_id)
+        flash("Unable to escalate the ticket.", "danger")
+
+    return redirect(
+        request.referrer
+        or url_for("admin_ticket.ticket_details", ticket_id=ticket_id)
+    )
+
+
+@admin_ticket_bp.route(
     "/<int:ticket_id>/assign",
     methods=["POST"]
 )

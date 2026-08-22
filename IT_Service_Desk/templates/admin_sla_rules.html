@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SLA Rules - IT Service Desk</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #212529;
+        }
+
+        .navbar {
+            background: #343a40;
+            color: #ffffff;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .logout {
+            background: #dc3545;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logout:hover {
+            background: #bb2d3b;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 35px auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #087f5b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            color: #212529;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 15px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            margin: 0 0 6px;
+            font-size: 20px;
+            color: #212529;
+        }
+
+        .card-header p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .flash {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 7px;
+            background: #e7f5ff;
+            color: #1864ab;
+            border: 1px solid #a5d8ff;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr) auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #212529;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #087f5b;
+            box-shadow: 0 0 0 2px rgba(8, 127, 91, 0.1);
+        }
+
+        button {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            background: #087f5b;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #066b4d;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #bb2d3b;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #495057;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #e9f5ef;
+            color: #087f5b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .edit-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 15px;
+            color: #6c757d;
+        }
+
+        .info-box {
+            margin-top: 15px;
+            padding: 12px 14px;
+            background: #f8f9fa;
+            border-left: 4px solid #087f5b;
+            border-radius: 5px;
+            color: #495057;
+            font-size: 13px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-grid button {
+                width: 100%;
+            }
+
+            .edit-form {
+                grid-template-columns: 1fr;
+            }
+
+            .action-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .navbar h2 {
+                font-size: 18px;
+            }
+
+            .container {
+                width: 92%;
+                margin: 25px auto;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logout {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <h2>IT Service Desk</h2>
+
+        <a href="{{ url_for('user_controller.logout') }}" class="logout">
+            Logout
+        </a>
+    </div>
+
+    <div class="container">
+
+        <a href="{{ url_for('user_controller.admin_dashboard') }}" class="back-link">
+            ← Back to Dashboard
+        </a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <div class="page-header">
+            <h1>SLA Rule Management</h1>
+            <p>
+                Configure response and resolution deadlines for each ticket priority.
+            </p>
+        </div>
+
+        <div class="card">
+
+            <div class="card-header">
+                <h2>Add SLA Rule</h2>
+                <p>
+                    Create a new SLA rule for a ticket priority.
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="{{ url_for('admin_sla_rule.create_rule') }}"
+            >
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="priority">
+                            Priority
+                        </label>
+
+                        <select
+                            id="priority"
+                            name="priority"
+                            required
+                        >
+                            <option value="">
+                                Select priority
+                            </option>
+
+                            <option value="LOW">
+                                LOW
+                            </option>
+
+                            <option value="MEDIUM">
+                                MEDIUM
+                            </option>
+
+                            <option value="HIGH">
+                                HIGH
+                            </option>
+
+                            <option value="CRITICAL">
+                                CRITICAL
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="response_time_minutes">
+                            Response Time (minutes)
+                        </label>
+
+                        <input
+                            id="response_time_minutes"
+                            name="response_time_minutes"
+                            type="number"
+                            min="1"
+                            placeholder="Example: 60"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resolution_time_minutes">
+                            Resolution Time (minutes)
+                        </label>
+
+                        <input
+                            id="resolution_time_minutes"
+                            name="resolution_time_minutes"
+                            type="number"
+                            min="1"
+                            placeholder="Example: 1440"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit">
+                        Create Rule
+                    </button>
+
+                </div>
+
+            </form>
+
+            <div class="info-box">
+                Resolution time is used to calculate the ticket due date automatically.
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-header">
+                <h2>Configured SLA Rules</h2>
+                <p>
+                    Update or remove existing SLA configurations.
+                </p>
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Priority</th>
+                            <th>Response Time</th>
+                            <th>Resolution Time</th>
+                            <th>Update</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for rule in rules %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="priority-badge">
+                                        {{ rule.priority }}
+                                    </span>
+                                </td>
+
+                                <td colspan="3">
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('admin_sla_rule.update_rule', rule_id=rule.id) }}"
+                                        class="edit-form"
+                                    >
+
+                                        <input
+                                            type="number"
+                                            name="response_time_minutes"
+                                            min="1"
+                                            value="{{ rule.response_time_minutes }}"
+                                            required
+                                        >
+
+                                        <input
+                                            type="number"
+                                            name="resolution_time_minutes"
+                                            min="1"
+                                            value="{{ rule.resolution_time_minutes }}"
+                                            required
+                                        >
+
+                                        <button type="submit">
+                                            Save Changes
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('admin_sla_rule.delete_rule', rule_id=rule.id) }}"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn-danger"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    No SLA rules configured.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

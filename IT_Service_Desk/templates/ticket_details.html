@@ -79,6 +79,32 @@
             margin-bottom: 20px;
         }
 
+        .flash {
+            padding: 14px 18px;
+            border-radius: 7px;
+            margin-bottom: 12px;
+            background-color: #e7f5ff;
+        }
+
+        .attachment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .attachment-row:last-child { border-bottom: none; }
+        .attachment-meta { color: #6c757d; font-size: 13px; }
+        .escalation-form textarea {
+            width: 100%;
+            min-height: 90px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 7px;
+        }
+
         
 
         .card {
@@ -449,6 +475,11 @@
 
     <div class="container">
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
 
         {% if error %}
 
@@ -755,6 +786,75 @@
 
 
            
+
+            {% if ticket.status != "CLOSED" and role in ["AGENT", "ADMIN"] and not ticket.is_escalated %}
+
+                <div class="card escalation-form">
+
+                    <h2 class="section-title">
+                        Escalate Ticket
+                    </h2>
+
+                    <form method="POST" action="{{ url_for('ticket_controller.escalate_ticket', ticket_id=ticket.id) }}">
+
+                        <textarea name="reason" maxlength="1000" placeholder="Optional reason for escalation"></textarea>
+
+                        <br><br>
+
+                        <button type="submit" class="button">
+                            Escalate Ticket
+                        </button>
+
+                    </form>
+
+                </div>
+
+            {% endif %}
+
+            <div class="card">
+
+                <h2 class="section-title">
+                    Attachments
+                </h2>
+
+                {% if attachments %}
+
+                    {% for attachment in attachments %}
+
+                        <div class="attachment-row">
+
+                            <div>
+                                <strong>{{ attachment.original_filename }}</strong>
+                                <div class="attachment-meta">
+                                    {{ (attachment.file_size / 1024)|round(1) }} KB · {{ attachment.file_type|upper }}
+                                </div>
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+                    <p class="attachment-meta">No attachments uploaded yet.</p>
+                {% endif %}
+
+                {% if ticket.status != "CLOSED" %}
+
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('ticket_controller.upload_attachment', ticket_id=ticket.id) }}">
+
+                        <input type="file" name="file" required>
+
+                        <br><br>
+
+                        <button type="submit" class="button">
+                            Upload Attachment
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
 
             <div class="card">
 

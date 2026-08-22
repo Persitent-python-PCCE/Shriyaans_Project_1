@@ -1,7 +1,8 @@
-from flask import Blueprint,request,render_template,redirect,url_for,session
+from flask import Blueprint,request,render_template,redirect,url_for,session,flash
 from services.ticket_service import TicketService
 from services.ticket_category_service import TicketCategoryService
 from services.ticket_comment_service import TicketCommentService
+from services.ticket_attachment_service import TicketAttachmentService
 
 
 ticket_controller = Blueprint(
@@ -14,6 +15,7 @@ ticket_controller = Blueprint(
 ticket_service = TicketService()
 category_service = TicketCategoryService()
 comment_service = TicketCommentService()
+attachment_service = TicketAttachmentService()
 
 
 def _require_login():
@@ -282,10 +284,16 @@ def ticket_details(ticket_id):
             ticket_id=ticket_id
         )
 
+        attachments = attachment_service.get_ticket_attachments(
+            user_id=user_id,
+            ticket_id=ticket_id
+        )
+
         return render_template(
             "ticket_details.html",
             ticket=ticket,
             comments=comments,
+            attachments=attachments,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -500,6 +508,79 @@ def delete_ticket(ticket_id):
     except Exception:
 
         return "Unable to delete ticket.", 500
+
+
+@ticket_controller.route(
+    "/<int:ticket_id>/attachments",
+    methods=["POST"]
+)
+def upload_attachment(ticket_id):
+
+    login_check = _require_login()
+    if login_check:
+        return login_check
+
+    user_id = session.get("user_id")
+    uploaded_file = request.files.get("file")
+
+    try:
+        attachment_service.upload_attachment(
+            user_id=user_id,
+            ticket_id=ticket_id,
+            file=uploaded_file
+        )
+        flash("Attachment uploaded successfully.", "success")
+
+    except PermissionError as exc:
+        flash(str(exc), "danger")
+    except ValueError as exc:
+        flash(str(exc), "warning")
+    except IOError as exc:
+        flash(str(exc), "danger")
+    except Exception:
+        flash("Unable to upload attachment.", "danger")
+
+    return redirect(
+        url_for(
+            "ticket_controller.ticket_details",
+            ticket_id=ticket_id
+        )
+    )
+
+
+@ticket_controller.route(
+    "/<int:ticket_id>/escalate",
+    methods=["POST"]
+)
+def escalate_ticket(ticket_id):
+
+    login_check = _require_login()
+    if login_check:
+        return login_check
+
+    user_id = session.get("user_id")
+    reason = request.form.get("reason", "").strip()
+
+    try:
+        ticket_service.escalate_ticket(
+            user_id=user_id,
+            ticket_id=ticket_id,
+            reason=reason
+        )
+        flash("Ticket escalated successfully.", "success")
+    except PermissionError as exc:
+        flash(str(exc), "danger")
+    except ValueError as exc:
+        flash(str(exc), "warning")
+    except Exception:
+        flash("Unable to escalate ticket.", "danger")
+
+    return redirect(
+        url_for(
+            "ticket_controller.ticket_details",
+            ticket_id=ticket_id
+        )
+    )
 
 
 @ticket_controller.route(

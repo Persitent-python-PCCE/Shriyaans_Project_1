@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from models.ticket import Ticket
 from dao.ticket_dao import TicketDAO
 from dao.user_dao import UserDAO
 from dao.ticket_category_dao import TicketCategoryDAO
+from services.sla_rule_service import SLARuleService
 
 
 class TicketService:
@@ -138,6 +139,19 @@ class TicketService:
                 "Invalid severity."
             )
 
+        # Apply the SLA rule for the selected priority.
+        SLARuleService.ensure_default_rules()
+        sla_rule = SLARuleService.get_rule_by_priority(priority)
+        if not sla_rule:
+            raise ValueError(
+                f"No SLA rule is configured for priority {priority}."
+            )
+
+        created_at = datetime.utcnow()
+        due_date = created_at + timedelta(
+            minutes=sla_rule.resolution_time_minutes
+        )
+
         ticket = Ticket(
             title=title.strip(),
             description=description.strip(),
@@ -145,7 +159,9 @@ class TicketService:
             created_by=user_id,
             priority=priority,
             severity=severity,
-            status="OPEN"
+            status="OPEN",
+            created_at=created_at,
+            due_date=due_date,
         )
 
         return TicketDAO.create(
@@ -434,6 +450,113 @@ class TicketService:
         return ticket
 
     @staticmethod
+    def escalate_ticket(
+        user_id,
+        ticket_id,
+        reason=None
+    ):
+
+        user = TicketService._get_user(
+            user_id
+        )
+
+        ticket = TicketService._get_ticket(
+            ticket_id
+        )
+
+        if ticket.status == "CLOSED":
+            raise ValueError(
+                "Closed tickets cannot be escalated."
+            )
+
+        if not user.role:
+            raise PermissionError("Invalid role.")
+
+        if user.role.name == "AGENT":
+            from dao.ticket_assignment_dao import TicketAssignmentDAO
+
+            assignments = TicketAssignmentDAO.get_by_agent(
+                user_id
+            )
+
+            assigned = any(
+                assignment.ticket_id == ticket_id
+                for assignment in assignments
+            )
+
+            if not assigned:
+                raise PermissionError(
+                    "You can only escalate tickets assigned to you."
+                )
+
+        elif user.role.name != "ADMIN":
+            raise PermissionError(
+                "Only assigned agents and administrators can escalate tickets."
+            )
+
+        if ticket.is_escalated:
+            raise ValueError(
+                "Ticket is already escalated."
+            )
+
+        ticket.is_escalated = True
+        TicketDAO.update(ticket)
+
+        from services.ticket_history_service import TicketHistoryService
+
+        clean_reason = (reason or "").strip()
+        description = "Ticket escalated."
+        if clean_reason:
+            description += f" Reason: {clean_reason}"
+
+        TicketHistoryService.create_history(
+            user_id=user_id,
+            ticket_id=ticket.id,
+            action="TICKET_ESCALATED",
+            old_value="False",
+            new_value="True",
+            description=description
+        )
+
+        return ticket
+
+    @staticmethod
+    def un_escalate_ticket(
+        user_id,
+        ticket_id
+    ):
+
+        user = TicketService._get_user(
+            user_id
+        )
+
+        if not user.role or user.role.name != "ADMIN":
+            raise PermissionError(
+                "Only administrators can clear an escalation."
+            )
+
+        ticket = TicketService._get_ticket(ticket_id)
+
+        if not ticket.is_escalated:
+            raise ValueError("Ticket is not escalated.")
+
+        ticket.is_escalated = False
+        TicketDAO.update(ticket)
+
+        from services.ticket_history_service import TicketHistoryService
+
+        TicketHistoryService.create_history(
+            user_id=user_id,
+            ticket_id=ticket.id,
+            action="TICKET_ESCALATION_CLEARED",
+            old_value="True",
+            new_value="False",
+            description="Ticket escalation was cleared by an administrator."
+        )
+
+        return ticket
+
+    @staticmethod
     def update_employee_ticket(
         user_id,
         ticket_id,
@@ -513,11 +636,26 @@ class TicketService:
                 "Invalid severity."
             )
 
+        old_priority = ticket.priority
+
         ticket.title = title.strip()
         ticket.description = description.strip()
         ticket.category_id = category_id
         ticket.priority = priority
         ticket.severity = severity
+
+        # Recalculate the active SLA deadline when the priority changes.
+        if ticket.status not in {"RESOLVED", "CLOSED"} and old_priority != priority:
+            SLARuleService.ensure_default_rules()
+            sla_rule = SLARuleService.get_rule_by_priority(priority)
+            if not sla_rule:
+                raise ValueError(
+                    f"No SLA rule is configured for priority {priority}."
+                )
+            base_time = ticket.created_at or datetime.utcnow()
+            ticket.due_date = base_time + timedelta(
+                minutes=sla_rule.resolution_time_minutes
+            )
 
         TicketDAO.update(
             ticket

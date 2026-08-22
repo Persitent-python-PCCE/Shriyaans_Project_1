@@ -554,6 +554,25 @@
                 <div class="card">
 
                     <h2>
+                        Escalation
+                    </h2>
+
+                    {% if ticket.is_escalated %}
+                        <p style="color:#c92a2a;font-weight:bold;">⚠ Ticket is escalated.</p>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('admin_ticket.escalate_ticket', ticket_id=ticket.id) }}">
+                            <textarea name="reason" rows="4" style="width:100%;padding:10px;border:1px solid #ced4da;border-radius:6px;" placeholder="Optional escalation reason"></textarea>
+                            <br><br>
+                            <button type="submit" style="border:none;padding:10px 14px;border-radius:6px;background:#c92a2a;color:white;font-weight:bold;cursor:pointer;">Escalate Ticket</button>
+                        </form>
+                    {% endif %}
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>
                         Assigned Agent
                     </h2>
 
