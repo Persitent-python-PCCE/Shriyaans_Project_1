@@ -7,6 +7,7 @@ from controllers.ticket_controller import ticket_controller
 from controllers.ticket_assignment_controller import ticket_assignment_bp
 from controllers.admin_user_controller import admin_user_bp
 from controllers.admin_ticket_controller import admin_ticket_bp
+from controllers.admin_report_controller import admin_report_bp
 
 
 app = Flask(__name__)
@@ -20,7 +21,7 @@ app.register_blueprint(ticket_controller)
 app.register_blueprint(ticket_assignment_bp)
 app.register_blueprint(admin_user_bp)
 app.register_blueprint(admin_ticket_bp)
-
+app.register_blueprint(admin_report_bp)
 
 @app.route("/")
 def home():

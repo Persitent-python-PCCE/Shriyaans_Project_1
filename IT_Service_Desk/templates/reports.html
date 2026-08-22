@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Reports - IT Service Desk</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #212529;
+        }
+
+        .navbar {
+            background-color: #343a40;
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            background-color: #495057;
+        }
+
+        .nav-links .logout {
+            background-color: #dc3545;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1500px;
+            margin: 35px auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-row h1 {
+            margin: 0 0 8px;
+        }
+
+        .header-row p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-form label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .filter-form select {
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background-color: white;
+        }
+
+        .filter-form button {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            background-color: #343a40;
+            color: white;
+            cursor: pointer;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .summary-card {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card h2 {
+            margin: 5px 0 8px;
+            font-size: 32px;
+        }
+
+        .summary-card p {
+            margin: 0;
+            color: #495057;
+        }
+
+        .summary-card small {
+            display: block;
+            margin-top: 8px;
+            color: #6c757d;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card h2,
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .report-row {
+            margin-bottom: 17px;
+        }
+
+        .report-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .report-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 7px;
+            font-size: 14px;
+        }
+
+        .bar-track {
+            width: 100%;
+            height: 11px;
+            border-radius: 20px;
+            background-color: #e9ecef;
+            overflow: hidden;
+        }
+
+        .bar {
+            height: 100%;
+            background-color: #087f5b;
+            border-radius: 20px;
+        }
+
+        .priority-bar {
+            background-color: #495057;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 13px 12px;
+            text-align: left;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-neutral {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .empty {
+            color: #6c757d;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .rating {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .rating-note {
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .monthly-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .month-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .month-card strong {
+            display: block;
+            font-size: 20px;
+            margin-top: 5px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 5px;
+            color: #343a40;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1000px) {
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .navbar {
+                padding: 16px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .monthly-list {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-form {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <h2>IT Service Desk</h2>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('user_controller.admin_dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('user_controller.logout') }}"
+               class="logout">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="header-row">
+
+                <div>
+
+                    <h1>Reports</h1>
+
+                    <p>
+                        Ticket, workload, SLA and feedback overview for the service desk.
+                    </p>
+
+                </div>
+
+                <form method="get"
+                      action="{{ url_for('admin_report.reports') }}"
+                      class="filter-form">
+
+                    <label for="period">
+                        Period
+                    </label>
+
+                    <select id="period"
+                            name="period">
+
+                        <option value="all"
+                            {% if report.period == 'all' %}selected{% endif %}>
+                            All Time
+                        </option>
+
+                        <option value="7"
+                            {% if report.period == '7' %}selected{% endif %}>
+                            Last 7 Days
+                        </option>
+
+                        <option value="30"
+                            {% if report.period == '30' %}selected{% endif %}>
+                            Last 30 Days
+                        </option>
+
+                        <option value="90"
+                            {% if report.period == '90' %}selected{% endif %}>
+                            Last 90 Days
+                        </option>
+
+                        <option value="365"
+                            {% if report.period == '365' %}selected{% endif %}>
+                            Last 12 Months
+                        </option>
+
+                    </select>
+
+                    <button type="submit">
+                        Apply
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-grid">
+
+            <div class="summary-card">
+
+                <h2>
+                    {{ report.total_tickets }}
+                </h2>
+
+                <p>
+                    Total Tickets
+                </p>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <h2>
+                    {{ report.closed_tickets }}
+                </h2>
+
+                <p>
+                    Closed Tickets
+                </p>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <h2>
+                    {{ report.escalated_tickets }}
+                </h2>
+
+                <p>
+                    Escalated Tickets
+                </p>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <h2>
+                    {{ report.overdue_tickets }}
+                </h2>
+
+                <p>
+                    Overdue Tickets
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="two-column">
+
+            <div class="card">
+
+                <h3>
+                    Ticket Status
+                </h3>
+
+                {% if report.status_report %}
+
+                    {% for item in report.status_report %}
+
+                        <div class="report-row">
+
+                            <div class="report-label">
+
+                                <span>
+                                    {{ item.label }}
+                                </span>
+
+                                <strong>
+                                    {{ item.count }} ({{ item.percentage }}%)
+                                </strong>
+
+                            </div>
+
+                            <div class="bar-track">
+
+                                <div class="bar"
+                                     style="width: {{ item.percentage }}%;">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty">
+                        No ticket data available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    Ticket Priority
+                </h3>
+
+                {% if report.priority_report %}
+
+                    {% for item in report.priority_report %}
+
+                        <div class="report-row">
+
+                            <div class="report-label">
+
+                                <span>
+                                    {{ item.label }}
+                                </span>
+
+                                <strong>
+                                    {{ item.count }} ({{ item.percentage }}%)
+                                </strong>
+
+                            </div>
+
+                            <div class="bar-track">
+
+                                <div class="bar priority-bar"
+                                     style="width: {{ item.percentage }}%;">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty">
+                        No priority data available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="two-column">
+
+            <div class="card">
+
+                <h3>
+                    Tickets by Category
+                </h3>
+
+                {% if report.category_report %}
+
+                    {% for item in report.category_report %}
+
+                        <div class="report-row">
+
+                            <div class="report-label">
+
+                                <span>
+                                    {{ item.name }}
+                                </span>
+
+                                <strong>
+                                    {{ item.count }} ({{ item.percentage }}%)
+                                </strong>
+
+                            </div>
+
+                            <div class="bar-track">
+
+                                <div class="bar"
+                                     style="width: {{ item.percentage }}%;">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty">
+                        No category data available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    Ticket Activity by Month
+                </h3>
+
+                {% if report.monthly_report %}
+
+                    <div class="monthly-list">
+
+                        {% for item in report.monthly_report %}
+
+                            <div class="month-card">
+
+                                <span>
+                                    {{ item.label }}
+                                </span>
+
+                                <strong>
+                                    {{ item.count }}
+                                </strong>
+
+                                <small>
+                                    Tickets created
+                                </small>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty">
+                        No monthly ticket data available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Agent Workload
+            </h3>
+
+            {% if report.agent_workload %}
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Agent</th>
+                                <th>Email</th>
+                                <th>Active Work</th>
+                                <th>Closed</th>
+                                <th>Total Assigned</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for agent in report.agent_workload %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            {{ agent.name }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ agent.email }}
+                                    </td>
+
+                                    <td>
+
+                                        {% if agent.active > 0 %}
+
+                                            <span class="badge badge-warning">
+                                                {{ agent.active }} Active
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge badge-success">
+                                                No Active Work
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td>
+                                        {{ agent.closed }}
+                                    </td>
+
+                                    <td>
+                                        {{ agent.total }}
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+                    No active support agents found.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="two-column">
+
+            <div class="card">
+
+                <h3>
+                    Customer Feedback
+                </h3>
+
+                <div class="rating">
+                    {{ report.average_rating }} / 5
+                </div>
+
+                <div class="rating-note">
+                    Based on {{ report.feedback_count }} feedback entr{{ 'y' if report.feedback_count == 1 else 'ies' }}.
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #e9ecef; margin: 20px 0;">
+
+                {% for item in report.rating_distribution %}
+
+                    <div class="report-row">
+
+                        <div class="report-label">
+
+                            <span>
+                                {{ item.rating }} star
+                            </span>
+
+                            <strong>
+                                {{ item.count }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    Recently Closed Tickets
+                </h3>
+
+                {% if report.recent_closed %}
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Closed At</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for ticket in report.recent_closed %}
+
+                                    <tr>
+
+                                        <td>
+                                            #{{ ticket.id }}
+                                        </td>
+
+                                        <td>
+                                            {{ ticket.title }}
+                                        </td>
+
+                                        <td>
+
+                                            {% if ticket.closed_at %}
+
+                                                {{ ticket.closed_at.strftime('%d %b %Y, %I:%M %p') }}
+
+                                            {% else %}
+
+                                                -
+
+                                            {% endif %}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty">
+                        No closed tickets in the selected period.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <a href="{{ url_for('user_controller.admin_dashboard') }}"
+               class="back-link">
+                ← Back to Admin Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

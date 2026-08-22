@@ -128,7 +128,6 @@
 
     <div class="container">
 
-      
 
         <div class="welcome">
 
@@ -140,8 +139,6 @@
 
         </div>
 
-
-        
 
         <div class="card">
 
@@ -166,15 +163,12 @@
         </div>
 
 
-         
-
         <div class="card">
 
             <h3>System Statistics</h3>
 
             <div class="statistics">
 
-                
 
                 <div class="stat">
 
@@ -189,8 +183,6 @@
                 </div>
 
 
-                 
-
                 <div class="stat">
 
                     <h2>
@@ -203,8 +195,6 @@
 
                 </div>
 
-
-                 
 
                 <div class="stat">
 
@@ -219,16 +209,14 @@
                 </div>
 
 
-                
-
                 <div class="stat">
 
                     <h2>
-                        {{ ticket_statistics.resolved_tickets|default(0) }}
+                        {{ ticket_statistics.closed_tickets|default(0) }}
                     </h2>
 
                     <p>
-                        Resolved Tickets
+                        Closed Tickets
                     </p>
 
                 </div>
@@ -237,8 +225,6 @@
 
         </div>
 
-
-         
 
         <div class="card">
 
@@ -254,7 +240,7 @@
                 Manage Tickets
             </a>
 
-            <a href="#"
+            <a href="{{ url_for('admin_report.reports') }}"
                class="button">
                 Reports
             </a>
