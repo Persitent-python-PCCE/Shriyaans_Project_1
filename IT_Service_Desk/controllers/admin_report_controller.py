@@ -25,7 +25,7 @@ def reports():
 
     period = request.args.get("period", "all").strip()
 
-    if period not in {"all", "7", "30", "90", "365"}:
+    if period not in {"all", "2","7", "30", "90", "365"}:
         period = "all"
 
     try:

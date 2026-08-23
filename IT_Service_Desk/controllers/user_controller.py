@@ -193,13 +193,13 @@ def admin_register():
         and user.role.name == "ADMIN"
     ]
 
-    if admins:
+    # if admins:
 
-        return redirect(
-            url_for(
-                "user_controller.admin_login"
-            )
-        )
+    #     return redirect(
+    #         url_for(
+    #             "user_controller.admin_login"
+    #         )
+    #     )
 
     if request.method == "GET":
 

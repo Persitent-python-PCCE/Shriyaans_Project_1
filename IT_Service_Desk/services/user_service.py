@@ -1,4 +1,3 @@
-import re
 from config.database import db
 from werkzeug.security import generate_password_hash
 from dao.user_dao import UserDAO
@@ -12,21 +11,6 @@ from models.ticket_history import TicketHistory
 from models.feedback import Feedback
 from utils.email_v import verify_email
 from utils.password_v import validate_password
-# def verify_email(email):
-#     if not email:
-#         return False
-#     pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
-#     return re.match(pattern, email) is not None
-
-# def validate_password(password):
-#     if not password:
-#         return False
-#     if len(password) < 8:
-#         return False
-#     has_letter = any(character.isalpha() for character in password)
-#     has_digit = any(character.isdigit() for character in password)
-#     has_special = any(not character.isalnum() for character in password)
-#     return has_letter and has_digit and has_special
 
 class UserService:
     def get_all_users(self):
