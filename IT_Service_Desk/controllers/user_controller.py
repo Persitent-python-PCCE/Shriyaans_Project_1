@@ -14,10 +14,65 @@ user_controller = Blueprint(
 user_service = UserService()
 ticket_service = TicketService()
 
+JWT_COOKIE_NAME = "access_token"
+
+
+@user_controller.before_app_request
+def _load_jwt_user_into_session():
+    """Use the JWT cookie as the source of truth for web authentication.
+
+    Existing controllers still read Flask session values. We populate those
+    values from the JWT on every non-API request, so an expired JWT also
+    removes the effective login session.
+    """
+    # Keep the existing /api/login session flow separate from the three
+    # JWT-based API login routes. The web application uses JWT cookies.
+    if request.path.startswith("/api"):
+        return
+
+    token = request.cookies.get(JWT_COOKIE_NAME)
+
+    if not token:
+        if any(key in session for key in ("user_id", "role", "user_name", "user_email")):
+            session.clear()
+        return
+
+    payload = user_service.decode_access_token(token)
+
+    if not payload:
+        session.clear()
+        return
+
+    try:
+        user_id = int(payload.get("sub"))
+    except (TypeError, ValueError):
+        session.clear()
+        return
+
+    user = user_service.get_user_by_id(user_id)
+
+    if not user or not user.is_active or not user.role:
+        session.clear()
+        return
+
+    # The JWT remains valid only for the same user/role that is currently
+    # stored in the database.
+    if payload.get("role") != user.role.name:
+        session.clear()
+        return
+
+    session["user_id"] = user.id
+    session["user_name"] = user.name
+    session["user_email"] = user.email
+    session["role"] = user.role.name
+
 
 def _login_user(user):
-
     session.clear()
+
+    # Create the JWT used by the web application. It is stored in an
+    # HttpOnly cookie so JavaScript cannot directly read the token.
+    token = user_service.create_access_token(user)
 
     session["user_id"] = user.id
     session["user_name"] = user.name
@@ -25,34 +80,39 @@ def _login_user(user):
     session["role"] = user.role.name
 
     if user.role.name == "EMPLOYEE":
-
+        response = redirect(
+            url_for("user_controller.employee_dashboard")
+        )
+    elif user.role.name == "AGENT":
+        response = redirect(
+            url_for("user_controller.agent_dashboard")
+        )
+    elif user.role.name == "ADMIN":
+        response = redirect(
+            url_for("user_controller.admin_dashboard")
+        )
+    else:
+        session.clear()
         return redirect(
-            url_for(
-                "user_controller.employee_dashboard"
-            )
+            url_for("user_controller.employee_login")
         )
 
-    if user.role.name == "AGENT":
-
-        return redirect(
-            url_for(
-                "user_controller.agent_dashboard"
-            )
-        )
-
-    if user.role.name == "ADMIN":
-
-        return redirect(
-            url_for(
-                "user_controller.admin_dashboard"
-            )
-        )
-
-    session.clear()
-
-    return redirect(
-        url_for("user_controller.employee_login")
+    expires_minutes = current_app.config.get(
+        "JWT_EXPIRES_MINUTES",
+        1
     )
+
+    response.set_cookie(
+        JWT_COOKIE_NAME,
+        token,
+        max_age=int(expires_minutes * 60),
+        httponly=True,
+        secure=current_app.config.get("JWT_COOKIE_SECURE", False),
+        samesite="Lax",
+        path="/"
+    )
+
+    return response
 
 
 def _process_login(role_name, template_name):
@@ -488,11 +548,18 @@ def logout():
 
     session.clear()
 
-    return redirect(
+    response = redirect(
         url_for(
             "user_controller.employee_login"
         )
     )
+
+    response.delete_cookie(
+        JWT_COOKIE_NAME,
+        path="/"
+    )
+
+    return response
 
 
 @user_controller.route("/")

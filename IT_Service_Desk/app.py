@@ -1,7 +1,7 @@
 from flask import Flask, redirect, url_for
 
 from config.database import init_db
-
+# from flask_jwt_extended import verify_jwt_in_request,get_jwt_identity,get_jwt
 from controllers.user_controller import user_controller
 from controllers.ticket_controller import ticket_controller
 from controllers.ticket_assignment_controller import ticket_assignment_bp
@@ -16,7 +16,7 @@ from controllers.feedback_controller import feedback_bp
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = "changeme"
-
+app.config["JWT_EXPIRES_MINUTES"]=2
 init_db(app)
 
 app.register_blueprint(user_controller)

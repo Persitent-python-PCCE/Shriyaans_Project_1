@@ -1,4 +1,7 @@
 from config.database import db
+from flask import current_app
+import jwt
+from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash
 from dao.user_dao import UserDAO
 from dao.role_dao import RoleDAO
@@ -13,6 +16,70 @@ from utils.email_v import verify_email
 from utils.password_v import validate_password
 
 class UserService:
+    def create_access_token(self, user, expires_minutes=None):
+        """Create a signed JWT for employee/agent/admin authentication."""
+        if not user or not user.role:
+            raise ValueError("User role is not configured.")
+
+        secret_key = current_app.config.get(
+            "JWT_SECRET_KEY",
+            current_app.config.get("SECRET_KEY")
+        )
+
+        if not secret_key:
+            raise ValueError("JWT secret key is not configured.")
+
+        if expires_minutes is None:
+            expires_minutes = current_app.config.get(
+                "JWT_EXPIRES_MINUTES",
+                1
+            )
+
+        now = datetime.now(timezone.utc)
+        expires_at = now + timedelta(minutes=int(expires_minutes))
+
+        payload = {
+            "sub": str(user.id),
+            "name": user.name,
+            "email": user.email,
+            "role": user.role.name,
+            "iat": now,
+            "exp": expires_at,
+        }
+
+        return jwt.encode(
+            payload,
+            secret_key,
+            algorithm="HS256"
+        )
+
+    def decode_access_token(self, token):
+        """Validate a JWT and return its payload, or None if invalid/expired."""
+        if not token:
+            return None
+
+        secret_key = current_app.config.get(
+            "JWT_SECRET_KEY",
+            current_app.config.get("SECRET_KEY")
+        )
+
+        if not secret_key:
+            return None
+
+        try:
+            return jwt.decode(
+                token,
+                secret_key,
+                algorithms=["HS256"]
+            )
+        except (
+            jwt.ExpiredSignatureError,
+            jwt.InvalidTokenError,
+            ValueError,
+            TypeError
+        ):
+            return None
+
     def get_all_users(self):
         return UserDAO.get_all()
 

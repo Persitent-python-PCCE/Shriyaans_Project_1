@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request, session, current_app
 from werkzeug.security import check_password_hash
 
 from services.user_service import UserService
@@ -48,7 +48,7 @@ def _set_login_session(user):
     session["role"] = user.role.name if user.role else None
 
 
-def _api_login(role_name=None):
+def _api_login(role_name=None, use_jwt=False):
     data = _request_data()
 
     email = str(data.get("email", "")).strip().lower()
@@ -80,12 +80,24 @@ def _api_login(role_name=None):
         if not check_password_hash(user.password_hash, password):
             return _error("Invalid email or password.", 401)
 
-        _set_login_session(user)
-
-        return jsonify({
+        response_data = {
             "message": "Login successful.",
             "user": _user_to_dict(user),
-        })
+        }
+
+        if use_jwt:
+            token = user_service.create_access_token(user)
+            expires_minutes = current_app.config.get(
+                "JWT_EXPIRES_MINUTES",
+                1
+            )
+            response_data["token"] = token
+            response_data["token_type"] = "Bearer"
+            response_data["expires_in"] = int(expires_minutes) * 60
+            return jsonify(response_data)
+
+        _set_login_session(user)
+        return jsonify(response_data)
 
     except Exception:
         return _error("Unable to process login.", 500)
@@ -247,17 +259,17 @@ def api_login():
 
 @api_bp.route("/employee/login", methods=["POST"])
 def api_employee_login():
-    return _api_login("EMPLOYEE")
+    return _api_login("EMPLOYEE", use_jwt=True)
 
 
 @api_bp.route("/agent/login", methods=["POST"])
 def api_agent_login():
-    return _api_login("AGENT")
+    return _api_login("AGENT", use_jwt=True)
 
 
 @api_bp.route("/admin/login", methods=["POST"])
 def api_admin_login():
-    return _api_login("ADMIN")
+    return _api_login("ADMIN", use_jwt=True)
 
 
 @api_bp.route("/register", methods=["POST"])
