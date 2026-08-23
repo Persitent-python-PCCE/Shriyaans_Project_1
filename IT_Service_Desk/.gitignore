@@ -1,6 +1,5 @@
 # Virtual environment
 venv/
-
 # Python cache
 __pycache__/
 *.py[cod]
@@ -17,3 +16,9 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Flask/API session cookies
+*-cookies.txt
+
+# Uploaded ticket files
+uploads/
