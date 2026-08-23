@@ -1,6 +1,8 @@
+import os
+import secrets
 from flask import Flask, redirect, url_for
-
 from config.database import init_db
+from utils.time_v import to_local_time
 # from flask_jwt_extended import verify_jwt_in_request,get_jwt_identity,get_jwt
 from controllers.user_controller import user_controller
 from controllers.ticket_controller import ticket_controller
@@ -14,8 +16,13 @@ from controllers.admin_category_controller import admin_category_bp
 from controllers.feedback_controller import feedback_bp
 
 app = Flask(__name__)
+app.jinja_env.filters["localtime"] = to_local_time
 
-app.config["SECRET_KEY"] = "changeme"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY") or secrets.token_hex(32)
+# app.config["JWT_SECRET_KEY"] = os.getenv(
+#     "JWT_SECRET_KEY",
+#     app.config["SECRET_KEY"]
+# )
 app.config["JWT_EXPIRES_MINUTES"]=2
 init_db(app)
 
@@ -38,4 +45,4 @@ def home():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.getenv("FLASK_DEBUG", "0") == "1")

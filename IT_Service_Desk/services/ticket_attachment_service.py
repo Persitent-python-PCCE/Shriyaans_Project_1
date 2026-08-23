@@ -64,6 +64,7 @@ class TicketAttachmentService:
             return any(
                 assignment.ticket_id == ticket.id
                 for assignment in assignments
+                if getattr(assignment, "unassigned_at", None) is None
             )
 
         return False

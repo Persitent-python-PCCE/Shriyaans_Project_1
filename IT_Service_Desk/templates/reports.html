@@ -819,7 +819,7 @@
 
                                             {% if ticket.closed_at %}
 
-                                                {{ ticket.closed_at.strftime('%d %b %Y, %I:%M %p') }}
+                                                {{ (ticket.closed_at|localtime).strftime('%d %b %Y, %I:%M %p') }}
 
                                             {% else %}
 
@@ -909,7 +909,7 @@
 
                                     <td>
                                         {% if item.created_at %}
-                                            {{ item.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                                            {{ (item.created_at|localtime).strftime('%d %b %Y, %I:%M %p') }}
                                         {% else %}
                                             -
                                         {% endif %}

@@ -306,6 +306,7 @@ class TicketService:
             assigned_ticket_ids = {
                 assignment.ticket_id
                 for assignment in assignments
+                if getattr(assignment, "unassigned_at", None) is None
             }
 
             if ticket.id not in assigned_ticket_ids:
@@ -386,6 +387,7 @@ class TicketService:
             assigned_ticket_ids = {
                 assignment.ticket_id
                 for assignment in assignments
+                if getattr(assignment, "unassigned_at", None) is None
             }
 
             if ticket.id not in assigned_ticket_ids:

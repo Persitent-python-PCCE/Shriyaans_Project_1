@@ -94,6 +94,7 @@ def _api_login(role_name=None, use_jwt=False):
             response_data["token"] = token
             response_data["token_type"] = "Bearer"
             response_data["expires_in"] = int(expires_minutes) * 60
+            _set_login_session(user)
             return jsonify(response_data)
 
         _set_login_session(user)
@@ -168,13 +169,27 @@ def _api_register(role_name=None):
 
 
 def _current_user():
+    authorization = request.headers.get("Authorization", "")
+
+    if authorization.lower().startswith("bearer "):
+        token = authorization[7:].strip()
+        payload = user_service.decode_access_token(token)
+
+        if payload:
+            try:
+                return int(payload["sub"]), None
+            except (KeyError, TypeError, ValueError):
+                pass
+
     user_id = session.get("user_id")
 
-    if not user_id:
-        return None, (
-            jsonify({"error": "Authentication required."}),
-            401,
-        )
+    if user_id:
+        return user_id, None
+
+    return None, (
+        jsonify({"error": "Authentication required."}),
+        401,
+    )
 
     return user_id, None
 

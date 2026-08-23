@@ -392,7 +392,7 @@
 
                             <small>
                                 Created:
-                                {{ ticket.created_at.strftime(
+                                {{ (ticket.created_at|localtime).strftime(
                                     '%d-%m-%Y %I:%M %p'
                                 ) }}
                             </small>
@@ -491,7 +491,7 @@
                                     Due:
                                 </strong>
 
-                                {{ ticket.due_date.strftime(
+                                {{ (ticket.due_date|localtime).strftime(
                                     '%d-%m-%Y %I:%M %p'
                                 ) }}
 

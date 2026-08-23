@@ -649,7 +649,7 @@
 
                             {% if ticket.created_at %}
 
-                                {{ ticket.created_at.strftime(
+                                {{ (ticket.created_at|localtime).strftime(
                                     '%d-%m-%Y %I:%M %p'
                                 ) }}
 
@@ -676,7 +676,7 @@
 
                             {% if ticket.updated_at %}
 
-                                {{ ticket.updated_at.strftime(
+                                {{ (ticket.updated_at|localtime).strftime(
                                     '%d-%m-%Y %I:%M %p'
                                 ) }}
 
@@ -718,7 +718,7 @@
 
                             <div class="detail-value">
 
-                                {{ ticket.due_date.strftime(
+                                {{ (ticket.due_date|localtime).strftime(
                                     '%d-%m-%Y %I:%M %p'
                                 ) }}
 
@@ -741,7 +741,7 @@
 
                             <div class="detail-value">
 
-                                {{ ticket.resolved_at.strftime(
+                                {{ (ticket.resolved_at|localtime).strftime(
                                     '%d-%m-%Y %I:%M %p'
                                 ) }}
 
@@ -764,7 +764,7 @@
 
                             <div class="detail-value">
 
-                                {{ ticket.closed_at.strftime(
+                                {{ (ticket.closed_at|localtime).strftime(
                                     '%d-%m-%Y %I:%M %p'
                                 ) }}
 
@@ -877,7 +877,7 @@
                 {% if feedback %}
                     <p><strong>Rating:</strong> {{ feedback.rating }}/5</p>
                     {% if feedback.comment %}<p>{{ feedback.comment }}</p>{% endif %}
-                    <p class="attachment-meta">Submitted {{ feedback.created_at.strftime('%d-%m-%Y %I:%M %p') if feedback.created_at else '' }}</p>
+                    <p class="attachment-meta">Submitted {{ (feedback.created_at|localtime).strftime('%d-%m-%Y %I:%M %p') if feedback.created_at else '' }}</p>
                 {% elif role == 'EMPLOYEE' and ticket.status in ['RESOLVED', 'CLOSED'] %}
                     <form method="POST" action="{{ url_for('feedback.submit_feedback', ticket_id=ticket.id) }}">
                         <label for="rating"><strong>How satisfied are you?</strong></label>
@@ -896,7 +896,7 @@
                 <h2 class="section-title">Audit History</h2>
                 {% if history %}
                     {% for entry in history %}
-                        <div class="comment"><div class="comment-header"><div class="comment-user">{{ entry.user.name if entry.user else 'System User' }}</div><div class="comment-date">{{ entry.created_at.strftime('%d-%m-%Y %I:%M %p') if entry.created_at else '' }}</div></div><div class="comment-text"><strong>{{ entry.action|replace('_',' ')|title }}</strong>{% if entry.description %} — {{ entry.description }}{% endif %}</div></div>
+                        <div class="comment"><div class="comment-header"><div class="comment-user">{{ entry.user.name if entry.user else 'System User' }}</div><div class="comment-date">{{ (entry.created_at|localtime).strftime('%d-%m-%Y %I:%M %p') if entry.created_at else '' }}</div></div><div class="comment-text"><strong>{{ entry.action|replace('_',' ')|title }}</strong>{% if entry.description %} — {{ entry.description }}{% endif %}</div></div>
                     {% endfor %}
                 {% else %}<p class="attachment-meta">No history entries found.</p>{% endif %}
             </div>
@@ -938,7 +938,7 @@
 
                                     {% if comment.created_at %}
 
-                                        {{ comment.created_at.strftime(
+                                        {{ (comment.created_at|localtime).strftime(
                                             '%d-%m-%Y %I:%M %p'
                                         ) }}
 

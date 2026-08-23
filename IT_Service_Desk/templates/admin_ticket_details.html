@@ -434,7 +434,7 @@
 
                             <span class="value">
 
-                                {{ ticket.created_at }}
+                                {{ ticket.created_at|localtime }}
 
                             </span>
 
@@ -477,7 +477,7 @@
 
                                     {% if assignment.created_at %}
 
-                                        {{ assignment.created_at }}
+                                        {{ assignment.assigned_at|localtime }}
 
                                     {% endif %}
 

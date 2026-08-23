@@ -136,6 +136,45 @@ def test_employee_login_success_json(
         assert sess["role"] == "EMPLOYEE"
 
 
+def test_bearer_token_authenticates_without_session(
+    app_client,
+    monkeypatch,
+):
+    user = fake_user(role="EMPLOYEE")
+
+    monkeypatch.setattr(
+        api_controller.user_service,
+        "get_user_by_email",
+        lambda email: user,
+    )
+    monkeypatch.setattr(
+        api_controller.ticket_service,
+        "search_tickets",
+        lambda **kwargs: [],
+    )
+
+    login_response = app_client.post(
+        "/api/employee/login",
+        json={
+            "email": user.email,
+            "password": "Password@123",
+        },
+    )
+
+    token = login_response.get_json()["token"]
+
+    with app_client.session_transaction() as sess:
+        sess.clear()
+
+    response = app_client.get(
+        "/api/tickets",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["count"] == 0
+
+
 def test_agent_login_success_form_data(
     app_client,
     monkeypatch,
