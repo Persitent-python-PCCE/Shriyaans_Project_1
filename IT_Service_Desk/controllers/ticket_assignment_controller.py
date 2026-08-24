@@ -33,7 +33,7 @@ def view_assigned_tickets():
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.agent_login")
         )
 
     if session.get("role") != "AGENT":
@@ -44,7 +44,7 @@ def view_assigned_tickets():
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.agent_login")
         )
 
     status_filter = request.args.get(
@@ -97,7 +97,7 @@ def view_assigned_tickets():
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.agent_login")
         )
 
     except Exception:
@@ -139,7 +139,7 @@ def update_ticket_status(ticket_id):
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.agent_login")
         )
 
     if session.get("role") != "AGENT":
@@ -150,7 +150,7 @@ def update_ticket_status(ticket_id):
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.agent_login")
         )
 
     new_status = request.form.get(
@@ -237,7 +237,7 @@ def assign_ticket(ticket_id):
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.admin_login")
         )
 
     if session.get("role") != "ADMIN":
@@ -248,7 +248,7 @@ def assign_ticket(ticket_id):
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.admin_login")
         )
 
     agent_id = request.form.get(

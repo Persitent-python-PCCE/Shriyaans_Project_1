@@ -28,7 +28,7 @@ def _require_login():
 
         return redirect(
             url_for(
-                "user_controller.login"
+                "user_controller.employee_login"
             )
         )
 

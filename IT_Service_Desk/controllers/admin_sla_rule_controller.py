@@ -14,11 +14,11 @@ sla_service = SLARuleService()
 
 def _require_admin():
     if "user_id" not in session:
-        return redirect(url_for("user_controller.login"))
+        return redirect(url_for("user_controller.admin_login"))
 
     if session.get("role") != "ADMIN":
         flash("Administrator privileges are required.", "danger")
-        return redirect(url_for("user_controller.login"))
+        return redirect(url_for("user_controller.admin_login"))
 
     return None
 

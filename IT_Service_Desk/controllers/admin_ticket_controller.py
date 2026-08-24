@@ -26,7 +26,7 @@ def _require_admin():
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.admin_login")
         )
 
     if session.get("role") != "ADMIN":
@@ -37,7 +37,7 @@ def _require_admin():
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.admin_login")
         )
 
     return None
@@ -104,7 +104,7 @@ def manage_tickets():
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.admin_login")
         )
 
     except Exception:
@@ -215,7 +215,7 @@ def ticket_details(ticket_id):
         )
 
         return redirect(
-            url_for("user_controller.login")
+            url_for("user_controller.admin_login")
         )
 
     except Exception:

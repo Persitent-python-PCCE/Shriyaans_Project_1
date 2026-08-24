@@ -23,7 +23,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 #     "JWT_SECRET_KEY",
 #     app.config["SECRET_KEY"]
 # )
-app.config["JWT_EXPIRES_MINUTES"]=2
+app.config["JWT_EXPIRES_MINUTES"]=15
 init_db(app)
 
 app.register_blueprint(user_controller)

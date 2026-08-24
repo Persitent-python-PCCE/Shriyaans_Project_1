@@ -1,7 +1,6 @@
 from flask import Blueprint,request,render_template,redirect,url_for,session,current_app
 from services.user_service import UserService
 from services.ticket_service import TicketService
-
 from werkzeug.security import check_password_hash
 
 
@@ -19,15 +18,10 @@ JWT_COOKIE_NAME = "access_token"
 
 @user_controller.before_app_request
 def _load_jwt_user_into_session():
-    """Use the JWT cookie as the source of truth for web authentication.
-
-    Existing controllers still read Flask session values. We populate those
-    values from the JWT on every non-API request, so an expired JWT also
-    removes the effective login session.
-    """
-    # Keep the existing /api/login session flow separate from the three
-    # JWT-based API login routes. The web application uses JWT cookies.
     if request.path.startswith("/api"):
+        return
+
+    if request.path == "/logout":
         return
 
     token = request.cookies.get(JWT_COOKIE_NAME)
@@ -54,9 +48,6 @@ def _load_jwt_user_into_session():
     if not user or not user.is_active or not user.role:
         session.clear()
         return
-
-    # The JWT remains valid only for the same user/role that is currently
-    # stored in the database.
     if payload.get("role") != user.role.name:
         session.clear()
         return
@@ -69,9 +60,6 @@ def _load_jwt_user_into_session():
 
 def _login_user(user):
     session.clear()
-
-    # Create the JWT used by the web application. It is stored in an
-    # HttpOnly cookie so JavaScript cannot directly read the token.
     token = user_service.create_access_token(user)
 
     session["user_id"] = user.id
@@ -245,21 +233,6 @@ def admin_login():
 def admin_register():
 
     users = user_service.get_all_users()
-
-    admins = [
-        user
-        for user in users
-        if user.role
-        and user.role.name == "ADMIN"
-    ]
-
-    # if admins:
-
-    #     return redirect(
-    #         url_for(
-    #             "user_controller.admin_login"
-    #         )
-    #     )
 
     if request.method == "GET":
 
@@ -541,18 +514,25 @@ def admin_dashboard():
         )
 
 
-@user_controller.route(
-    "/logout"
-)
+@user_controller.route("/logout")
 def logout():
 
+    role = request.args.get("role") or session.get("role")
     session.clear()
 
-    response = redirect(
-        url_for(
-            "user_controller.employee_login"
+    if role == "ADMIN":
+        response = redirect(
+            url_for("user_controller.admin_login")
         )
-    )
+    elif role == "AGENT":
+        response = redirect(
+            url_for("user_controller.agent_login")
+        )
+    
+    else:
+        response = redirect(
+            url_for("user_controller.employee_login")
+        )
 
     response.delete_cookie(
         JWT_COOKIE_NAME,
