@@ -26,7 +26,10 @@ def _request_data():
     if isinstance(data, dict):
         return data
 
-    return request.form.to_dict()
+    if request.form:
+        return request.form.to_dict()
+
+    return {}
 
 
 def _user_to_dict(user):
@@ -87,18 +90,21 @@ def _api_login(role_name=None, use_jwt=False):
 
         if use_jwt:
             token = user_service.create_access_token(user)
-            expires_minutes = current_app.config.get(
-                "JWT_EXPIRES_MINUTES",
-                1
+
+            expires_minutes = int(
+                current_app.config.get(
+                    "JWT_EXPIRES_MINUTES",
+                    15,
+                )
             )
+
             response_data["token"] = token
             response_data["token_type"] = "Bearer"
-            response_data["expires_in"] = int(expires_minutes) * 60
-            _set_login_session(user)
-            return jsonify(response_data)
+            response_data["expires_in"] = expires_minutes * 60
 
         _set_login_session(user)
-        return jsonify(response_data)
+
+        return jsonify(response_data), 200
 
     except Exception:
         return _error("Unable to process login.", 500)
@@ -110,7 +116,7 @@ def _api_register(role_name=None):
     requested_role = str(
         data.get(
             "role_name",
-            data.get("role", role_name or "EMPLOYEE")
+            data.get("role", role_name or "EMPLOYEE"),
         )
     ).strip().upper()
 
@@ -126,9 +132,12 @@ def _api_register(role_name=None):
         return _error("Invalid user role.", 400)
 
     if requested_role == "AGENT":
-        user_id = session.get("user_id")
+        user_id, user_role, auth_error = _current_user()
 
-        if not user_id or session.get("role") != "ADMIN":
+        if auth_error:
+            return auth_error
+
+        if user_role != "ADMIN":
             return _error(
                 "Only administrators can register agent accounts.",
                 403,
@@ -142,10 +151,21 @@ def _api_register(role_name=None):
                 if user.role and user.role.name == "ADMIN"
             ]
         except Exception:
-            return _error("Unable to check administrator accounts.", 500)
+            return _error(
+                "Unable to check administrator accounts.",
+                500,
+            )
 
         if existing_admins:
-            if session.get("role") != "ADMIN":
+            user_id, user_role, auth_error = _current_user()
+
+            if auth_error:
+                return _error(
+                    "Admin registration is closed because an administrator already exists.",
+                    403,
+                )
+
+            if user_role != "ADMIN":
                 return _error(
                     "Admin registration is closed because an administrator already exists.",
                     403,
@@ -165,37 +185,60 @@ def _api_register(role_name=None):
         return _error(str(exc), 400)
 
     except Exception:
-        return _error("Unable to register user.", 500)
+        return _error(
+            "Unable to register user.",
+            500,
+        )
 
 
 def _current_user():
-    authorization = request.headers.get("Authorization", "")
+    authorization = request.headers.get("Authorization", "").strip()
 
     if authorization.lower().startswith("bearer "):
         token = authorization[7:].strip()
-        payload = user_service.decode_access_token(token)
 
-        if payload:
-            try:
-                return int(payload["sub"]), None
-            except (KeyError, TypeError, ValueError):
-                pass
+        if token:
+            payload = user_service.decode_access_token(token)
+
+            if payload:
+                try:
+                    user_id = int(payload["sub"])
+                    user_role = payload.get("role")
+
+                    if user_role:
+                        user_role = str(user_role).upper()
+
+                    return user_id, user_role, None
+
+                except (
+                    KeyError,
+                    TypeError,
+                    ValueError,
+                ):
+                    pass
 
     user_id = session.get("user_id")
 
     if user_id:
-        return user_id, None
+        user_role = session.get("role")
 
-    return None, (
-        jsonify({"error": "Authentication required."}),
+        if user_role:
+            user_role = str(user_role).upper()
+
+        return user_id, user_role, None
+
+    return None, None, (
+        jsonify({
+            "error": "Authentication required.",
+        }),
         401,
     )
 
-    return user_id, None
-
 
 def _error(message, status=400):
-    return jsonify({"error": message}), status
+    return jsonify({
+        "error": message,
+    }), status
 
 
 def _iso(value):
@@ -214,7 +257,9 @@ def _ticket_to_dict(ticket):
                 if assignment.agent
                 else None
             ),
-            "assigned_at": _iso(assignment.assigned_at),
+            "assigned_at": _iso(
+                assignment.assigned_at
+            ),
         })
 
     return {
@@ -249,7 +294,9 @@ def _ticket_to_dict(ticket):
                 "file_size": attachment.file_size,
                 "file_type": attachment.file_type,
                 "uploaded_by": attachment.uploaded_by,
-                "uploaded_at": _iso(attachment.uploaded_at),
+                "uploaded_at": _iso(
+                    attachment.uploaded_at
+                ),
             }
             for attachment in ticket.attachments
         ],
@@ -259,7 +306,9 @@ def _ticket_to_dict(ticket):
                 "id": ticket.feedback.id,
                 "rating": ticket.feedback.rating,
                 "comment": ticket.feedback.comment,
-                "created_at": _iso(ticket.feedback.created_at),
+                "created_at": _iso(
+                    ticket.feedback.created_at
+                ),
             }
             if ticket.feedback
             else None
@@ -274,17 +323,26 @@ def api_login():
 
 @api_bp.route("/employee/login", methods=["POST"])
 def api_employee_login():
-    return _api_login("EMPLOYEE", use_jwt=True)
+    return _api_login(
+        "EMPLOYEE",
+        use_jwt=True,
+    )
 
 
 @api_bp.route("/agent/login", methods=["POST"])
 def api_agent_login():
-    return _api_login("AGENT", use_jwt=True)
+    return _api_login(
+        "AGENT",
+        use_jwt=True,
+    )
 
 
 @api_bp.route("/admin/login", methods=["POST"])
 def api_admin_login():
-    return _api_login("ADMIN", use_jwt=True)
+    return _api_login(
+        "ADMIN",
+        use_jwt=True,
+    )
 
 
 @api_bp.route("/register", methods=["POST"])
@@ -309,7 +367,7 @@ def api_admin_register():
 
 @api_bp.route("/tickets", methods=["GET", "POST"])
 def tickets():
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -346,31 +404,47 @@ def tickets():
                     _ticket_to_dict(ticket)
                     for ticket in tickets
                 ],
-            })
+            }), 200
 
         data = _request_data()
-
         category_id = data.get("category_id")
 
         if category_id is None:
-            return _error("category_id is required.")
+            return _error(
+                "category_id is required.",
+                400,
+            )
 
         ticket = ticket_service.create_ticket(
             user_id=user_id,
             title=data.get("title"),
             description=data.get("description"),
             category_id=int(category_id),
-            priority=data.get("priority", "MEDIUM"),
-            severity=data.get("severity", "MODERATE"),
+            priority=data.get(
+                "priority",
+                "MEDIUM",
+            ),
+            severity=data.get(
+                "severity",
+                "MODERATE",
+            ),
         )
 
-        return jsonify(_ticket_to_dict(ticket)), 201
+        return jsonify(
+            _ticket_to_dict(ticket)
+        ), 201
 
     except (ValueError, TypeError) as exc:
-        return _error(str(exc))
+        return _error(
+            str(exc),
+            400,
+        )
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except Exception:
         return _error(
@@ -379,9 +453,12 @@ def tickets():
         )
 
 
-@api_bp.route("/tickets/<int:ticket_id>", methods=["GET"])
+@api_bp.route(
+    "/tickets/<int:ticket_id>",
+    methods=["GET"],
+)
 def ticket_detail(ticket_id):
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -392,16 +469,27 @@ def ticket_detail(ticket_id):
             ticket_id,
         )
 
-        return jsonify(_ticket_to_dict(ticket))
+        return jsonify(
+            _ticket_to_dict(ticket)
+        ), 200
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 404)
+        return _error(
+            str(exc),
+            404,
+        )
 
     except Exception:
-        return _error("Unable to load ticket.", 500)
+        return _error(
+            "Unable to load ticket.",
+            500,
+        )
 
 
 @api_bp.route(
@@ -409,7 +497,7 @@ def ticket_detail(ticket_id):
     methods=["PATCH", "PUT"],
 )
 def ticket_status(ticket_id):
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -420,16 +508,27 @@ def ticket_status(ticket_id):
         ticket = ticket_service.update_status(
             user_id=user_id,
             ticket_id=ticket_id,
-            new_status=data.get("status", ""),
+            new_status=data.get(
+                "status",
+                "",
+            ),
         )
 
-        return jsonify(_ticket_to_dict(ticket))
+        return jsonify(
+            _ticket_to_dict(ticket)
+        ), 200
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 400)
+        return _error(
+            str(exc),
+            400,
+        )
 
     except Exception:
         return _error(
@@ -443,7 +542,7 @@ def ticket_status(ticket_id):
     methods=["POST"],
 )
 def escalate_ticket(ticket_id):
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -457,13 +556,21 @@ def escalate_ticket(ticket_id):
             reason=data.get("reason"),
         )
 
-        return jsonify(_ticket_to_dict(ticket))
+        return jsonify(
+            _ticket_to_dict(ticket)
+        ), 200
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 400)
+        return _error(
+            str(exc),
+            400,
+        )
 
     except Exception:
         return _error(
@@ -477,7 +584,7 @@ def escalate_ticket(ticket_id):
     methods=["GET", "POST"],
 )
 def ticket_comments(ticket_id):
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -511,14 +618,17 @@ def ticket_comments(ticket_id):
                     }
                     for comment in comments
                 ],
-            })
+            }), 200
 
         data = _request_data()
 
         comment = comment_service.add_comment(
             user_id=user_id,
             ticket_id=ticket_id,
-            comment_text=data.get("comment", ""),
+            comment_text=data.get(
+                "comment",
+                "",
+            ),
         )
 
         return jsonify({
@@ -532,10 +642,16 @@ def ticket_comments(ticket_id):
         }), 201
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 400)
+        return _error(
+            str(exc),
+            400,
+        )
 
     except Exception:
         return _error(
@@ -549,7 +665,7 @@ def ticket_comments(ticket_id):
     methods=["GET"],
 )
 def ticket_history(ticket_id):
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -580,13 +696,19 @@ def ticket_history(ticket_id):
                 }
                 for entry in history
             ],
-        })
+        }), 200
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 404)
+        return _error(
+            str(exc),
+            404,
+        )
 
     except Exception:
         return _error(
@@ -600,7 +722,7 @@ def ticket_history(ticket_id):
     methods=["GET", "POST"],
 )
 def ticket_feedback(ticket_id):
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -627,7 +749,7 @@ def ticket_feedback(ticket_id):
                     if feedback
                     else None
                 ),
-            })
+            }), 200
 
         data = _request_data()
 
@@ -635,7 +757,10 @@ def ticket_feedback(ticket_id):
             user_id=user_id,
             ticket_id=ticket_id,
             rating=data.get("rating"),
-            comment=data.get("comment", ""),
+            comment=data.get(
+                "comment",
+                "",
+            ),
         )
 
         return jsonify({
@@ -650,10 +775,16 @@ def ticket_feedback(ticket_id):
         }), 201
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 400)
+        return _error(
+            str(exc),
+            400,
+        )
 
     except Exception:
         return _error(
@@ -662,9 +793,12 @@ def ticket_feedback(ticket_id):
         )
 
 
-@api_bp.route("/categories", methods=["GET"])
+@api_bp.route(
+    "/categories",
+    methods=["GET"],
+)
 def categories():
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
@@ -682,10 +816,13 @@ def categories():
                 }
                 for category in categories
             ],
-        })
+        }), 200
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except Exception:
         return _error(
@@ -699,12 +836,12 @@ def categories():
     methods=["GET", "POST"],
 )
 def sla_rules():
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
 
-    if session.get("role") != "ADMIN":
+    if user_role != "ADMIN":
         return _error(
             "Only administrators can access SLA rules.",
             403,
@@ -735,7 +872,7 @@ def sla_rules():
                     }
                     for rule in rules
                 ],
-            })
+            }), 200
 
         data = _request_data()
 
@@ -765,10 +902,16 @@ def sla_rules():
         }), 201
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 400)
+        return _error(
+            str(exc),
+            400,
+        )
 
     except Exception:
         return _error(
@@ -782,12 +925,12 @@ def sla_rules():
     methods=["PATCH", "PUT", "DELETE"],
 )
 def sla_rule_detail(rule_id):
-    user_id, auth_error = _current_user()
+    user_id, user_role, auth_error = _current_user()
 
     if auth_error:
         return auth_error
 
-    if session.get("role") != "ADMIN":
+    if user_role != "ADMIN":
         return _error(
             "Only administrators can manage SLA rules.",
             403,
@@ -802,7 +945,7 @@ def sla_rule_detail(rule_id):
 
             return jsonify({
                 "message": "SLA rule deleted.",
-            })
+            }), 200
 
         data = _request_data()
 
@@ -826,13 +969,19 @@ def sla_rule_detail(rule_id):
             "resolution_time_minutes": (
                 rule.resolution_time_minutes
             ),
-        })
+        }), 200
 
     except PermissionError as exc:
-        return _error(str(exc), 403)
+        return _error(
+            str(exc),
+            403,
+        )
 
     except ValueError as exc:
-        return _error(str(exc), 400)
+        return _error(
+            str(exc),
+            400,
+        )
 
     except Exception:
         return _error(

@@ -779,22 +779,20 @@
 
 
 
-                {% if ticket.is_escalated %}
+                {% if ticket.is_escalated and role in ["AGENT", "ADMIN"] %}
 
-                    <div class="escalated">
+    <div class="escalated">
+        <strong>
+            ⚠ Ticket Escalated
+        </strong>
 
-                        <strong>
-                            ⚠ Ticket Escalated
-                        </strong>
+        <br>
 
-                        <br>
+        This ticket has been escalated
+        and requires additional attention.
+    </div>
 
-                        This ticket has been escalated
-                        and requires additional attention.
-
-                    </div>
-
-                {% endif %}
+{% endif %}
 
 
             </div>

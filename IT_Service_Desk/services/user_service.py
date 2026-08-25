@@ -21,10 +21,7 @@ class UserService:
         if not user or not user.role:
             raise ValueError("User role is not configured.")
 
-        secret_key = current_app.config.get(
-            "JWT_SECRET_KEY",
-            current_app.config.get("SECRET_KEY")
-        )
+        secret_key = current_app.config.get("JWT_SECRET_KEY")
 
         if not secret_key:
             raise ValueError("JWT secret key is not configured.")
@@ -32,7 +29,7 @@ class UserService:
         if expires_minutes is None:
             expires_minutes = current_app.config.get(
                 "JWT_EXPIRES_MINUTES",
-                1
+                15
             )
 
         now = datetime.now(timezone.utc)
@@ -54,14 +51,10 @@ class UserService:
         )
 
     def decode_access_token(self, token):
-        """Validate a JWT and return its payload, or None if invalid/expired."""
         if not token:
             return None
 
-        secret_key = current_app.config.get(
-            "JWT_SECRET_KEY",
-            current_app.config.get("SECRET_KEY")
-        )
+        secret_key = current_app.config.get("JWT_SECRET_KEY")
 
         if not secret_key:
             return None

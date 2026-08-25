@@ -79,15 +79,15 @@ def _login_user(user):
         response = redirect(
             url_for("user_controller.admin_dashboard")
         )
-    else:
-        session.clear()
-        return redirect(
-            url_for("user_controller.employee_login")
-        )
+    # else:
+    #     session.clear()
+    #     return redirect(
+    #         url_for("user_controller.employee_login")
+    #     )
 
     expires_minutes = current_app.config.get(
         "JWT_EXPIRES_MINUTES",
-        1
+        15
     )
 
     response.set_cookie(

@@ -139,7 +139,7 @@ class TicketService:
                 "Invalid severity."
             )
 
-        # Apply the SLA rule for the selected priority.
+        
         SLARuleService.ensure_default_rules()
         sla_rule = SLARuleService.get_rule_by_priority(priority)
         if not sla_rule:
