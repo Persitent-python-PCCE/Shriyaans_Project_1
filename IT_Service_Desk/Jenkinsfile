@@ -15,6 +15,15 @@ pipeline {
                     docker run --rm \
                     -v "$WORKSPACE/IT_Service_Desk:/app" \
                     -w /app \
+                    -e DB_HOST=localhost \
+                    -e DB_PORT=3306 \
+                    -e DB_USER=ci \
+                    -e DB_PASSWORD=ci \
+                    -e DB_NAME=IT_S \
+                    -e SECRET_KEY=test-secret \
+                    -e JWT_SECRET_KEY=test-jwt-secret \
+                    -e JWT_EXPIRES_MINUTES=15 \
+                    -e JWT_COOKIE_SECURE=0 \
                     python:3.13-slim \
                     sh -c "pip install -r requirements.txt && pytest"
                 '''
