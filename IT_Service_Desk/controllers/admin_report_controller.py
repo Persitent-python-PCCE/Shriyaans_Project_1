@@ -25,7 +25,12 @@ def reports():
 
     period = request.args.get("period", "all").strip()
 
-    if period not in {"all", "2","7", "30", "90", "365"}:
+    valid_periods = {
+        value
+        for value, label in ReportService.PERIOD_OPTIONS
+    }
+
+    if period not in valid_periods:
         period = "all"
 
     try:
@@ -34,6 +39,7 @@ def reports():
         return render_template(
             "reports.html",
             report=report,
+            period_options=ReportService.PERIOD_OPTIONS,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -67,6 +73,7 @@ def reports():
                 "recent_closed": [],
                 "monthly_report": []
             },
+            period_options=ReportService.PERIOD_OPTIONS,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")

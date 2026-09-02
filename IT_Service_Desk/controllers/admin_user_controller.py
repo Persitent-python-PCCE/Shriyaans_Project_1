@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash, current_app
 from services.user_service import UserService
+from dao.role_dao import RoleDAO
 
 admin_user_bp = Blueprint("admin_user", __name__, url_prefix="/admin/users")
 user_service = UserService()
@@ -63,7 +64,18 @@ def create_user():
         return auth_check
 
     if request.method == "GET":
-        return render_template("admin_create_user.html")
+        account_roles = [
+            role
+            for role in RoleDAO.get_all()
+            if role.name != "ADMIN"
+        ]
+        return render_template(
+            "admin_create_user.html",
+            account_roles=account_roles,
+            name=session.get("user_name"),
+            email=session.get("user_email"),
+            role=session.get("role")
+        )
 
     name = request.form.get("name", "").strip()
     email = request.form.get("email", "").strip()

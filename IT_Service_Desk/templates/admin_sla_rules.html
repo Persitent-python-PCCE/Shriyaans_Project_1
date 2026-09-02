@@ -367,25 +367,12 @@
                             name="priority"
                             required
                         >
-                            <option value="">
-                                Select priority
-                            </option>
-
-                            <option value="LOW">
-                                LOW
-                            </option>
-
-                            <option value="MEDIUM">
-                                MEDIUM
-                            </option>
-
-                            <option value="HIGH">
-                                HIGH
-                            </option>
-
-                            <option value="CRITICAL">
-                                CRITICAL
-                            </option>
+                            <option value="">Select priority</option>
+                            {% for value in priority_options %}
+                                <option value="{{ value }}">
+                                    {{ value }}
+                                </option>
+                            {% endfor %}
                         </select>
                     </div>
 

@@ -136,8 +136,11 @@
             <label>Account Type</label>
             <select name="role_name" required>
                 <option value="">Select account type</option>
-                <option value="EMPLOYEE" {% if role_name|default('') == 'EMPLOYEE' %}selected{% endif %}>Employee</option>
-                <option value="AGENT" {% if role_name|default('') == 'AGENT' %}selected{% endif %}>Support Agent</option>
+                {% for account_role in account_roles %}
+                    <option value="{{ account_role.name }}" {% if role_name|default('') == account_role.name %}selected{% endif %}>
+                        {{ account_role.name|replace('_', ' ')|title }}
+                    </option>
+                {% endfor %}
             </select>
 
             <div class="buttons">

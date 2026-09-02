@@ -342,14 +342,14 @@
                 <input type="text" name="q" value="{{ current_query or '' }}" placeholder="Search title...">
                 <select name="status">
                     <option value="">All statuses</option>
-                    {% for value,label in [('OPEN','Open'),('ASSIGNED','Assigned'),('IN_PROGRESS','In Progress'),('RESOLVED','Resolved'),('CLOSED','Closed')] %}
-                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% for value in status_options %}
+                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ value|replace('_', ' ')|title }}</option>
                     {% endfor %}
                 </select>
                 <select name="priority">
                     <option value="">All priorities</option>
-                    {% for value,label in [('LOW','Low'),('MEDIUM','Medium'),('HIGH','High'),('CRITICAL','Critical')] %}
-                    <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>{{ label }}</option>
+                    {% for value in priority_options %}
+                    <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>{{ value|replace('_', ' ')|title }}</option>
                     {% endfor %}
                 </select>
                 <select name="category_id">

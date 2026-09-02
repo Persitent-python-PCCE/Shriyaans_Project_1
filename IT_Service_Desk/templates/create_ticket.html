@@ -374,22 +374,11 @@
                             required
                         >
 
-                            <option value="LOW">
-                                Low
+                            {% for value in priority_options %}
+                            <option value="{{ value }}" {% if value == "MEDIUM" %}selected{% endif %}>
+                                {{ value|replace('_', ' ')|title }}
                             </option>
-
-                            <option value="MEDIUM"
-                                    selected>
-                                Medium
-                            </option>
-
-                            <option value="HIGH">
-                                High
-                            </option>
-
-                            <option value="CRITICAL">
-                                Critical
-                            </option>
+                            {% endfor %}
 
                         </select>
 
@@ -409,22 +398,11 @@
                             required
                         >
 
-                            <option value="MINOR">
-                                Minor
+                            {% for value in severity_options %}
+                            <option value="{{ value }}" {% if value == "MODERATE" %}selected{% endif %}>
+                                {{ value|replace('_', ' ')|title }}
                             </option>
-
-                            <option value="MODERATE"
-                                    selected>
-                                Moderate
-                            </option>
-
-                            <option value="MAJOR">
-                                Major
-                            </option>
-
-                            <option value="CRITICAL">
-                                Critical
-                            </option>
+                            {% endfor %}
 
                         </select>
 

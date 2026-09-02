@@ -91,6 +91,8 @@ def manage_tickets():
             current_status=status_filter,
             current_priority=priority_filter,
             current_category=category_filter,
+            status_options=sorted(TicketService.VALID_STATUSES),
+            priority_options=sorted(TicketService.VALID_PRIORITIES),
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -127,6 +129,8 @@ def manage_tickets():
             current_status=request.args.get("status", "").strip().upper() or None,
             current_priority=request.args.get("priority", "").strip().upper() or None,
             current_category=None,
+            status_options=sorted(TicketService.VALID_STATUSES),
+            priority_options=sorted(TicketService.VALID_PRIORITIES),
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")

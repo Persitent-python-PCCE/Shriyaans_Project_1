@@ -37,6 +37,7 @@ def manage_rules():
         return render_template(
             "admin_sla_rules.html",
             rules=rules,
+            priority_options=sorted(SLARuleService.VALID_PRIORITIES),
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role"),
@@ -47,6 +48,7 @@ def manage_rules():
         return render_template(
             "admin_sla_rules.html",
             rules=[],
+            priority_options=sorted(SLARuleService.VALID_PRIORITIES),
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role"),

@@ -316,43 +316,14 @@
                             name="priority"
                             required
                         >
-
-                            <option
-                                value="LOW"
-                                {% if ticket.priority == "LOW" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Low
-                            </option>
-
-                            <option
-                                value="MEDIUM"
-                                {% if ticket.priority == "MEDIUM" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Medium
-                            </option>
-
-                            <option
-                                value="HIGH"
-                                {% if ticket.priority == "HIGH" %}
-                                    selected
-                                {% endif %}
-                            >
-                                High
-                            </option>
-
-                            <option
-                                value="CRITICAL"
-                                {% if ticket.priority == "CRITICAL" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Critical
-                            </option>
-
+                            {% for value in priority_options %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if ticket.priority == value %}selected{% endif %}
+                                >
+                                    {{ value|replace('_', ' ')|title }}
+                                </option>
+                            {% endfor %}
                         </select>
 
                     </div>
@@ -369,43 +340,14 @@
                             name="severity"
                             required
                         >
-
-                            <option
-                                value="MINOR"
-                                {% if ticket.severity == "MINOR" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Minor
-                            </option>
-
-                            <option
-                                value="MODERATE"
-                                {% if ticket.severity == "MODERATE" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Moderate
-                            </option>
-
-                            <option
-                                value="MAJOR"
-                                {% if ticket.severity == "MAJOR" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Major
-                            </option>
-
-                            <option
-                                value="CRITICAL"
-                                {% if ticket.severity == "CRITICAL" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Critical
-                            </option>
-
+                            {% for value in severity_options %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if ticket.severity == value %}selected{% endif %}
+                                >
+                                    {{ value|replace('_', ' ')|title }}
+                                </option>
+                            {% endfor %}
                         </select>
 
                     </div>

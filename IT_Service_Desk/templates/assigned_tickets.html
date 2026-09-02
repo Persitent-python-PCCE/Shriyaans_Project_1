@@ -358,14 +358,14 @@
                 <input type="text" name="q" value="{{ current_query or '' }}" placeholder="Search title...">
                 <select name="status">
                     <option value="">All statuses</option>
-                    {% for value,label in [('OPEN','Open'),('ASSIGNED','Assigned'),('IN_PROGRESS','In Progress'),('RESOLVED','Resolved'),('CLOSED','Closed')] %}
-                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% for value in status_options %}
+                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ value|replace('_', ' ')|title }}</option>
                     {% endfor %}
                 </select>
                 <select name="priority">
                     <option value="">All priorities</option>
-                    {% for value,label in [('LOW','Low'),('MEDIUM','Medium'),('HIGH','High'),('CRITICAL','Critical')] %}
-                    <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>{{ label }}</option>
+                    {% for value in priority_options %}
+                    <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>{{ value|replace('_', ' ')|title }}</option>
                     {% endfor %}
                 </select>
                 <select name="category_id">
@@ -438,52 +438,10 @@
                         id="status"
                         name="status"
                     >
-
-                        <option
-                            value=""
-                            {% if not current_status %}
-                                selected
-                            {% endif %}
-                        >
-                            All
-                        </option>
-
-                        <option
-                            value="ASSIGNED"
-                            {% if current_status == "ASSIGNED" %}
-                                selected
-                            {% endif %}
-                        >
-                            Assigned
-                        </option>
-
-                        <option
-                            value="IN_PROGRESS"
-                            {% if current_status == "IN_PROGRESS" %}
-                                selected
-                            {% endif %}
-                        >
-                            In Progress
-                        </option>
-
-                        <option
-                            value="RESOLVED"
-                            {% if current_status == "RESOLVED" %}
-                                selected
-                            {% endif %}
-                        >
-                            Resolved
-                        </option>
-
-                        <option
-                            value="CLOSED"
-                            {% if current_status == "CLOSED" %}
-                                selected
-                            {% endif %}
-                        >
-                            Closed
-                        </option>
-
+                        <option value="" {% if not current_status %}selected{% endif %}>All</option>
+                        {% for value in status_flow.get(current_status or '', []) %}
+                            <option value="{{ value }}">{{ value|replace('_', ' ')|title }}</option>
+                        {% endfor %}
                     </select>
 
                 </div>
@@ -684,23 +642,18 @@
                                             >
 
                                                 <select
-                                                    name="status"
-                                                    required
-                                                >
-
-                                                    <option
-                                                        value=""
-                                                    >
-                                                        Select Status
-                                                    </option>
-
-                                                    <option
-                                                        value="IN_PROGRESS"
-                                                    >
-                                                        In Progress
-                                                    </option>
-
-                                                </select>
+                                                     name="status"
+                                                     required
+                                                 >
+                                                     <option value="">
+                                                         Select Status
+                                                     </option>
+                                                     {% for value in status_flow.get(ticket.status, []) %}
+                                                         <option value="{{ value }}">
+                                                             {{ value|replace('_', ' ')|title }}
+                                                         </option>
+                                                     {% endfor %}
+                                                 </select>
 
 
                                                 <button
@@ -725,23 +678,18 @@
                                             >
 
                                                 <select
-                                                    name="status"
-                                                    required
-                                                >
-
-                                                    <option
-                                                        value=""
-                                                    >
-                                                        Select Status
-                                                    </option>
-
-                                                    <option
-                                                        value="RESOLVED"
-                                                    >
-                                                        Resolved
-                                                    </option>
-
-                                                </select>
+                                                     name="status"
+                                                     required
+                                                 >
+                                                     <option value="">
+                                                         Select Status
+                                                     </option>
+                                                     {% for value in status_flow.get(ticket.status, []) %}
+                                                         <option value="{{ value }}">
+                                                             {{ value|replace('_', ' ')|title }}
+                                                         </option>
+                                                     {% endfor %}
+                                                 </select>
 
 
                                                 <button
@@ -766,23 +714,18 @@
                                             >
 
                                                 <select
-                                                    name="status"
-                                                    required
-                                                >
-
-                                                    <option
-                                                        value=""
-                                                    >
-                                                        Select Status
-                                                    </option>
-
-                                                    <option
-                                                        value="CLOSED"
-                                                    >
-                                                        Closed
-                                                    </option>
-
-                                                </select>
+                                                     name="status"
+                                                     required
+                                                 >
+                                                     <option value="">
+                                                         Select Status
+                                                     </option>
+                                                     {% for value in status_flow.get(ticket.status, []) %}
+                                                         <option value="{{ value }}">
+                                                             {{ value|replace('_', ' ')|title }}
+                                                         </option>
+                                                     {% endfor %}
+                                                 </select>
 
 
                                                 <button

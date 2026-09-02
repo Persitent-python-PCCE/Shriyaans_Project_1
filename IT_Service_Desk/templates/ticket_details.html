@@ -880,7 +880,10 @@
                     <form method="POST" action="{{ url_for('feedback.submit_feedback', ticket_id=ticket.id) }}">
                         <label for="rating"><strong>How satisfied are you?</strong></label>
                         <select id="rating" name="rating" required style="padding:10px;border:1px solid #ced4da;border-radius:6px;margin:10px 0;width:100%;">
-                            <option value="">Select a rating</option><option value="5">5 - Excellent</option><option value="4">4 - Good</option><option value="3">3 - Average</option><option value="2">2 - Poor</option><option value="1">1 - Very Poor</option>
+                            <option value="">Select a rating</option>
+                            {% for value, label in feedback_ratings %}
+                                <option value="{{ value }}">{{ value }} - {{ label }}</option>
+                            {% endfor %}
                         </select>
                         <textarea name="comment" maxlength="2000" placeholder="Optional feedback" style="width:100%;min-height:110px;padding:10px;border:1px solid #ced4da;border-radius:6px;"></textarea>
                         <br><br><button type="submit" class="button">Submit Feedback</button>

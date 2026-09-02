@@ -8,6 +8,14 @@ from dao.user_dao import UserDAO
 
 class ReportService:
 
+    PERIOD_OPTIONS = [
+        ("all", "All Time"),
+        ("7", "Last 7 Days"),
+        ("30", "Last 30 Days"),
+        ("90", "Last 90 Days"),
+        ("365", "Last 12 Months")
+    ]
+
     STATUS_LABELS = {
         "OPEN": "Open",
         "ASSIGNED": "Assigned",
@@ -213,21 +221,50 @@ class ReportService:
 
         for feedback in filtered_feedback:
             ticket = next(
-                (ticket for ticket in tickets if ticket.id == feedback.ticket_id),
+                (
+                    ticket
+                    for ticket in tickets
+                    if ticket.id == feedback.ticket_id
+                ),
                 None
             )
 
-            assignments = TicketAssignmentDAO.get_by_ticket(feedback.ticket_id)
+            assignments = TicketAssignmentDAO.get_by_ticket(
+                feedback.ticket_id
+            )
+
             latest_assignment = assignments[0] if assignments else None
 
             feedback_details.append({
                 "ticket_id": feedback.ticket_id,
-                "ticket_title": ticket.title if ticket else "Unknown Ticket",
-                "employee_name": feedback.user.name if feedback.user else "Unknown Employee",
-                "employee_email": feedback.user.email if feedback.user else "",
+                "ticket_title": (
+                    ticket.title
+                    if ticket
+                    else "Unknown Ticket"
+                ),
+                "employee_name": (
+                    feedback.user.name
+                    if feedback.user
+                    else "Unknown Employee"
+                ),
+                "employee_email": (
+                    feedback.user.email
+                    if feedback.user
+                    else ""
+                ),
                 "rating": feedback.rating,
-                "comment": feedback.comment or "No comment provided.",
-                "agent_name": latest_assignment.agent.name if latest_assignment and latest_assignment.agent else "Unassigned",
+                "comment": (
+                    feedback.comment
+                    or "No comment provided."
+                ),
+                "agent_name": (
+                    latest_assignment.agent.name
+                    if (
+                        latest_assignment
+                        and latest_assignment.agent
+                    )
+                    else "Unassigned"
+                ),
                 "created_at": feedback.created_at
             })
 
@@ -238,7 +275,8 @@ class ReportService:
 
         recent_closed = sorted(
             [
-                ticket for ticket in tickets
+                ticket
+                for ticket in tickets
                 if ticket.status == "CLOSED"
             ],
             key=lambda ticket: (

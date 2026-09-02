@@ -84,6 +84,9 @@ def view_assigned_tickets():
             current_status=status_filter,
             current_priority=priority_filter,
             current_category=category_filter,
+            status_options=sorted(TicketService.VALID_STATUSES),
+            priority_options=sorted(TicketService.VALID_PRIORITIES),
+            status_flow=TicketService.STATUS_FLOW,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -117,6 +120,9 @@ def view_assigned_tickets():
             "assigned_tickets.html",
             tickets=[],
             current_status=status_filter,
+            status_options=sorted(TicketService.VALID_STATUSES),
+            priority_options=sorted(TicketService.VALID_PRIORITIES),
+            status_flow=TicketService.STATUS_FLOW,
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")

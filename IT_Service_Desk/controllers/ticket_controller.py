@@ -94,6 +94,8 @@ def my_tickets():
             current_status=status_filter,
             current_priority=priority_filter,
             current_category=category_filter,
+            status_options=sorted(TicketService.VALID_STATUSES),
+            priority_options=sorted(TicketService.VALID_PRIORITIES),
             name=session.get("user_name"),
             email=session.get("user_email"),
             role=session.get("role")
@@ -150,6 +152,8 @@ def create_ticket():
             return render_template(
                 "create_ticket.html",
                 categories=categories,
+                priority_options=sorted(TicketService.VALID_PRIORITIES),
+                severity_options=sorted(TicketService.VALID_SEVERITIES),
                 name=session.get("user_name"),
                 email=session.get("user_email"),
                 role=session.get("role")
@@ -160,6 +164,8 @@ def create_ticket():
             return render_template(
                 "create_ticket.html",
                 categories=[],
+                priority_options=sorted(TicketService.VALID_PRIORITIES),
+                severity_options=sorted(TicketService.VALID_SEVERITIES),
                 error="Unable to load ticket categories.",
                 name=session.get("user_name"),
                 email=session.get("user_email"),
@@ -272,6 +278,8 @@ def _render_create_ticket_with_error(
     return render_template(
         "create_ticket.html",
         categories=categories,
+        priority_options=sorted(TicketService.VALID_PRIORITIES),
+        severity_options=sorted(TicketService.VALID_SEVERITIES),
         error=message,
         name=session.get("user_name"),
         email=session.get("user_email"),
@@ -320,6 +328,7 @@ def ticket_details(ticket_id):
             attachments=attachments,
             history=history,
             feedback=feedback,
+            feedback_ratings=[(5, "Excellent"), (4, "Good"), (3, "Average"), (2, "Poor"), (1, "Very Poor")],
             now=datetime.utcnow(),
             name=session.get("user_name"),
             email=session.get("user_email"),
@@ -409,6 +418,8 @@ def edit_ticket(ticket_id):
                 "edit_ticket.html",
                 ticket=ticket,
                 categories=categories,
+                priority_options=sorted(TicketService.VALID_PRIORITIES),
+                severity_options=sorted(TicketService.VALID_SEVERITIES),
                 name=session.get("user_name"),
                 email=session.get("user_email"),
                 role=session.get("role")
@@ -497,6 +508,8 @@ def edit_ticket(ticket_id):
             "edit_ticket.html",
             ticket=ticket,
             categories=categories,
+            priority_options=sorted(TicketService.VALID_PRIORITIES),
+            severity_options=sorted(TicketService.VALID_SEVERITIES),
             error=str(e),
             name=session.get("user_name"),
             email=session.get("user_email"),
