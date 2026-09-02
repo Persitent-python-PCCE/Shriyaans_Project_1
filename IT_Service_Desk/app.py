@@ -30,7 +30,7 @@ init_db(app)
 
 app.register_blueprint(user_controller)
 app.register_blueprint(ticket_controller)
-app.register_blueprint(ticket_assignment_controller)
+app.register_blueprint(ticket_assignment_bp)
 app.register_blueprint(admin_user_bp)
 app.register_blueprint(admin_ticket_bp)
 app.register_blueprint(admin_report_bp)
