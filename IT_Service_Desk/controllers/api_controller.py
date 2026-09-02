@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request, session, current_app
 from werkzeug.security import check_password_hash
-
 from services.user_service import UserService
 from services.ticket_service import TicketService
 from services.ticket_comment_service import TicketCommentService
@@ -135,7 +134,10 @@ def _api_register(role_name=None):
         user_id, user_role, auth_error = _current_user()
 
         if auth_error:
-            return auth_error
+            return _error(
+                "Only administrators can register agent accounts.",
+                403,
+            )
 
         if user_role != "ADMIN":
             return _error(
