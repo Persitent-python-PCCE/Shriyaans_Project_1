@@ -9,21 +9,23 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip install -r requirements.txt'
-            }
-        }
-
         stage('Test') {
             steps {
-                sh 'pytest'
+                sh '''
+                    docker run --rm \
+                    -v "$WORKSPACE/IT_Service_Desk:/app" \
+                    -w /app \
+                    python:3.13-slim \
+                    sh -c "pip install -r requirements.txt && pytest"
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t YOUR_DOCKERHUB_USERNAME/flask-app:latest .'
+                dir('IT_Service_Desk') {
+                    sh 'docker build -t prabhushriyaans/flask-app:latest .'
+                }
             }
         }
 
