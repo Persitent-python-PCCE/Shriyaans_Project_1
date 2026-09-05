@@ -25,8 +25,30 @@ pipeline {
                     -e JWT_EXPIRES_MINUTES=15 \
                     -e JWT_COOKIE_SECURE=0 \
                     python:3.13-slim \
-                    sh -c "pip install -r requirements.txt && pytest"
+                    sh -c "pip install -r requirements.txt && pytest --cov=. --cov-report=xml"
                 '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+
+                    dir('IT_Service_Desk') {
+                        withSonarQubeEnv('SonarQube') {
+                            sh "${scannerHome}/bin/sonar-scanner"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 

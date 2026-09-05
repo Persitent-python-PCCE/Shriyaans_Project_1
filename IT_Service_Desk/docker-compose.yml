@@ -59,6 +59,22 @@ services:
     volumes:
       - uploads_data:/app/uploads
 
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    restart: unless-stopped
+
+    ports:
+      - "9000:9000"
+
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+
 volumes:
   mysql_data:
   uploads_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
